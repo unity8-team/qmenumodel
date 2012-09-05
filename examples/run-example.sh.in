@@ -1,0 +1,1 @@
+gdb --args qmlviewer -I @src_BINARY_DIR@ $1
