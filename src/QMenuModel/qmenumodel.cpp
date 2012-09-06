@@ -1,7 +1,7 @@
 #include "qmenumodel.h"
 #include <QDebug>
 
-QMenuModel::QMenuModel(QObject *parent, GMenuModel *other)
+QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
     : QAbstractListModel(parent),
       m_menuModel(0),
       m_signalChangedId(0)
@@ -66,7 +66,6 @@ QVariant QMenuModel::data(const QModelIndex &index, int role) const
     int rowCountValue = rowCount();
 
     if ((rowCountValue > 0) && (index.row() >= 0) && (index.row() < rowCountValue)) {
-        qDebug() << "GetData: " << index.row() << role;
         if (m_menuModel) {
             switch (role)
             {
@@ -87,7 +86,6 @@ QVariant QMenuModel::data(const QModelIndex &index, int role) const
             }
         }
     }
-    qDebug() << "GetData done" << attribute;
     return attribute;
 }
 
@@ -129,10 +127,8 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
                                       index.row(),
                                       linkName.toLatin1());
 
-    if (link) {
-        qDebug() << "link: " << (void*)link;
-        QMenuModel *other = new QMenuModel(const_cast<QMenuModel*>(this), link);
-        qDebug() << "link created: " << (void*)link;
+    if (link) {      
+        QMenuModel *other = new QMenuModel(link, const_cast<QMenuModel*>(this));
         return QVariant::fromValue<QObject*>(other);
     }
 
@@ -147,8 +143,6 @@ void QMenuModel::onItemsChanged(GMenuModel *,
 {
     QMenuModel *self = reinterpret_cast<QMenuModel*>(data);
 
-    qDebug() << "model changed" << position << removed << added;
-
     if (removed > 0) {
         self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
         self->endRemoveRows();
@@ -158,6 +152,5 @@ void QMenuModel::onItemsChanged(GMenuModel *,
         self->beginInsertRows(QModelIndex(), position, position + added - 1);
         self->endInsertRows();
     }
-    qDebug() << "model size: " << self->rowCount();
 }
 

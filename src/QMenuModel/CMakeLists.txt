@@ -1,12 +1,16 @@
 set(QMENUMODEL_SRC
     qmenumodel.cpp
+    qdbusobject.cpp
     qdbusmenumodel.cpp
+    qdbusactiongroup.cpp
     plugin.cpp
 )
 
 set(QMENUMODEL_HEADERS
     qmenumodel.h
+    qdbusobject.h
     qdbusmenumodel.h
+    qdbusactiongroup.h
     plugin.h
 )
 
@@ -18,8 +22,6 @@ add_library(qmenumodel MODULE
     ${QMENUMODEL_SRC}
     ${QMENUMODEL_MOC}
 )
-
-#set_target_properties(dbusmenuqmlcommon PROPERTIES COMPILE_FLAGS -fPIC)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -41,3 +43,7 @@ target_link_libraries(qmenumodel
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/qmldir"
                                                               "${CMAKE_CURRENT_BINARY_DIR}/qmldir")
+
+set(QMENUMODEL_INSTALL_PREFIX "${QT_IMPORTS_DIR}/Ubuntu/QMenuModel/")
+install(TARGETS qmenumodel DESTINATION ${QMENUMODEL_INSTALL_PREFIX})
+install(FILES qmldir DESTINATION ${QMENUMODEL_INSTALL_PREFIX})

@@ -19,11 +19,10 @@ Rectangle {
         busType: 1
         busName: "com.ubuntu.networksettings"
         objectPath: "/com/ubuntu/networksettings"
-        onConnected: {
-            console.log("Menu appears ")
+        onStatusChanged: {
+            console.log("Menu model status update: " + status)
         }
     }
-
 
     ListView {
         id: mainMenu
@@ -36,7 +35,7 @@ Rectangle {
         }
 
         Component.onCompleted: {
-            menuModel.connect()
+            menuModel.start()
         }
     }
 }

@@ -10,7 +10,7 @@ Item {
 
     Column {
         id: contents
-        width: parent.width
+        width: parent.width        
 
         ListItem.Header {
             text: menu.label
@@ -20,6 +20,7 @@ Item {
             model: menu ? menu.linkSection : undefined
 
             MenuFactory {
+                width: contents.width
                 menu: model
             }
         }

@@ -4,7 +4,7 @@ import Ubuntu.Components.ListItems 0.1 as ListItem
 
 Loader {
     property variant menu
-    height: childrenRect.height
+    //height: childrenRect.height
 
     onMenuChanged: {
         if (menu) {

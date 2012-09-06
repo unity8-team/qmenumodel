@@ -26,7 +26,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
 protected:
-    QMenuModel(QObject *parent=0, GMenuModel *other=0);
+    QMenuModel(GMenuModel *other=0, QObject *parent=0);
     void setMenuModel(GMenuModel *model);
     GMenuModel *menuModel() const;
 
