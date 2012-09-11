@@ -4,7 +4,6 @@
 #include <QAbstractListModel>
 #include <gio/gio.h>
 
-
 class QMenuModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -14,7 +13,8 @@ public:
         Action = 0,
         Label,
         LinkSection,
-        LinkSubMenu
+        LinkSubMenu,
+        Extra
     };
 
     ~QMenuModel();
@@ -36,9 +36,10 @@ private:
 
     QVariant getStringAttribute(const QModelIndex &index, const QString &attribute) const;
     QVariant getLink(const QModelIndex &index, const QString &linkName) const;
+    QVariant getExtraProperties(const QModelIndex &index) const;
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
-
+    static QVariant parseGVariant(GVariant *value);
 };
 
 #endif

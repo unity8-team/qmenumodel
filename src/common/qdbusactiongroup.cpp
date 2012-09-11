@@ -44,12 +44,12 @@ void QDBusActionGroup::serviceAppear(GDBusConnection *connection)
 
 void QDBusActionGroup::start()
 {
-    QDbusObject::connect();
+    QDBusObject::connect();
 }
 
 void QDBusActionGroup::stop()
 {
-    QDbusObject::disconnect();
+    QDBusObject::disconnect();
 }
 
 void QDBusActionGroup::busTypeChanged(BusType)

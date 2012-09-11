@@ -5,7 +5,7 @@
 
 #include <gio/gio.h>
 
-class QDbusObject
+class QDBusObject
 {
 public:
     enum BusType {
@@ -21,8 +21,8 @@ public:
         Connected
     };
 
-    QDbusObject();
-    ~QDbusObject();
+    QDBusObject();
+    ~QDBusObject();
 
     BusType busType() const;
     void setBusType(BusType type);

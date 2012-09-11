@@ -6,7 +6,7 @@
 
 #include <gio/gio.h>
 
-class QDBusMenuModel : public QMenuModel, public QDbusObject
+class QDBusMenuModel : public QMenuModel, public QDBusObject
 {
     Q_OBJECT
     Q_PROPERTY(int busType READ busType WRITE setIntBusType NOTIFY busTypeChanged)
@@ -19,10 +19,10 @@ public:
     ~QDBusMenuModel();    
 
 Q_SIGNALS:
-    void busTypeChanged();
-    void busNameChanged();
-    void objectPathChanged();
-    void statusChanged();
+    void busTypeChanged(BusType type);
+    void busNameChanged(const QString &busNameChanged);
+    void objectPathChanged(const QString &objectPath);
+    void statusChanged(QDBusObject::ConnectionStatus status);
 
 public Q_SLOTS:
     void start();
@@ -32,10 +32,12 @@ protected:
     virtual void serviceAppear(GDBusConnection *connection);
     virtual void serviceVanish(GDBusConnection *connection);
 
+    /*
     virtual void busTypeChanged(BusType type);
     virtual void busNameChanged(const QString &busNameChanged);
     virtual void objectPathChanged(const QString &objectPath);
     virtual void statusChanged(ConnectionStatus status);
+    */
 
 private:
     // workaround to support int as bustType

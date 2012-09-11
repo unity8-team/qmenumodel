@@ -26,10 +26,16 @@ numbers.append ('One', 'one')
 numbers.append ('Two', 'two')
 numbers.append ('Three', 'three')
 
+numbers2 = Gio.Menu ()
+numbers2.append ('One2', 'one2')
+numbers2.append ('Two2', 'two2')
+numbers2.append ('Three2', 'three2')
+
+
 menu = Gio.Menu ()
 menu.append ('Menu item', 'one')
 menu.append_section ('Numbers', numbers)
-menu.append_submenu ('Submenu', numbers)
+menu.append_submenu ('Submenu', numbers2)
 
 # export the menu and action group on d-bus
 bus = Gio.bus_get_sync (Gio.BusType.SESSION, None)

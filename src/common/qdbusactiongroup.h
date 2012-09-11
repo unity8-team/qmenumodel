@@ -7,7 +7,7 @@
 #include <QAction>
 #include <QSet>
 
-class QDBusActionGroup : public QObject, public QDbusObject
+class QDBusActionGroup : public QObject, public QDBusObject
 {
     Q_OBJECT
     Q_PROPERTY(int busType READ busType WRITE setIntBusType NOTIFY busTypeChanged)

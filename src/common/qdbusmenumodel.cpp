@@ -12,12 +12,12 @@ QDBusMenuModel::~QDBusMenuModel()
 
 void QDBusMenuModel::start()
 {
-    QDbusObject::connect();
+    QDBusObject::connect();
 }
 
 void QDBusMenuModel::stop()
 {
-    QDbusObject::disconnect();
+    QDBusObject::disconnect();
 }
 
 void QDBusMenuModel::serviceVanish(GDBusConnection *)
@@ -36,6 +36,7 @@ void QDBusMenuModel::serviceAppear(GDBusConnection *connection)
     }
 }
 
+/*
 void QDBusMenuModel::busTypeChanged(BusType)
 {
     busTypeChanged();
@@ -55,6 +56,7 @@ void QDBusMenuModel::statusChanged(ConnectionStatus status)
 {
     statusChanged();
 }
+*/
 
 void QDBusMenuModel::setIntBusType(int busType)
 {

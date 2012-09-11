@@ -1,4 +1,5 @@
 #include "qmenumodel.h"
+
 #include <QDebug>
 
 QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
@@ -12,6 +13,7 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
         rolesNames[Label] = "label";
         rolesNames[LinkSection] = "linkSection";
         rolesNames[LinkSubMenu] = "linkSubMenu";
+        rolesNames[Extra] = "extra";
     }
     setRoleNames(rolesNames);
     setMenuModel(other);
@@ -36,17 +38,19 @@ void QMenuModel::setMenuModel(GMenuModel *other)
         g_object_unref(m_menuModel);
     }
 
-    m_menuModel = other;
-
-    endResetModel();
+    m_menuModel = other;    
 
     if (m_menuModel) {
-        qDebug() << "Menu size:" << g_menu_model_get_n_items(m_menuModel);
+        // this will trigger the menu load
+        (void) g_menu_model_get_n_items(m_menuModel);
+        //qDebug() << "Menu size:" << g_menu_model_get_n_items(m_menuModel);
         m_signalChangedId = g_signal_connect(m_menuModel,
                                              "items-changed",
                                              G_CALLBACK(QMenuModel::onItemsChanged),
                                              this);
     }
+
+    endResetModel();
 }
 
 GMenuModel *QMenuModel::menuModel() const
@@ -67,8 +71,7 @@ QVariant QMenuModel::data(const QModelIndex &index, int role) const
 
     if ((rowCountValue > 0) && (index.row() >= 0) && (index.row() < rowCountValue)) {
         if (m_menuModel) {
-            switch (role)
-            {
+            switch (role) {
             case Action:
                 attribute = getStringAttribute(index, G_MENU_ATTRIBUTE_ACTION);
                 break;
@@ -80,6 +83,9 @@ QVariant QMenuModel::data(const QModelIndex &index, int role) const
                 break;
             case LinkSubMenu:
                 attribute = getLink(index, G_MENU_LINK_SUBMENU);
+                break;
+            case Extra:
+                attribute = getExtraProperties(index);
                 break;
             default:
                 break;
@@ -135,6 +141,27 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
     return QVariant();
 }
 
+QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
+{
+    GMenuAttributeIter *iter = g_menu_model_iterate_item_attributes(m_menuModel, index.row());
+    if (iter == NULL) {
+        return QVariant();
+    }
+
+    QObject *extra = new QObject(const_cast<QMenuModel*>(this));
+    const gchar *attrName = NULL;
+    GVariant *value = NULL;
+    while (g_menu_attribute_iter_get_next (iter, &attrName, &value)) {
+        qDebug() << "Set property:" << attrName;
+        if (strncmp("x-", attrName, 2) == 0) {
+            extra->setProperty(attrName, parseGVariant(value));
+        }
+    }
+
+    return QVariant::fromValue<QObject*>(extra);
+}
+
+
 void QMenuModel::onItemsChanged(GMenuModel *,
                                 gint position,
                                 gint removed,
@@ -142,6 +169,7 @@ void QMenuModel::onItemsChanged(GMenuModel *,
                                 gpointer data)
 {
     QMenuModel *self = reinterpret_cast<QMenuModel*>(data);
+    //qDebug() << "Item Changed" << position << removed << added;
 
     if (removed > 0) {
         self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
@@ -152,5 +180,62 @@ void QMenuModel::onItemsChanged(GMenuModel *,
         self->beginInsertRows(QModelIndex(), position, position + added - 1);
         self->endInsertRows();
     }
+}
+
+QVariant QMenuModel::parseGVariant(GVariant *value)
+{
+    QVariant result;
+    if (value == NULL) {
+        return result;
+    }
+
+    const GVariantType *type = g_variant_get_type(value);
+    if (g_variant_type_equal(type, G_VARIANT_TYPE_BOOLEAN)) {
+        result.setValue((bool)g_variant_get_boolean(value));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_BYTE)) {
+        result.setValue(g_variant_get_byte(value));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_INT16)) {
+        result.setValue(g_variant_get_int16(value));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_UINT16)) {
+        result.setValue(g_variant_get_uint16(value));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_INT32)) {
+        result.setValue(g_variant_get_int32(value));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_UINT32)) {
+        result.setValue(g_variant_get_uint32(value));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_INT64)) {
+        result.setValue(g_variant_get_int64(value));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_UINT64)) {
+        result.setValue(g_variant_get_uint64(value));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_DOUBLE)) {
+        result.setValue(g_variant_get_double(value));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_STRING)) {
+        gsize size = 0;
+        const gchar *v = g_variant_get_string(value, &size);
+        result.setValue(QString::fromLatin1(v, size));
+    } else {
+        qWarning() << "Unsupported GVariant value";
+    }
+
+    /* TODO: implement convertions to others types
+     * G_VARIANT_TYPE_HANDLE
+     * G_VARIANT_TYPE_OBJECT_PATH
+     * G_VARIANT_TYPE_SIGNATURE
+     * G_VARIANT_TYPE_VARIANT
+     * G_VARIANT_TYPE_ANY
+     * G_VARIANT_TYPE_BASIC
+     * G_VARIANT_TYPE_MAYBE
+     * G_VARIANT_TYPE_ARRAY
+     * G_VARIANT_TYPE_TUPLE
+     * G_VARIANT_TYPE_UNIT
+     * G_VARIANT_TYPE_DICT_ENTRY
+     * G_VARIANT_TYPE_DICTIONARY
+     * G_VARIANT_TYPE_STRING_ARRAY
+     * G_VARIANT_TYPE_BYTESTRING
+     * G_VARIANT_TYPE_OBJECT_PATH_ARRAY
+     * G_VARIANT_TYPE_BYTESTRING_ARRAY
+     * G_VARIANT_TYPE_VARDICT
+     */
+
+    return result;
 }
 

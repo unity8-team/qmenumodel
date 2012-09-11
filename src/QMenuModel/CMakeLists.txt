@@ -1,16 +1,11 @@
+
+project(qmenumodelqmlplugin)
+
 set(QMENUMODEL_SRC
-    qmenumodel.cpp
-    qdbusobject.cpp
-    qdbusmenumodel.cpp
-    qdbusactiongroup.cpp
     plugin.cpp
 )
 
 set(QMENUMODEL_HEADERS
-    qmenumodel.h
-    qdbusobject.h
-    qdbusmenumodel.h
-    qdbusactiongroup.h
     plugin.h
 )
 
@@ -25,6 +20,7 @@ add_library(qmenumodel MODULE
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${qmenumodelcommon_SOURCE_DIR}
     ${QT_INCLUDE_DIR}
     ${QT_QTCORE_INCLUDE_DIR}
     ${QT_QTGUI_INCLUDE_DIR}
@@ -34,6 +30,7 @@ include_directories(
 )
 
 target_link_libraries(qmenumodel
+    qmenumodelcommon
     ${QT_QTCORE_LIBRARY}
     ${QT_QTGUI_LIBRARY}
     ${QT_QTDCLARATIVE_LIBRARY}
