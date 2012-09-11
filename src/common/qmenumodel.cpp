@@ -1,3 +1,22 @@
+/*
+ * Copyright 2012 Canonical Ltd.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authors:
+ *      Renato Araujo Oliveira Filho <renato@canonical.com>
+ */
+
 #include "qmenumodel.h"
 
 #include <QDebug>
@@ -43,7 +62,6 @@ void QMenuModel::setMenuModel(GMenuModel *other)
     if (m_menuModel) {
         // this will trigger the menu load
         (void) g_menu_model_get_n_items(m_menuModel);
-        //qDebug() << "Menu size:" << g_menu_model_get_n_items(m_menuModel);
         m_signalChangedId = g_signal_connect(m_menuModel,
                                              "items-changed",
                                              G_CALLBACK(QMenuModel::onItemsChanged),
@@ -152,7 +170,6 @@ QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
     const gchar *attrName = NULL;
     GVariant *value = NULL;
     while (g_menu_attribute_iter_get_next (iter, &attrName, &value)) {
-        qDebug() << "Set property:" << attrName;
         if (strncmp("x-", attrName, 2) == 0) {
             extra->setProperty(attrName, parseGVariant(value));
         }
@@ -169,7 +186,6 @@ void QMenuModel::onItemsChanged(GMenuModel *,
                                 gpointer data)
 {
     QMenuModel *self = reinterpret_cast<QMenuModel*>(data);
-    //qDebug() << "Item Changed" << position << removed << added;
 
     if (removed > 0) {
         self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
