@@ -56,6 +56,7 @@ private:
     QVariant getStringAttribute(const QModelIndex &index, const QString &attribute) const;
     QVariant getLink(const QModelIndex &index, const QString &linkName) const;
     QVariant getExtraProperties(const QModelIndex &index) const;
+    QString parseExtraPropertyName(const QString &name) const;
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
 };

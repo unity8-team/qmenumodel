@@ -179,6 +179,16 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
 }
 
 /*! \internal */
+QString QMenuModel::parseExtraPropertyName(const QString &name) const
+{
+    QString newName(name);
+    if (name.startsWith("x-")) {
+        newName = name.right(name.length() - 2);
+    }
+    return newName.replace("-", "_");
+}
+
+/*! \internal */
 QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
 {
     GMenuAttributeIter *iter = g_menu_model_iterate_item_attributes(m_menuModel, index.row());
@@ -191,7 +201,8 @@ QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
     GVariant *value = NULL;
     while (g_menu_attribute_iter_get_next (iter, &attrName, &value)) {
         if (strncmp("x-", attrName, 2) == 0) {
-            extra->setProperty(attrName, Converter::parseGVariant(value));
+
+            extra->setProperty(parseExtraPropertyName(attrName).toLatin1(), Converter::parseGVariant(value));
         }
     }
 
