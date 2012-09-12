@@ -91,3 +91,16 @@ void DBusMenuScript::run()
         QTest::qWait(WAIT_TIMEOUT);
     }
 }
+
+QString DBusMenuScript::popActivatedAction()
+{
+    if (m_script) {
+        QDBusMessage reply = m_script->call("popActivatedAction");
+        if (reply.arguments().count() > 0) {
+            return reply.arguments()[0].toString();
+        }
+    }
+
+    return QString();
+}
+

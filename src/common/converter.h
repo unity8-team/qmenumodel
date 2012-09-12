@@ -17,40 +17,20 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
-#ifndef DBUSMENUSCRIPT_H
-#define DBUSMENUSCRITP_H
+#ifndef CONVERTER_H
+#define CONVERTER_H
 
-#include <QObject>
-#include <QDBusInterface>
-#include <QPair>
+#include <QVariant>
+#include <glib.h>
 
-#define SCRIPT_SERVICE_NAME     "com.canonical.test"
-#define SCRIPT_OBJECT_PATH      "/com/canonical/test/menuscript"
-#define SCRIPT_INTERFACE_NAME   "com.canonical.test.menuscript"
-
-#define MENU_SERVICE_NAME       SCRIPT_SERVICE_NAME ".menu"
-#define MENU_OBJECT_PATH        SCRIPT_OBJECT_PATH "/menu"
-
-
-class DBusMenuScript
+class Converter
 {
 public:
-    DBusMenuScript();
-    ~DBusMenuScript();
-
-    bool connect();
-    void quit();
-
-    void walk(int steps = 1);
-    void run();
-
-    void publishMenu();
-    void unpublishMenu();
-
-    QString popActivatedAction();
+    static QVariant parseGVariant(GVariant *value);
 
 private:
-    QDBusInterface *m_script;
+    Converter();
+    Converter(const Converter &other);
 };
 
 #endif

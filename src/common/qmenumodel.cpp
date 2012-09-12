@@ -18,9 +18,20 @@
  */
 
 #include "qmenumodel.h"
+#include "converter.h"
 
 #include <QDebug>
 
+/*!
+    \qmlclass QMenuModel
+    \brief The QMenuModel class implements the base list model for menus
+
+    \bold {This component is under heavy development.}
+
+    This is a abstracted class used by \l QDBusMenuModel.
+*/
+
+/*! \internal */
 QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
     : QAbstractListModel(parent),
       m_menuModel(0),
@@ -38,11 +49,13 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
     setMenuModel(other);
 }
 
+/*! \internal */
 QMenuModel::~QMenuModel()
 {
    setMenuModel(NULL);
 }
 
+/*! \internal */
 void QMenuModel::setMenuModel(GMenuModel *other)
 {
     if (m_menuModel == other) {
@@ -71,17 +84,19 @@ void QMenuModel::setMenuModel(GMenuModel *other)
     endResetModel();
 }
 
+/*! \internal */
 GMenuModel *QMenuModel::menuModel() const
 {
     return m_menuModel;
 }
 
-/* QAbstractItemModel */
+/*! \internal */
 int QMenuModel::columnCount(const QModelIndex &) const
 {
     return 1;
 }
 
+/*! \internal */
 QVariant QMenuModel::data(const QModelIndex &index, int role) const
 {
     QVariant attribute;
@@ -113,11 +128,13 @@ QVariant QMenuModel::data(const QModelIndex &index, int role) const
     return attribute;
 }
 
+/*! \internal */
 QModelIndex QMenuModel::parent(const QModelIndex &index) const
 {
     return QModelIndex();
 }
 
+/*! \internal */
 int QMenuModel::rowCount(const QModelIndex &) const
 {
     if (m_menuModel) {
@@ -126,6 +143,7 @@ int QMenuModel::rowCount(const QModelIndex &) const
     return 0;
 }
 
+/*! \internal */
 QVariant QMenuModel::getStringAttribute(const QModelIndex &index,
                                         const QString &attribute) const
 {
@@ -142,6 +160,7 @@ QVariant QMenuModel::getStringAttribute(const QModelIndex &index,
     return result;
 }
 
+/*! \internal */
 QVariant QMenuModel::getLink(const QModelIndex &index,
                              const QString &linkName) const
 {
@@ -159,6 +178,7 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
     return QVariant();
 }
 
+/*! \internal */
 QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
 {
     GMenuAttributeIter *iter = g_menu_model_iterate_item_attributes(m_menuModel, index.row());
@@ -171,14 +191,14 @@ QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
     GVariant *value = NULL;
     while (g_menu_attribute_iter_get_next (iter, &attrName, &value)) {
         if (strncmp("x-", attrName, 2) == 0) {
-            extra->setProperty(attrName, parseGVariant(value));
+            extra->setProperty(attrName, Converter::parseGVariant(value));
         }
     }
 
     return QVariant::fromValue<QObject*>(extra);
 }
 
-
+/*! \internal */
 void QMenuModel::onItemsChanged(GMenuModel *,
                                 gint position,
                                 gint removed,
@@ -196,62 +216,5 @@ void QMenuModel::onItemsChanged(GMenuModel *,
         self->beginInsertRows(QModelIndex(), position, position + added - 1);
         self->endInsertRows();
     }
-}
-
-QVariant QMenuModel::parseGVariant(GVariant *value)
-{
-    QVariant result;
-    if (value == NULL) {
-        return result;
-    }
-
-    const GVariantType *type = g_variant_get_type(value);
-    if (g_variant_type_equal(type, G_VARIANT_TYPE_BOOLEAN)) {
-        result.setValue((bool)g_variant_get_boolean(value));
-    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_BYTE)) {
-        result.setValue(g_variant_get_byte(value));
-    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_INT16)) {
-        result.setValue(g_variant_get_int16(value));
-    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_UINT16)) {
-        result.setValue(g_variant_get_uint16(value));
-    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_INT32)) {
-        result.setValue(g_variant_get_int32(value));
-    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_UINT32)) {
-        result.setValue(g_variant_get_uint32(value));
-    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_INT64)) {
-        result.setValue(g_variant_get_int64(value));
-    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_UINT64)) {
-        result.setValue(g_variant_get_uint64(value));
-    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_DOUBLE)) {
-        result.setValue(g_variant_get_double(value));
-    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_STRING)) {
-        gsize size = 0;
-        const gchar *v = g_variant_get_string(value, &size);
-        result.setValue(QString::fromLatin1(v, size));
-    } else {
-        qWarning() << "Unsupported GVariant value";
-    }
-
-    /* TODO: implement convertions to others types
-     * G_VARIANT_TYPE_HANDLE
-     * G_VARIANT_TYPE_OBJECT_PATH
-     * G_VARIANT_TYPE_SIGNATURE
-     * G_VARIANT_TYPE_VARIANT
-     * G_VARIANT_TYPE_ANY
-     * G_VARIANT_TYPE_BASIC
-     * G_VARIANT_TYPE_MAYBE
-     * G_VARIANT_TYPE_ARRAY
-     * G_VARIANT_TYPE_TUPLE
-     * G_VARIANT_TYPE_UNIT
-     * G_VARIANT_TYPE_DICT_ENTRY
-     * G_VARIANT_TYPE_DICTIONARY
-     * G_VARIANT_TYPE_STRING_ARRAY
-     * G_VARIANT_TYPE_BYTESTRING
-     * G_VARIANT_TYPE_OBJECT_PATH_ARRAY
-     * G_VARIANT_TYPE_BYTESTRING_ARRAY
-     * G_VARIANT_TYPE_VARDICT
-     */
-
-    return result;
 }
 

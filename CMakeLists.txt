@@ -36,12 +36,16 @@ else()
     add_subdirectory(tests)
 endif()
 
+# Doc
+OPTION(GENERATE_DOC "Enable qdoc generation" OFF)
+if(GENERATE_DOC)
+    message(STATUS "QDoc enabled.")
+    find_program(QDOC_BIN qdoc3)
+    if(NOT QDOC_BIN)
+        message(FATAL_ERROR "qdoc command not found")
+    else()
+        add_subdirectory(doc)
+    endif()
+endif()
 
-# Tests Tools
-#if(NOT DBUS_RUNNER)
-#    message(STATUS "dbus-test-runner not found tests disabled.")
-#else()
-#    enable_testing()
-#    add_subdirectory(tests)
-#endif()
 

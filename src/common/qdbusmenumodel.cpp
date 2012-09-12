@@ -20,30 +20,76 @@
 #include "qdbusmenumodel.h"
 #include <QDebug>
 
+/*!
+    \qmlclass QDBusMenuModel
+    \inherits QDBusObject
+
+    \brief The QDBusMenuModel class defines the list model for DBus menus
+
+    \bold {This component is under heavy development.}
+
+    This class expose the menu previous exported over DBus.
+
+    \code
+    QDBusMenuModel {
+        id: menuModel
+        busType: 1
+        busName: "com.ubuntu.menu"
+        objectPath: "com/ubuntu/menu"
+    }
+
+    ListView {
+        id: view
+        model: menuModel
+        Component.onCompleted: menuModel.start()
+    }
+    \endcode
+*/
+
+/*! \internal */
 QDBusMenuModel::QDBusMenuModel(QObject *parent)
     :QMenuModel(0, parent)
 {
 }
 
+/*! \internal */
 QDBusMenuModel::~QDBusMenuModel()
 {
 }
 
+/*!
+    \qmlmethod QDBusMenuModel::start()
+
+    Start dbus watch for the busName and wait until it appears.
+    The status will change to connecting after call this function, and as soon the busName
+    apperas and the objectPat was found this will change to Connected.
+
+    \bold Note: methods should only be called after the Component has completed.
+*/
 void QDBusMenuModel::start()
 {
     QDBusObject::connect();
 }
 
+/*!
+    \qmlmethod QDBusMenuModel::stop()
+
+    Stops dbus watch and clear the model, the status wil change to Disconnected.
+
+    \bold Note: methods should only be called after the Component has completed.
+*/
 void QDBusMenuModel::stop()
 {
     QDBusObject::disconnect();
 }
 
+/*! \internal */
 void QDBusMenuModel::serviceVanish(GDBusConnection *)
 {
     setMenuModel(NULL);
 }
 
+/*! \internal */
 void QDBusMenuModel::serviceAppear(GDBusConnection *connection)
 {
     GMenuModel *model = reinterpret_cast<GMenuModel*>(g_dbus_menu_model_get(connection,
@@ -55,28 +101,7 @@ void QDBusMenuModel::serviceAppear(GDBusConnection *connection)
     }
 }
 
-/*
-void QDBusMenuModel::busTypeChanged(BusType)
-{
-    busTypeChanged();
-}
-
-void QDBusMenuModel::busNameChanged(const QString &)
-{
-    busNameChanged();
-}
-
-void QDBusMenuModel::objectPathChanged(const QString &objectPath)
-{
-    objectPathChanged();
-}
-
-void QDBusMenuModel::statusChanged(ConnectionStatus status)
-{
-    statusChanged();
-}
-*/
-
+/*! \internal */
 void QDBusMenuModel::setIntBusType(int busType)
 {
     if ((busType > None) && (busType < LastBusType)) {

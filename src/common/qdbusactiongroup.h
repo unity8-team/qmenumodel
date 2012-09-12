@@ -33,36 +33,41 @@ class QDBusActionGroup : public QObject, public QDBusObject
     Q_PROPERTY(QString busName READ busName WRITE setBusName NOTIFY busNameChanged)
     Q_PROPERTY(QString objectPath READ objectPath WRITE setObjectPath NOTIFY objectPathChanged)
     Q_PROPERTY(int status READ status NOTIFY statusChanged)
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 public:
     QDBusActionGroup(QObject *parent=0);
     ~QDBusActionGroup();
 
+    int count() const;
+
 Q_SIGNALS:
-    void busTypeChanged();
-    void busNameChanged();
-    void objectPathChanged();
-    void statusChanged();
+    void busTypeChanged(BusType type);
+    void busNameChanged(const QString &busNameChanged);
+    void objectPathChanged(const QString &objectPath);
+    void statusChanged(ConnectionStatus status);
+    void actionStateChanged(const QString &name, QVariant value);
+    void countChanged(int count);
 
 public Q_SLOTS:
     void start();
     void stop();
-    QAction *getAction(const QString &actionName);
+    QAction *action(const QString &actionName);
 
 protected:
     virtual void serviceAppear(GDBusConnection *connection);
     virtual void serviceVanish(GDBusConnection *connection);
 
-    virtual void busTypeChanged(BusType type);
-    virtual void busNameChanged(const QString &busNameChanged);
-    virtual void objectPathChanged(const QString &objectPath);
-    virtual void statusChanged(ConnectionStatus status);
+
+private Q_SLOTS:
+    void onActionTriggered();
 
 private:
     GActionGroup *m_actionGroup;
     QSet<QAction*> m_actions;
     int m_signalActionAddId;
     int m_signalActionRemovedId;
+    int m_signalStateChangedId;
 
     // workaround to support int as bustType
     void setIntBusType(int busType);

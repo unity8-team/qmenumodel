@@ -1,6 +1,7 @@
 project(qmenumodelcommon)
 
 set(QMENUMODELCOMMON_SRC
+    converter.cpp
     qmenumodel.cpp
     qdbusobject.cpp
     qdbusmenumodel.cpp
@@ -8,6 +9,7 @@ set(QMENUMODELCOMMON_SRC
 )
 
 set(QMENUMODELCOMMON_HEADERS
+    converter.h
     qmenumodel.h
     qdbusobject.h
     qdbusmenumodel.h

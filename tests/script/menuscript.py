@@ -53,6 +53,11 @@ class Script(dbus.service.Object):
             self._list.walk()
             steps -= 1
 
+    @dbus.service.method(dbus_interface=INTERFACE_NAME,
+                         in_signature='', out_signature='s')
+    def popActivatedAction(self):
+        return self._list._activatedActions.pop(0)
+
     @staticmethod
     def create(aList):
         global bus
@@ -87,6 +92,12 @@ class Action(object):
             item = Gio.MenuItem.new(self._kargs['label'], self._kargs['actionName'])
             self.setProperties(item, self._kargs['properties'])
             parent.append_item(item)
+
+            # Action
+            act = Gio.SimpleAction.new(self._kargs['actionName'], None)
+            act.connect('activate', self._list._onActionActivated)
+            self._list._rootAction.insert(act)
+
         elif self._kargs['link'] == 'section':
             section = Gio.Menu()
             parent.append_section(self._kargs['label'], section)
@@ -99,6 +110,9 @@ class Action(object):
         (menu, mId) = self._list.getMenu(menuId)
         if mId != -1:
             menu.remove(mId)
+            if self._kargs['actionName']:
+                # Remove action
+                self._list._rootAction.remove(self._kargs['actionName'])
         else:
             print "Remove menu item"
 
@@ -111,11 +125,15 @@ class Action(object):
 class ActionList(object):
     def __init__(self, objectPath):
         self._actions = []
+        self._actions_bk = []
         self._objectPath = objectPath
         self._bux = None
-        self._exportID = None
+        self._exportMenuID = None
+        self._exportActionID = None
         self._ownNameID = None
         self._root = None
+        self._rootAction = None
+        self._activatedActions = []
 
     def appendItem(self, label, actionName, link=None, parentId=None,  properties=None):
         self._actions.append(Action(self, 'append',
@@ -125,9 +143,20 @@ class ActionList(object):
                                     link=link,
                                     properties=properties))
 
-    def removeItem(self, menuId):
+    def removeItem(self, menuId, actionName=None):
         self._actions.append(Action(self, 'remove',
-                                    menuId=menuId))
+                                    menuId=menuId,
+                                    actionName=actionName))
+
+    def _save(self):
+        self._actions_bk = []
+        self._actions_bk.extend(self._actions)
+
+
+    def _restore(self):
+        if len(self._actions_bk):
+            self._actions = []
+            self._actions.extend(self._actions_bk)
 
     def _findMenu(self, root, ids):
         if len(ids) == 0:
@@ -155,18 +184,28 @@ class ActionList(object):
 
     def _exportService(self, connection, name):
         self._root = Gio.Menu()
+        self._rootAction = Gio.SimpleActionGroup()
         self._bus = connection
-        self._exportID = connection.export_menu_model(MENU_OBJECT_PATH, self._root)
+        self._exportMenuID = connection.export_menu_model(MENU_OBJECT_PATH, self._root)
+        self._exportActionID = connection.export_action_group(MENU_OBJECT_PATH, self._rootAction)
 
     def start(self):
+        self._save()
         self._ownNameID = Gio.bus_own_name(2, MENU_SERVICE_NAME, 0, self._exportService, None, None)
 
     def stop(self):
-        if self._exportID:
-            self._bus.unexport_menu_model(self._exportID)
-            self._exportID = None
+        if self._exportMenuID:
+            self._bus.unexport_menu_model(self._exportMenuID)
+            self._exportMenuID = None
+
+        if self._exportActionID:
+            self._bus.unexport_action_group(self._exportActionID)
+            self._exportActionID = None
 
         if self._ownNameID:
             Gio.bus_unown_name(self._ownNameID)
             self._ownNameID = None
+        self._restore()
 
+    def _onActionActivated(self, action, parameter):
+        self._activatedActions.append(action.get_name())

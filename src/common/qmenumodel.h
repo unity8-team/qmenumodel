@@ -58,7 +58,6 @@ private:
     QVariant getExtraProperties(const QModelIndex &index) const;
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
-    static QVariant parseGVariant(GVariant *value);
 };
 
 #endif

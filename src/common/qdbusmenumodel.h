@@ -51,13 +51,6 @@ protected:
     virtual void serviceAppear(GDBusConnection *connection);
     virtual void serviceVanish(GDBusConnection *connection);
 
-    /*
-    virtual void busTypeChanged(BusType type);
-    virtual void busNameChanged(const QString &busNameChanged);
-    virtual void objectPathChanged(const QString &objectPath);
-    virtual void statusChanged(ConnectionStatus status);
-    */
-
 private:
     // workaround to support int as bustType
     void setIntBusType(int busType);

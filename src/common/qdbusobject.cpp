@@ -21,12 +21,58 @@
 
 #include <QDebug>
 
+/*!
+    \qmlclass QDBusObject
+    \brief The QDBusObject is a base class
+
+    \bold {This component is under heavy development.}
+
+    This is a abstracted class used by QDBusMenuModel and QDBusActionGroup
+*/
+
+/*!
+    \qmlproperty int QDBusObject::busType
+    This property holds the dbus session type which will be used during the connection.
+
+    This must be seteed before call start method
+    The valid values are:
+    \list
+        \o 1 - SessionBus
+        \o 2 - SystemBus
+    \endlist
+*/
+
+/*!
+    \qmlproperty int QDBusObject::busName
+    This property holds the dbus service name related with menu.
+
+    This must be seteed before call start method
+*/
+
+/*!
+    \qmlproperty int QDBusObject::objectPath
+    This property holds the dbus object path related with the menu.
+
+    This must be seteed before call start method
+*/
+
+/*!
+    \qmlproperty int QDBusObject::status
+    This property holds current dbus connection status
+
+    Te velid status are:
+    \list
+        \o 0 - Disconnected
+        \o 1 - Connecting
+        \o 2 - Connected
+    \endlist
+*/
+
 QDBusObject::QDBusObject()
     :m_watchId(0),
      m_busType(None),
      m_status(QDBusObject::Disconnected)
 {
-    qDebug() << "DBUS CREATED";
     qRegisterMetaType<QDBusObject::ConnectionStatus>("QDBusObject::ConnectionStatus");
 }
 
@@ -128,7 +174,6 @@ void QDBusObject::disconnect()
 void QDBusObject::onServiceAppeared(GDBusConnection *connection, const gchar *, const gchar *, gpointer data)
 {
     QDBusObject *self = reinterpret_cast<QDBusObject*>(data);
-    qDebug() << "service appear";
 
     self->setStatus(QDBusObject::Connected);
     self->serviceAppear(connection);
@@ -137,7 +182,6 @@ void QDBusObject::onServiceAppeared(GDBusConnection *connection, const gchar *, 
 void QDBusObject::onServiceFanished(GDBusConnection *connection, const gchar *, gpointer data)
 {
     QDBusObject *self = reinterpret_cast<QDBusObject*>(data);    
-    qDebug() << "service disappear";
 
     self->setStatus(QDBusObject::Connecting);
     self->serviceVanish(connection);
