@@ -26,6 +26,8 @@
 #include <QAction>
 #include <QSet>
 
+class QStateAction;
+
 class QDBusActionGroup : public QObject, public QDBusObject
 {
     Q_OBJECT
@@ -46,13 +48,12 @@ Q_SIGNALS:
     void busNameChanged(const QString &busNameChanged);
     void objectPathChanged(const QString &objectPath);
     void statusChanged(ConnectionStatus status);
-    void actionStateChanged(const QString &name, QVariant value);
     void countChanged(int count);
 
 public Q_SLOTS:
     void start();
     void stop();
-    QAction *action(const QString &actionName);
+    QStateAction *action(const QString &actionName);
 
 protected:
     virtual void serviceAppear(GDBusConnection *connection);
@@ -64,7 +65,7 @@ private Q_SLOTS:
 
 private:
     GActionGroup *m_actionGroup;
-    QSet<QAction*> m_actions;
+    QSet<QStateAction*> m_actions;
     int m_signalActionAddId;
     int m_signalActionRemovedId;
     int m_signalStateChangedId;

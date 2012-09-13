@@ -144,55 +144,55 @@ private Q_SLOTS:
 
         QVariant e = m_model.data(m_model.index(0, 0), QMenuModel::Extra);
         QVERIFY(e.isValid());
-        QObject *extra = e.value<QObject*>();
+        QVariantMap extra = e.toMap();
 
         // Boolean
-        QVariant v = extra->property("boolean");
+        QVariant v = extra["boolean"];
         QCOMPARE(v.type(), QVariant::Bool);
         QCOMPARE(v.toBool(), true);
 
         // Byte
-        v = extra->property("byte");
+        v = extra["byte"];
         QCOMPARE(v.typeName(), "uchar");
         QCOMPARE(v.value<uchar>(), (uchar)42);
 
         // Int16
-        v = extra->property("int16");
+        v = extra["int16"];
         QCOMPARE(v.typeName(), "short");
         QCOMPARE(v.value<short>(), (short)-42);
 
         // UInt16
-        v = extra->property("uint16");
+        v = extra["uint16"];
         QCOMPARE(v.typeName(), "ushort");
         QCOMPARE(v.value<ushort>(), (ushort)42);
 
         // Int32
-        v = extra->property("int32");
+        v = extra["int32"];
         QCOMPARE(v.type(), QVariant::Int);
         QCOMPARE(v.toInt(), -42);
 
         // UInt32
-        v = extra->property("uint32");
+        v = extra["uint32"];
         QCOMPARE(v.type(), QVariant::UInt);
         QCOMPARE(v.toUInt(), (uint) 42);
 
         // Int64
-        v = extra->property("int64");
+        v = extra["int64"];
         QCOMPARE(v.typeName(), "long");
         QCOMPARE(v.value<long>(), (long) -42);
 
         // UInt64
-        v = extra->property("uint64");
+        v = extra["uint64"];
         QCOMPARE(v.typeName(), "ulong");
         QCOMPARE(v.value<ulong>(), (ulong) 42);
 
         // Double
-        v = extra->property("double");
+        v = extra["double"];
         QCOMPARE(v.type(), QVariant::Double);
         QCOMPARE(v.toDouble(), 42.42);
 
         // String
-        v = extra->property("string");
+        v = extra["string"];
         QCOMPARE(v.type(), QVariant::String);
         QCOMPARE(v.toString(), QString("42"));
     }

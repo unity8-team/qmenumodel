@@ -17,22 +17,27 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
-#include "plugin.h"
-#include "qmenumodel.h"
-#include "qdbusmenumodel.h"
-#include "qdbusactiongroup.h"
-#include "qstateaction.h"
+#ifndef QDBUSACTION_H
+#define QDBUSACTION_H
 
-#include <QtDeclarative>
+#include <QAction>
+#include <QVariant>
 
-
-void QMenuModelQmlPlugin::registerTypes(const char *uri)
+class QStateAction : public QAction
 {
-    qmlRegisterUncreatableType<QMenuModel>(uri, 0, 1, "QMenuModel",
-                                           "QMenuModel is a interface");
-    qmlRegisterType<QDBusMenuModel>(uri, 0, 1, "QDBusMenuModel");
-    qmlRegisterType<QDBusActionGroup>(uri, 0, 1, "QDBusActionGroup");
-    qmlRegisterType<QStateAction>(uri, 0, 1, "QStateAction");
-}
+    Q_OBJECT
+    Q_PROPERTY(QVariant state READ state WRITE setState NOTIFY stateChanged)
+public:
+    QStateAction(const QString &text="", QObject *parent=0);
 
-Q_EXPORT_PLUGIN2(qmenumodel, QMenuModelQmlPlugin)
+    QVariant state() const;
+    void setState(const QVariant &state);
+
+Q_SIGNALS:
+    void stateChanged(QVariant state);
+
+private:
+    QVariant m_state;
+};
+
+#endif

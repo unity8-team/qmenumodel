@@ -18,6 +18,7 @@
  */
 
 #include "qdbusactiongroup.h"
+#include "qstateaction.h"
 #include "converter.h"
 
 #include <QDebug>
@@ -64,13 +65,13 @@ QDBusActionGroup::~QDBusActionGroup()
 /*!
     \qmlmethod QDBusActionGroup::action(QString name)
 
-    Look for a action with the same name and return a \l QAction object.
+    Look for a action with the same name and return a \l QStateAction object.
 
     \bold Note: methods should only be called after the Component has completed.
 */
-QAction *QDBusActionGroup::action(const QString &name)
+QStateAction *QDBusActionGroup::action(const QString &name)
 {
-    Q_FOREACH(QAction *act, m_actions) {
+    Q_FOREACH(QStateAction *act, m_actions) {
         if (act->text() == name) {
             return act;
         }
@@ -170,19 +171,13 @@ void QDBusActionGroup::setActionGroup(GDBusActionGroup *ag)
 /*! \internal */
 void QDBusActionGroup::addAction(const char *actionName)
 {
-    QAction *act = new QAction(actionName, this);
+    QStateAction *act = new QStateAction(actionName, this);
 
     act->setEnabled(g_action_group_get_action_enabled(m_actionGroup, actionName));
 
-    const GVariantType *stateType = g_action_group_get_action_state_type(m_actionGroup, actionName);
-    if (stateType == G_VARIANT_TYPE_BOOLEAN) {
-        act->setCheckable(true);
-
-        GVariant *actState = g_action_group_get_action_state(m_actionGroup, actionName);
-        if (actState != NULL) {
-            act->setChecked(g_variant_get_boolean(actState));
-            g_variant_unref(actState);
-        }
+    GVariant *actState = g_action_group_get_action_state(m_actionGroup, actionName);
+    if (actState) {
+        act->setState(Converter::parseGVariant(actState));
     }
 
     QObject::connect(act, SIGNAL(triggered()), this, SLOT(onActionTriggered()));
@@ -204,7 +199,7 @@ void QDBusActionGroup::onActionTriggered()
 /*! \internal */
 void QDBusActionGroup::removeAction(const char *actionName)
 {
-    Q_FOREACH(QAction *act, m_actions) {
+    Q_FOREACH(QStateAction *act, m_actions) {
         if (act->text() == actionName) {
             m_actions.remove(act);
             delete act;
@@ -217,15 +212,9 @@ void QDBusActionGroup::removeAction(const char *actionName)
 /*! \internal */
 void QDBusActionGroup::updateAction(const char *actionName, GVariant *state)
 {
-    QAction *action = this->action(actionName);
+    QStateAction *action = this->action(actionName);
     if ((action != NULL) && (state != NULL)) {
-
-        const GVariantType *stateType = g_variant_get_type(state);
-        if (stateType == G_VARIANT_TYPE_BOOLEAN) {
-            action->setChecked(g_variant_get_boolean(state));
-        }
-
-        Q_EMIT actionStateChanged(actionName, Converter::parseGVariant(state));
+        action->setState(Converter::parseGVariant(state));
     }
 }
 

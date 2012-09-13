@@ -183,7 +183,7 @@ QString QMenuModel::parseExtraPropertyName(const QString &name) const
 {
     QString newName(name);
     if (name.startsWith("x-")) {
-        newName = name.right(name.length() - 2);
+        newName = name.mid(2);
     }
     return newName.replace("-", "_");
 }
@@ -196,17 +196,17 @@ QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
         return QVariant();
     }
 
-    QObject *extra = new QObject(const_cast<QMenuModel*>(this));
+    QVariantMap extra;
     const gchar *attrName = NULL;
     GVariant *value = NULL;
     while (g_menu_attribute_iter_get_next (iter, &attrName, &value)) {
         if (strncmp("x-", attrName, 2) == 0) {
-
-            extra->setProperty(parseExtraPropertyName(attrName).toLatin1(), Converter::parseGVariant(value));
+            extra.insert(parseExtraPropertyName(attrName),
+                         Converter::parseGVariant(value));
         }
     }
 
-    return QVariant::fromValue<QObject*>(extra);
+    return extra;
 }
 
 /*! \internal */

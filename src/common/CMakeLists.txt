@@ -6,6 +6,7 @@ set(QMENUMODELCOMMON_SRC
     qdbusobject.cpp
     qdbusmenumodel.cpp
     qdbusactiongroup.cpp
+    qstateaction.cpp
 )
 
 set(QMENUMODELCOMMON_HEADERS
@@ -14,6 +15,7 @@ set(QMENUMODELCOMMON_HEADERS
     qdbusobject.h
     qdbusmenumodel.h
     qdbusactiongroup.h
+    qstateaction.h
 )
 
 qt4_wrap_cpp(QMENUMODELCOMMON_MOC

@@ -20,6 +20,7 @@
 #include "qdbusmenumodel.h"
 #include "qdbusactiongroup.h"
 #include "dbusmenuscript.h"
+#include "qstateaction.h"
 
 #include <QObject>
 #include <QSignalSpy>
@@ -128,7 +129,7 @@ private Q_SLOTS:
         // Get Action
         QVariant action = m_model.data(m_model.index(1, 0), QMenuModel::Action);
         QVERIFY(action.isValid());
-        QAction *act = m_actionGroup.action(action.toString());
+        QStateAction *act = m_actionGroup.action(action.toString());
         QVERIFY(act);
 
         act->trigger();
