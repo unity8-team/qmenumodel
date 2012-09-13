@@ -70,7 +70,7 @@ void QMenuModel::setMenuModel(GMenuModel *other)
         g_object_unref(m_menuModel);
     }
 
-    m_menuModel = other;    
+    m_menuModel = other;
 
     if (m_menuModel) {
         // this will trigger the menu load

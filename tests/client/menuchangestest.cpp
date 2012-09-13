@@ -56,6 +56,9 @@ private Q_SLOTS:
         m_script.unpublishMenu();
     }
 
+    /*
+     * Test it the model updates correct after remove or add a new menu
+     */
     void testMenuItemAppend()
     {
         m_script.publishMenu();

@@ -64,6 +64,9 @@ private Q_SLOTS:
         m_script.unpublishMenu();
     }
 
+    /*
+     * Test if the propety busType handle correct integer values
+     */
     void testBusTypeProperty()
     {
         m_actionGroup.setProperty("busType", 1);
@@ -79,6 +82,10 @@ private Q_SLOTS:
         QCOMPARE(m_actionGroup.busType(), QDBusObject::SystemBus);
     }
 
+    /*
+     * Test if QDBusActionGroup change to correct state after DBus
+     * ervice appear
+     */
     void testServiceAppear()
     {
         m_model.start();
@@ -93,6 +100,10 @@ private Q_SLOTS:
         QCOMPARE(m_actionGroup.count(), 0);
     }
 
+    /*
+     * Test if QDBusActionGroup change to correct state after DBus
+     * service disappear
+     */
     void testServiceDisappear()
     {
         m_model.start();
@@ -116,6 +127,9 @@ private Q_SLOTS:
         QCOMPARE(m_actionGroup.status(), QDBusObject::Disconnected);
     }
 
+    /*
+     * Test if Action::trigger active the action over DBus
+     */
     void testActiveAction()
     {
         // start model
@@ -139,6 +153,9 @@ private Q_SLOTS:
         QCOMPARE(m_script.popActivatedAction(), QString("Menu1Act"));
     }
 
+    /*
+     * Test if Action became invalid after desappear from DBus
+     */
     void testRemoveAction()
     {
         // start model
@@ -150,9 +167,42 @@ private Q_SLOTS:
         m_script.walk(2);
         QCOMPARE(m_actionGroup.count(), 2);
 
+        // Get Action
+        QStateAction *act = m_actionGroup.action(QString("Menu1Act"));
+        QVERIFY(act);
+        QVERIFY(act->isValid());
+
         // Remove 1 menu
         m_script.walk(1);
-        QCOMPARE(m_actionGroup.count(), 1);
+        QCOMPARE(m_actionGroup.count(), 2);
+
+        //Check if action is invalid
+        QVERIFY(!act->isValid());
+    }
+
+    /*
+     * Test if Action became valid after service appears
+     */
+    void testActionIsValid()
+    {
+        // start model
+        m_model.start();
+        m_actionGroup.start();
+
+        // Make menu available and append 2 menus
+        m_script.publishMenu();
+
+        // Get invalid Action
+        QStateAction *act = m_actionGroup.action(QString("Menu1Act"));
+        QVERIFY(act);
+        QVERIFY(!act->isValid());
+        QVERIFY(!act->state().isValid());
+
+        // Append menus
+        m_script.walk(2);
+
+        // Action appear
+        QVERIFY(act->isValid());
     }
 };
 

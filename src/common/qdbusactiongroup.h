@@ -43,6 +43,8 @@ public:
 
     int count() const;
 
+    Q_INVOKABLE QStateAction *action(const QString &actionName);
+
 Q_SIGNALS:
     void busTypeChanged(BusType type);
     void busNameChanged(const QString &busNameChanged);
@@ -50,10 +52,11 @@ Q_SIGNALS:
     void statusChanged(ConnectionStatus status);
     void countChanged(int count);
 
+
 public Q_SLOTS:
     void start();
     void stop();
-    QStateAction *action(const QString &actionName);
+
 
 protected:
     virtual void serviceAppear(GDBusConnection *connection);
@@ -74,10 +77,11 @@ private:
     void setIntBusType(int busType);
 
     void setActionGroup(GDBusActionGroup *ag);
-    void addAction(const char *actionName);
-    void removeAction(const char *actionName);
+    QStateAction *addAction(const char *actionName, bool create);
+    void removeAction(const char *actionName, bool erase);
     void updateAction(const char *actionName, GVariant *state);
     void clear();
+    QStateAction *actionImpl(const QString &actionName);
 
     // glib slots
     static void onActionAdded(GDBusActionGroup *ag, gchar *actionName, gpointer data);

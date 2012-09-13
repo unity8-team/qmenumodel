@@ -56,16 +56,25 @@ private Q_SLOTS:
         m_script.unpublishMenu();
     }
 
+    /*
+     * Test if columnCount is always 1
+     */
     void testColumnCount()
     {
         QCOMPARE(m_model.columnCount(), 1);
     }
 
+    /*
+     * Test if parent function always return a empty QModelIndex
+     */
     void testParent()
     {
         QCOMPARE(m_model.parent(QModelIndex()), QModelIndex());
     }
 
+    /*
+     * Test if the propety busType handle correct integer values
+     */
     void testBusTypeProperty()
     {
         m_model.setProperty("busType", 1);
@@ -82,6 +91,9 @@ private Q_SLOTS:
 
     }
 
+    /*
+     * Test if model return the correct values for standard properties
+     */
     void testData()
     {
         // Make menu available
@@ -127,6 +139,9 @@ private Q_SLOTS:
         QCOMPARE(submenu->rowCount(), 2);
     }
 
+    /*
+     * Test if the model parse correct GVariant values types
+     */
     void testExtraData()
     {
         // Make menu available

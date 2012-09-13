@@ -58,6 +58,25 @@ QVariant QStateAction::state() const
     return m_state;
 }
 
+/*!
+    \qmlproperty int QStateAction::isValid
+    This property return if the current Action is valid or not
+    A valid Action is a action which has a DBus action linked
+*/
+bool QStateAction::isValid() const
+{
+    return m_valid;
+}
+
+/*! \internal */
+void QStateAction::setValid(bool valid)
+{
+    if (m_valid != valid) {
+        m_valid = valid;
+        Q_EMIT validChanged(m_valid);
+    }
+}
+
 /*! \internal */
 void QStateAction::setState(const QVariant &state)
 {

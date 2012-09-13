@@ -27,17 +27,26 @@ class QStateAction : public QAction
 {
     Q_OBJECT
     Q_PROPERTY(QVariant state READ state WRITE setState NOTIFY stateChanged)
+    Q_PROPERTY(bool valid READ isValid NOTIFY validChanged)
 public:
     QStateAction(const QString &text="", QObject *parent=0);
 
     QVariant state() const;
     void setState(const QVariant &state);
 
+    bool isValid() const;
+
 Q_SIGNALS:
     void stateChanged(QVariant state);
+    void validChanged(bool valid);
 
 private:
-    QVariant m_state;
+    QVariant m_state;    
+    bool m_valid;
+
+    void setValid(bool valid);
+
+    friend class QDBusActionGroup;
 };
 
 #endif
