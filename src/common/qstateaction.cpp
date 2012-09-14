@@ -58,8 +58,16 @@ QStateAction::QStateAction(QDBusActionGroup *group, const QString &name)
                      this, SLOT(onActionAppear(QString)));
     QObject::connect(m_group, SIGNAL(actionVanish(QString)),
                      this, SLOT(onActionVanish(QString)));
-    QObject::connect(m_group, SIGNAL(actionStateUpdated(QString,QVariant)),
-                     this, SLOT(onActionStateUpdate(QString,QVariant)));
+    QObject::connect(m_group, SIGNAL(actionStateChanged(QString,QVariant)),
+                     this, SLOT(onActionStateChanged(QString,QVariant)));
+
+
+
+    bool isValid = m_group->hasAction(name);
+    setValid(isValid);
+    if (isValid) {
+        setState(m_group->actionState(name));
+    }
 }
 
 /*!
@@ -111,25 +119,27 @@ void QStateAction::onTriggered()
 }
 
 /*! \internal */
-void QStateAction::onActionAppear(const QString &actionName)
+void QStateAction::onActionAppear(const QString &name)
 {
-    if (text() == actionName) {
+    if (text() == name) {
+        setState(m_group->actionState(name));
         setValid(true);
     }
 }
 
 /*! \internal */
-void QStateAction::onActionVanish(const QString &actionName)
+void QStateAction::onActionVanish(const QString &name)
 {
-    if (text() == actionName) {
+    if (text() == name) {
+        setState(QVariant());
         setValid(false);
     }
 }
 
 /*! \internal */
-void QStateAction::onActionStateUpdate(const QString &actionName, const QVariant &state)
+void QStateAction::onActionStateChanged(const QString &name, const QVariant &state)
 {
-    if (text() == actionName) {
+    if (text() == name) {
         setState(state);
     }
 }

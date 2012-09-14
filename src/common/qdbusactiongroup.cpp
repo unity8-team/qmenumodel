@@ -73,16 +73,28 @@ QStateAction *QDBusActionGroup::action(const QString &name)
 {
     QStateAction *act = actionImpl(name);
     if (act == 0) {
-        return new QStateAction(this, name);
-    } else {
-        return act;
+        act = new QStateAction(this, name);
     }
+
+    return act;
 }
 
-bool QDBusActionGroup::hasAction(const QString &actionName)
+QVariant QDBusActionGroup::actionState(const QString &name)
+{
+    QVariant result;
+    GVariant *state = g_action_group_get_action_state(m_actionGroup, name.toLatin1());
+    result = Converter::toQVariant(state);
+    if (state) {
+        g_variant_unref(state);
+    }
+    return result;
+}
+
+
+bool QDBusActionGroup::hasAction(const QString &name)
 {
     if (m_actionGroup) {
-        return g_action_group_has_action(m_actionGroup, actionName.toLatin1());
+        return g_action_group_has_action(m_actionGroup, name.toLatin1());
     } else {
         return false;
     }
@@ -170,7 +182,7 @@ void QDBusActionGroup::setActionGroup(GDBusActionGroup *ag)
                                                    this);
 
         gchar **actions = g_action_group_list_actions(m_actionGroup);
-        for(int i=0; i < g_strv_length(actions); i++) {
+        for(guint i=0; i < g_strv_length(actions); i++) {
             Q_EMIT actionAppear(actions[i]);
         }
         g_strfreev(actions);
@@ -191,30 +203,30 @@ void QDBusActionGroup::clear()
 }
 
 /*! \internal */
-void QDBusActionGroup::updateActionState(const QString &actionName, const QVariant &state)
+void QDBusActionGroup::updateActionState(const QString &name, const QVariant &state)
 {
     if (m_actionGroup != NULL) {
-        g_action_group_activate_action(m_actionGroup, actionName.toLatin1(), Converter::toGVariant(state));
+        g_action_group_activate_action(m_actionGroup, name.toLatin1(), Converter::toGVariant(state));
     }
 }
 
 /*! \internal */
-void QDBusActionGroup::onActionAdded(GDBusActionGroup *, gchar *actionName, gpointer data)
+void QDBusActionGroup::onActionAdded(GDBusActionGroup *, gchar *name, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
-    Q_EMIT self->actionAppear(actionName);
+    Q_EMIT self->actionAppear(name);
 }
 
 /*! \internal */
-void QDBusActionGroup::onActionRemoved(GDBusActionGroup *, gchar *actionName, gpointer data)
+void QDBusActionGroup::onActionRemoved(GDBusActionGroup *, gchar *name, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
-    Q_EMIT self->actionVanish(actionName);
+    Q_EMIT self->actionVanish(name);
 }
 
 /*! \internal */
-void QDBusActionGroup::onActionStateChanged(GDBusActionGroup *, gchar *actionName, GVariant *value, gpointer data)
+void QDBusActionGroup::onActionStateChanged(GDBusActionGroup *, gchar *name, GVariant *value, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
-    Q_EMIT self->actionStateChanged(actionName, Converter::toQVariant(value));
+    Q_EMIT self->actionStateChanged(name, Converter::toQVariant(value));
 }

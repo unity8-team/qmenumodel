@@ -41,9 +41,9 @@ Q_SIGNALS:
     void validChanged(bool valid);
 
 private Q_SLOTS:
-    void onActionAppear(const QString &actionName);
-    void onActionVanish(const QString &actionName);
-    void onActionStateUpdate(const QString &actionNane, const QVariant &state);
+    void onActionAppear(const QString &name);
+    void onActionVanish(const QString &name);
+    void onActionStateChanged(const QString &name, const QVariant &state);
     void onTriggered();
 
 private:
