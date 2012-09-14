@@ -196,7 +196,7 @@ QStateAction *QDBusActionGroup::addAction(const char *actionName, bool create)
 
         GVariant *actState = g_action_group_get_action_state(m_actionGroup, actionName);
         if (actState) {
-            act->setState(Converter::parseGVariant(actState));
+            act->setState(Converter::toGVariant(actState));
         }
         act->setValid(true);
     } else {
@@ -241,7 +241,7 @@ void QDBusActionGroup::updateAction(const char *actionName, GVariant *state)
 {
     QStateAction *action = this->action(actionName);
     if ((action != NULL) && (state != NULL)) {
-        action->setState(Converter::parseGVariant(state));
+        action->setState(Converter::toGVariant(state));
     }
 }
 

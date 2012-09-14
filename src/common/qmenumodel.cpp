@@ -202,7 +202,7 @@ QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
     while (g_menu_attribute_iter_get_next (iter, &attrName, &value)) {
         if (strncmp("x-", attrName, 2) == 0) {
             extra.insert(parseExtraPropertyName(attrName),
-                         Converter::parseGVariant(value));
+                         Converter::toGVariant(value));
         }
     }
 

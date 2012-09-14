@@ -26,7 +26,7 @@
 class Converter
 {
 public:
-    static QVariant parseGVariant(GVariant *value);
+    static QVariant toGVariant(GVariant *value);
 
 private:
     Converter();

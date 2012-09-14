@@ -3,7 +3,7 @@
 #include <QDebug>
 
 /*! \internal */
-QVariant Converter::parseGVariant(GVariant *value)
+QVariant Converter::toGVariant(GVariant *value)
 {
     QVariant result;
     if (value == NULL) {
