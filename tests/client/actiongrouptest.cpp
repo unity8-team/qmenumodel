@@ -91,13 +91,11 @@ private Q_SLOTS:
         m_model.start();
         m_actionGroup.start();
         QCOMPARE(m_actionGroup.status(), QDBusObject::Connecting);
-        QCOMPARE(m_actionGroup.count(), 0);
 
         // Make menu available
         m_script.publishMenu();
 
         QCOMPARE(m_actionGroup.status(), QDBusObject::Connected);
-        QCOMPARE(m_actionGroup.count(), 0);
     }
 
     /*
@@ -108,7 +106,6 @@ private Q_SLOTS:
     {
         m_model.start();
         m_actionGroup.start();
-        QCOMPARE(m_actionGroup.count(), 0);
 
         // Make menu available
         m_script.publishMenu();
@@ -116,12 +113,10 @@ private Q_SLOTS:
 
         // Append menus
         m_script.walk(2);
-        QCOMPARE(m_actionGroup.count(), 2);
 
         // Remove menu from dbus
         m_script.unpublishMenu();
         QCOMPARE(m_actionGroup.status(), QDBusObject::Connecting);
-        QCOMPARE(m_actionGroup.count(), 0);
 
         m_actionGroup.stop();
         QCOMPARE(m_actionGroup.status(), QDBusObject::Disconnected);
@@ -165,7 +160,6 @@ private Q_SLOTS:
         // Make menu available and append 2 menus
         m_script.publishMenu();
         m_script.walk(2);
-        QCOMPARE(m_actionGroup.count(), 2);
 
         // Get Action
         QStateAction *act = m_actionGroup.action(QString("Menu1Act"));
@@ -174,7 +168,6 @@ private Q_SLOTS:
 
         // Remove 1 menu
         m_script.walk(1);
-        QCOMPARE(m_actionGroup.count(), 2);
 
         //Check if action is invalid
         QVERIFY(!act->isValid());

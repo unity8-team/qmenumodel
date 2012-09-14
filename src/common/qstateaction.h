@@ -23,28 +23,37 @@
 #include <QAction>
 #include <QVariant>
 
+class QDBusActionGroup;
+
 class QStateAction : public QAction
 {
     Q_OBJECT
     Q_PROPERTY(QVariant state READ state WRITE setState NOTIFY stateChanged)
     Q_PROPERTY(bool valid READ isValid NOTIFY validChanged)
-public:
-    QStateAction(const QString &text="", QObject *parent=0);
-
-    QVariant state() const;
-    void setState(const QVariant &state);
-
+public:        
+    QVariant state() const;    
     bool isValid() const;
+
+    Q_INVOKABLE void updateState(const QVariant &state);
 
 Q_SIGNALS:
     void stateChanged(QVariant state);
     void validChanged(bool valid);
 
+private Q_SLOTS:
+    void onActionAppear(const QString &actionName);
+    void onActionVanish(const QString &actionName);
+    void onActionStateUpdate(const QString &actionNane, const QVariant &state);
+    void onTriggered();
+
 private:
-    QVariant m_state;    
+    QDBusActionGroup *m_group;
+    QVariant m_state;
     bool m_valid;
 
+    QStateAction(QDBusActionGroup *group, const QString &name);
     void setValid(bool valid);
+    void setState(const QVariant &state);
 
     friend class QDBusActionGroup;
 };

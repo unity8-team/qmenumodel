@@ -3,7 +3,7 @@
 #include <QDebug>
 
 /*! \internal */
-QVariant Converter::toGVariant(GVariant *value)
+QVariant Converter::toQVariant(GVariant *value)
 {
     QVariant result;
     if (value == NULL) {
@@ -56,6 +56,57 @@ QVariant Converter::toGVariant(GVariant *value)
      * G_VARIANT_TYPE_BYTESTRING_ARRAY
      * G_VARIANT_TYPE_VARDICT
      */
+
+    return result;
+}
+
+GVariant* Converter::toGVariant(const QString &typeName, const QVariant &value)
+{
+    if (typeName == "uchar") {
+        return g_variant_new_byte(value.value<uchar>());
+    } else if (typeName == "short") {
+        return g_variant_new_int16(value.value<short>());
+    } else if (typeName == "ushort") {
+        return g_variant_new_uint16(value.value<ushort>());
+    } else if (typeName == "long") {
+        return g_variant_new_int64(value.value<long>());
+    } else if (typeName == "ulong") {
+        return g_variant_new_uint64(value.value<ulong>());
+    } else {
+        qWarning() << "QVariant type not supported:" << typeName;
+    }
+
+    return NULL;
+}
+
+GVariant* Converter::toGVariant(const QVariant &value)
+{
+    GVariant *result = NULL;
+    if (value.isNull() || !value.isValid())
+        return result;
+
+    switch(value.type()) {
+    case QVariant::Bool:
+        result = g_variant_new_boolean(value.toBool());
+        break;
+    case QVariant::ByteArray:
+        result = g_variant_new_bytestring(value.toByteArray());
+        break;
+    case QVariant::Double:
+        result = g_variant_new_double(value.toDouble());
+        break;
+    case QVariant::Int:
+        result = g_variant_new_int32(value.toInt());
+        break;
+    case QVariant::String:
+        result = g_variant_new_string(value.toString().toLatin1());
+        break;
+    case QVariant::UInt:
+        result = g_variant_new_uint32(value.toUInt());
+        break;
+    default:
+        result = toGVariant(value.typeName(), value);
+    }
 
     return result;
 }

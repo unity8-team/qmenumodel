@@ -35,13 +35,13 @@ class QDBusActionGroup : public QObject, public QDBusObject
     Q_PROPERTY(QString busName READ busName WRITE setBusName NOTIFY busNameChanged)
     Q_PROPERTY(QString objectPath READ objectPath WRITE setObjectPath NOTIFY objectPathChanged)
     Q_PROPERTY(int status READ status NOTIFY statusChanged)
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 public:
     QDBusActionGroup(QObject *parent=0);
     ~QDBusActionGroup();
 
-    int count() const;
+    void updateActionState(const QString &actionName, const QVariant &state);
+    bool hasAction(const QString &actionName);
 
     Q_INVOKABLE QStateAction *action(const QString &actionName);
 
@@ -50,25 +50,20 @@ Q_SIGNALS:
     void busNameChanged(const QString &busNameChanged);
     void objectPathChanged(const QString &objectPath);
     void statusChanged(ConnectionStatus status);
-    void countChanged(int count);
-
+    void actionAppear(const QString &actionName);
+    void actionVanish(const QString &actionName);
+    void actionStateChanged(const QString &actionName, QVariant state);
 
 public Q_SLOTS:
     void start();
     void stop();
 
-
 protected:
     virtual void serviceAppear(GDBusConnection *connection);
     virtual void serviceVanish(GDBusConnection *connection);
 
-
-private Q_SLOTS:
-    void onActionTriggered();
-
 private:
     GActionGroup *m_actionGroup;
-    QSet<QStateAction*> m_actions;
     int m_signalActionAddId;
     int m_signalActionRemovedId;
     int m_signalStateChangedId;
@@ -77,11 +72,9 @@ private:
     void setIntBusType(int busType);
 
     void setActionGroup(GDBusActionGroup *ag);
-    QStateAction *addAction(const char *actionName, bool create);
-    void removeAction(const char *actionName, bool erase);
-    void updateAction(const char *actionName, GVariant *state);
-    void clear();
     QStateAction *actionImpl(const QString &actionName);
+
+    void clear();
 
     // glib slots
     static void onActionAdded(GDBusActionGroup *ag, gchar *actionName, gpointer data);

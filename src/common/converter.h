@@ -26,11 +26,14 @@
 class Converter
 {
 public:
-    static QVariant toGVariant(GVariant *value);
+    static QVariant toQVariant(GVariant *value);
+    static GVariant* toGVariant(const QVariant &value);
 
 private:
     Converter();
     Converter(const Converter &other);
+
+    static GVariant* toGVariant(const QString &typeName, const QVariant &value);
 };
 
 #endif

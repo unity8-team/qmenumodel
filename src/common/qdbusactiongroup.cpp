@@ -73,15 +73,24 @@ QStateAction *QDBusActionGroup::action(const QString &name)
 {
     QStateAction *act = actionImpl(name);
     if (act == 0) {
-        return addAction(name.toLatin1(), true);
+        return new QStateAction(this, name);
     } else {
         return act;
     }
 }
 
+bool QDBusActionGroup::hasAction(const QString &actionName)
+{
+    if (m_actionGroup) {
+        return g_action_group_has_action(m_actionGroup, actionName.toLatin1());
+    } else {
+        return false;
+    }
+}
+
 QStateAction *QDBusActionGroup::actionImpl(const QString &name)
 {
-    Q_FOREACH(QStateAction *act, m_actions) {
+    Q_FOREACH(QStateAction *act, this->findChildren<QStateAction*>()) {
         if (act->text() == name) {
             return act;
         }
@@ -89,19 +98,10 @@ QStateAction *QDBusActionGroup::actionImpl(const QString &name)
     return 0;
 }
 
-/*!
-    \qmlproperty int QDBusActionGroup::count
-    This property holds the number of actions inside of \l QDBusActionGroup
-*/
-int QDBusActionGroup::count() const
-{
-    return m_actions.count();
-}
-
 /*! \internal */
 void QDBusActionGroup::serviceVanish(GDBusConnection *)
 {
-    clear();
+    setActionGroup(NULL);
 }
 
 /*! \internal */
@@ -147,8 +147,8 @@ void QDBusActionGroup::setActionGroup(GDBusActionGroup *ag)
         g_signal_handler_disconnect(m_actionGroup, m_signalActionAddId);
         g_signal_handler_disconnect(m_actionGroup, m_signalActionRemovedId);
         g_signal_handler_disconnect(m_actionGroup, m_signalStateChangedId);
-        m_signalActionAddId = m_signalActionRemovedId = m_signalStateChangedId = 0;
-        g_object_unref(m_actionGroup);
+        m_signalActionAddId = m_signalActionRemovedId = m_signalStateChangedId = 0;        
+        clear();
     }
 
     m_actionGroup = reinterpret_cast<GActionGroup*>(ag);
@@ -169,89 +169,20 @@ void QDBusActionGroup::setActionGroup(GDBusActionGroup *ag)
                                                    G_CALLBACK(QDBusActionGroup::onActionStateChanged),
                                                    this);
 
-        gchar **actionNames = g_action_group_list_actions(m_actionGroup);
-        for(int i=0; actionNames[i] != NULL; i++) {
-            addAction(actionNames[i], true);
+        gchar **actions = g_action_group_list_actions(m_actionGroup);
+        for(int i=0; i < g_strv_length(actions); i++) {
+            Q_EMIT actionAppear(actions[i]);
         }
-        g_strfreev(actionNames);
-    }
-}
-
-/*! \internal */
-QStateAction *QDBusActionGroup::addAction(const char *actionName, bool create)
-{
-    bool isNew = false;
-    QStateAction *act = actionImpl(actionName);
-    if (act == 0) {
-        if (create) {
-            act = new QStateAction(actionName, this);
-            isNew = true;
-        } else {
-            return 0;
-        }
-    }
-
-    if (g_action_group_has_action(m_actionGroup, actionName)) {
-        act->setEnabled(g_action_group_get_action_enabled(m_actionGroup, actionName));
-
-        GVariant *actState = g_action_group_get_action_state(m_actionGroup, actionName);
-        if (actState) {
-            act->setState(Converter::toGVariant(actState));
-        }
-        act->setValid(true);
-    } else {
-        act->setValid(false);
-    }
-
-    if (isNew) {
-        QObject::connect(act, SIGNAL(triggered()), this, SLOT(onActionTriggered()));
-        m_actions.insert(act);
-        Q_EMIT countChanged(m_actions.count());
-    }
-    return act;
-}
-
-/*! \internal */
-void QDBusActionGroup::onActionTriggered()
-{
-    QStateAction *act = qobject_cast<QStateAction*>(QObject::sender());
-    if (act->isValid()) {
-        g_action_group_activate_action(m_actionGroup, act->text().toLatin1(), NULL);
-    }
-}
-
-/*! \internal */
-void QDBusActionGroup::removeAction(const char *actionName, bool erase)
-{
-    Q_FOREACH(QStateAction *act, m_actions) {
-        if (act->text() == actionName) {
-            if (erase) {
-                m_actions.remove(act);
-                delete act;
-            } else {
-                act->setValid(false);
-            }
-            break;
-        }
-    }
-}
-
-/*! \internal */
-void QDBusActionGroup::updateAction(const char *actionName, GVariant *state)
-{
-    QStateAction *action = this->action(actionName);
-    if ((action != NULL) && (state != NULL)) {
-        action->setState(Converter::toGVariant(state));
+        g_strfreev(actions);
     }
 }
 
 /*! \internal */
 void QDBusActionGroup::clear()
 {
-    Q_FOREACH(QAction *act, m_actions) {
-        delete act;
+    Q_FOREACH(QStateAction *act, this->findChildren<QStateAction*>()) {
+        Q_EMIT actionVanish(act->text());
     }
-    m_actions.clear();
 
     if (m_actionGroup != NULL) {
         g_object_unref(m_actionGroup);
@@ -260,22 +191,30 @@ void QDBusActionGroup::clear()
 }
 
 /*! \internal */
+void QDBusActionGroup::updateActionState(const QString &actionName, const QVariant &state)
+{
+    if (m_actionGroup != NULL) {
+        g_action_group_activate_action(m_actionGroup, actionName.toLatin1(), Converter::toGVariant(state));
+    }
+}
+
+/*! \internal */
 void QDBusActionGroup::onActionAdded(GDBusActionGroup *, gchar *actionName, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
-    self->addAction(actionName, true);
+    Q_EMIT self->actionAppear(actionName);
 }
 
 /*! \internal */
 void QDBusActionGroup::onActionRemoved(GDBusActionGroup *, gchar *actionName, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
-    self->removeAction(actionName, false);
+    Q_EMIT self->actionVanish(actionName);
 }
 
 /*! \internal */
-void QDBusActionGroup::onActionStateChanged(GDBusActionGroup *ag, gchar *actionName, GVariant *value, gpointer data)
+void QDBusActionGroup::onActionStateChanged(GDBusActionGroup *, gchar *actionName, GVariant *value, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
-    self->updateAction(actionName, value);
+    Q_EMIT self->actionStateChanged(actionName, Converter::toQVariant(value));
 }

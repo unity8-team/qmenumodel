@@ -24,6 +24,27 @@ macro(declare_test testname)
 
 endmacro(declare_test testname)
 
+macro(declare_simple_test testname)
+    set(TEST_MOC_FILE ${CMAKE_CURRENT_BINARY_DIR}/${testname}.moc)
+    qt4_generate_moc(${testname}.cpp ${TEST_MOC_FILE})
+
+    add_executable(${testname} ${testname}.cpp ${TEST_MOC_FILE})
+    target_link_libraries(${testname}
+                          qmenumodelcommon
+                          ${QT_QTTEST_LIBRARY}
+                          ${QT_QTCORE_LIBRARY}
+                          ${QT_QTGUI_LIBRARY}
+                          ${QT_QTDBUS_LIBRARY}
+                          ${GLIB_LDFLAGS}
+                          ${GIO_LDFLAGS})
+
+    add_test(${testname}
+             ${CMAKE_CURRENT_BINARY_DIR}/${testname})
+
+    set_tests_properties(${testname} PROPERTIES
+                         TIMEOUT ${CTEST_TESTING_TIMEOUT})
+endmacro(declare_simple_test testname)
+
 include_directories(${qmenumodelcommon_SOURCE_DIR}
                     ${dbusmenuscript_SOURCE_DIR}
                     ${CMAKE_CURRENT_BINARY_DIR}
@@ -45,3 +66,4 @@ declare_test(servicetest)
 declare_test(menuchangestest)
 declare_test(modeltest)
 declare_test(actiongrouptest)
+declare_simple_test(convertertest)

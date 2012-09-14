@@ -19,6 +19,8 @@
 
 #include "qstateaction.h"
 
+#include "qdbusactiongroup.h"
+
 /*!
     \qmlclass QStateAction
     \inherits QAction
@@ -44,9 +46,20 @@
 */
 
 /*! \internal */
-QStateAction::QStateAction(const QString &text, QObject *parent)
-    :QAction(text, parent)
+QStateAction::QStateAction(QDBusActionGroup *group, const QString &name)
+    : QAction(name, group),
+      m_group(group)
 {
+    QObject::connect(this, SIGNAL(triggered()), this, SLOT(onTriggered()));
+
+    // This keep the code clean
+    // But maybe we need move the action state control to QActionGroup to optimizations
+    QObject::connect(m_group, SIGNAL(actionAppear(QString)),
+                     this, SLOT(onActionAppear(QString)));
+    QObject::connect(m_group, SIGNAL(actionVanish(QString)),
+                     this, SLOT(onActionVanish(QString)));
+    QObject::connect(m_group, SIGNAL(actionStateUpdated(QString,QVariant)),
+                     this, SLOT(onActionStateUpdate(QString,QVariant)));
 }
 
 /*!
@@ -68,6 +81,11 @@ bool QStateAction::isValid() const
     return m_valid;
 }
 
+void QStateAction::updateState(const QVariant &state)
+{
+    m_group->updateActionState(text(), state);
+}
+
 /*! \internal */
 void QStateAction::setValid(bool valid)
 {
@@ -83,5 +101,35 @@ void QStateAction::setState(const QVariant &state)
     if (m_state != state) {
         m_state = state;
         Q_EMIT stateChanged(m_state);
+    }
+}
+
+/*! \internal */
+void QStateAction::onTriggered()
+{
+    updateState(QVariant());
+}
+
+/*! \internal */
+void QStateAction::onActionAppear(const QString &actionName)
+{
+    if (text() == actionName) {
+        setValid(true);
+    }
+}
+
+/*! \internal */
+void QStateAction::onActionVanish(const QString &actionName)
+{
+    if (text() == actionName) {
+        setValid(false);
+    }
+}
+
+/*! \internal */
+void QStateAction::onActionStateUpdate(const QString &actionName, const QVariant &state)
+{
+    if (text() == actionName) {
+        setState(state);
     }
 }

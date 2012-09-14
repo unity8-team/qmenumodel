@@ -30,9 +30,12 @@ void QMenuModelQmlPlugin::registerTypes(const char *uri)
 {
     qmlRegisterUncreatableType<QMenuModel>(uri, 0, 1, "QMenuModel",
                                            "QMenuModel is a interface");
+    qmlRegisterUncreatableType<QStateAction>(uri, 0, 1, "QStateAction",
+                                             "QStateAction must be created by QDBusActionGroup::action");
+
     qmlRegisterType<QDBusMenuModel>(uri, 0, 1, "QDBusMenuModel");
     qmlRegisterType<QDBusActionGroup>(uri, 0, 1, "QDBusActionGroup");
-    qmlRegisterType<QStateAction>(uri, 0, 1, "QStateAction");
+
 }
 
 Q_EXPORT_PLUGIN2(qmenumodel, QMenuModelQmlPlugin)
