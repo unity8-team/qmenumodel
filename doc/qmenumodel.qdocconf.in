@@ -1,0 +1,9 @@
+project = QMenuModel QLM elements
+sourcedirs = @qmenumodelcommon_SOURCE_DIR@
+sources.fileextensions = "*.cpp"
+outputdir = html
+outputformats = HTML
+version = 0.1
+syntaxhighlighting = true
+sourceencoding = UTF-8
+outputencoding = UTF-8
