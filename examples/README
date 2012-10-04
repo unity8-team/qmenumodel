@@ -7,5 +7,5 @@ To render this menu in a QML application, run 'render-menumodel.qml' in
 qmlviewer. You will need to inform qmlviewer of the location of the QMenuModel
 if it’s not installed system-wide, e.g.:
 
-    qmlviewer -I src examples/render-menumodel.qml
+    qmlviewer -I libqmenumodel examples/render-menumodel.qml
 
