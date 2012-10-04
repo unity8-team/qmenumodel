@@ -21,17 +21,17 @@ QVariant Converter::toQVariant(GVariant *value)
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_BYTE)) {
         result.setValue(g_variant_get_byte(value));
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_INT16)) {
-        result.setValue(g_variant_get_int16(value));
+        result.setValue(qint16(g_variant_get_int16(value)));
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_UINT16)) {
-        result.setValue(g_variant_get_uint16(value));
+        result.setValue(quint16(g_variant_get_uint16(value)));
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_INT32)) {
-        result.setValue(g_variant_get_int32(value));
+        result.setValue(qint32(g_variant_get_int32(value)));
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_UINT32)) {
-        result.setValue(g_variant_get_uint32(value));
+        result.setValue(quint32(g_variant_get_uint32(value)));
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_INT64)) {
-        result.setValue(g_variant_get_int64(value));
+        result.setValue(qint64(g_variant_get_int64(value)));
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_UINT64)) {
-        result.setValue(g_variant_get_uint64(value));
+        result.setValue(quint64(g_variant_get_uint64(value)));
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_DOUBLE)) {
         result.setValue(g_variant_get_double(value));
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_STRING)) {

@@ -185,12 +185,12 @@ private Q_SLOTS:
 
         // Int64
         v = extra["int64"];
-        QCOMPARE(v.typeName(), "long");
+        QCOMPARE(v.type(), QVariant::LongLong);
         QCOMPARE(v.value<long>(), (long) -42);
 
         // UInt64
         v = extra["uint64"];
-        QCOMPARE(v.typeName(), "ulong");
+        QCOMPARE(v.type(), QVariant::ULongLong);
         QCOMPARE(v.value<ulong>(), (ulong) 42);
 
         // Double
