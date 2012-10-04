@@ -23,6 +23,7 @@ doc/qmenumodel.qdocconf
 obj-*
 debian/files
 debian/qmenumodel-qml
+debian/*.debhelper
 debian/*.debhelper.log
 debian/*.substvars
 debian/stamp-*
