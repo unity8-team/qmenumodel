@@ -50,7 +50,7 @@ Q_SIGNALS:
     void busTypeChanged(BusType type);
     void busNameChanged(const QString &busNameChanged);
     void objectPathChanged(const QString &objectPath);
-    void statusChanged(ConnectionStatus status);
+    void statusChanged(QDBusObject::ConnectionStatus status);
     void actionAppear(const QString &name);
     void actionVanish(const QString &name);
     void actionStateChanged(const QString &name, QVariant state);
@@ -69,7 +69,7 @@ private:
     int m_signalActionRemovedId;
     int m_signalStateChangedId;
 
-    // workaround to support int as bustType
+    // workaround to support int as busType
     void setIntBusType(int busType);
 
     void setActionGroup(GDBusActionGroup *ag);
