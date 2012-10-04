@@ -60,7 +60,7 @@ QVariant Converter::toQVariant(GVariant *value)
     return result;
 }
 
-GVariant* Converter::toGVariant(const QString &typeName, const QVariant &value)
+static GVariant* toGVariant(const QString &typeName, const QVariant &value)
 {
     if (typeName == "uchar") {
         return g_variant_new_byte(value.value<uchar>());
@@ -105,8 +105,9 @@ GVariant* Converter::toGVariant(const QVariant &value)
         result = g_variant_new_uint32(value.toUInt());
         break;
     default:
-        result = toGVariant(value.typeName(), value);
+        result = ::toGVariant(value.typeName(), value);
     }
 
     return result;
 }
+
