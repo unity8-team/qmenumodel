@@ -16,3 +16,10 @@ tests/client/menuchangestest
 tests/client/modeltest
 tests/client/servicetest
 
+obj-*
+debian/files
+debian/qmenumodel-qml
+debian/*.debhelper.log
+debian/*.substvars
+debian/stamp-*
+
