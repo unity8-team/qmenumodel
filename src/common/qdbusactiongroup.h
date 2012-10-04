@@ -47,10 +47,10 @@ public:
     Q_INVOKABLE QVariant actionState(const QString &name);
 
 Q_SIGNALS:
-    void busTypeChanged(BusType type);
+    void busTypeChanged(DBusEnums::BusType type);
     void busNameChanged(const QString &busNameChanged);
     void objectPathChanged(const QString &objectPath);
-    void statusChanged(QDBusObject::ConnectionStatus status);
+    void statusChanged(DBusEnums::ConnectionStatus status);
     void actionAppear(const QString &name);
     void actionVanish(const QString &name);
     void actionStateChanged(const QString &name, QVariant state);

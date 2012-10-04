@@ -70,10 +70,10 @@
 
 QDBusObject::QDBusObject()
     :m_watchId(0),
-     m_busType(None),
-     m_status(QDBusObject::Disconnected)
+     m_busType(DBusEnums::None),
+     m_status(DBusEnums::Disconnected)
 {
-    qRegisterMetaType<QDBusObject::ConnectionStatus>("QDBusObject::ConnectionStatus");
+    qRegisterMetaType<DBusEnums::ConnectionStatus>("DBusEnums::ConnectionStatus");
 }
 
 QDBusObject::~QDBusObject()
@@ -84,15 +84,15 @@ QDBusObject::~QDBusObject()
     }
 }
 
-QDBusObject::BusType QDBusObject::busType() const
+DBusEnums::BusType QDBusObject::busType() const
 {
     return m_busType;
 }
 
-void QDBusObject::setBusType(QDBusObject::BusType type)
+void QDBusObject::setBusType(DBusEnums::BusType type)
 {
     if (m_busType != type) {
-        if (m_status != QDBusObject::Disconnected)
+        if (m_status != DBusEnums::Disconnected)
             disconnect();
         m_busType = type;
         busTypeChanged(m_busType);
@@ -107,7 +107,7 @@ QString QDBusObject::busName() const
 void QDBusObject::setBusName(const QString &busName)
 {
     if (m_busName != busName) {
-        if (m_status != QDBusObject::Disconnected)
+        if (m_status != DBusEnums::Disconnected)
             disconnect();
         m_busName = busName;
         busNameChanged(m_busName);
@@ -122,14 +122,14 @@ QString QDBusObject::objectPath() const
 void QDBusObject::setObjectPath(const QString &objectPath)
 {
     if (m_objectPath != objectPath) {
-        if (m_status != QDBusObject::Disconnected)
+        if (m_status != DBusEnums::Disconnected)
             disconnect();
         m_objectPath = objectPath;
         objectPathChanged(m_objectPath);
     }
 }
 
-void QDBusObject::setStatus(QDBusObject::ConnectionStatus status)
+void QDBusObject::setStatus(DBusEnums::ConnectionStatus status)
 {
     if (m_status != status) {
         m_status = status;
@@ -137,17 +137,17 @@ void QDBusObject::setStatus(QDBusObject::ConnectionStatus status)
     }
 }
 
-QDBusObject::ConnectionStatus QDBusObject::status() const
+DBusEnums::ConnectionStatus QDBusObject::status() const
 {
     return m_status;
 }
 
 void QDBusObject::connect()
 {
-    if (m_status != QDBusObject::Disconnected) {
+    if (m_status != DBusEnums::Disconnected) {
         return;
-    } else if ((m_busType > None) && !m_objectPath.isEmpty() && !m_busName.isEmpty()) {
-        GBusType type = m_busType == SessionBus ? G_BUS_TYPE_SESSION : G_BUS_TYPE_SYSTEM;
+    } else if ((m_busType > DBusEnums::None) && !m_objectPath.isEmpty() && !m_busName.isEmpty()) {
+        GBusType type = m_busType == DBusEnums::SessionBus ? G_BUS_TYPE_SESSION : G_BUS_TYPE_SYSTEM;
         m_watchId = g_bus_watch_name (type,
                                       m_busName.toLatin1(),
                                       G_BUS_NAME_WATCHER_FLAGS_NONE,
@@ -156,7 +156,7 @@ void QDBusObject::connect()
                                       this,
                                       NULL);
 
-        setStatus(QDBusObject::Connecting);
+        setStatus(DBusEnums::Connecting);
     } else {
         qWarning() << "Invalid dbus connection args";
     }
@@ -164,10 +164,10 @@ void QDBusObject::connect()
 
 void QDBusObject::disconnect()
 {
-    if (m_status != QDBusObject::Disconnected) {
+    if (m_status != DBusEnums::Disconnected) {
         g_bus_unwatch_name (m_watchId);
         m_watchId = 0;
-        setStatus(QDBusObject::Disconnected);
+        setStatus(DBusEnums::Disconnected);
     }
 }
 
@@ -175,7 +175,7 @@ void QDBusObject::onServiceAppeared(GDBusConnection *connection, const gchar *, 
 {
     QDBusObject *self = reinterpret_cast<QDBusObject*>(data);
 
-    self->setStatus(QDBusObject::Connected);
+    self->setStatus(DBusEnums::Connected);
     self->serviceAppear(connection);
 }
 
@@ -183,6 +183,6 @@ void QDBusObject::onServiceFanished(GDBusConnection *connection, const gchar *, 
 {
     QDBusObject *self = reinterpret_cast<QDBusObject*>(data);    
 
-    self->setStatus(QDBusObject::Connecting);
+    self->setStatus(DBusEnums::Connecting);
     self->serviceVanish(connection);
 }

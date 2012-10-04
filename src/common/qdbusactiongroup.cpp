@@ -143,8 +143,8 @@ void QDBusActionGroup::stop()
 /*! \internal */
 void QDBusActionGroup::setIntBusType(int busType)
 {
-    if ((busType > None) && (busType < LastBusType)) {
-        setBusType(static_cast<BusType>(busType));
+    if ((busType > DBusEnums::None) && (busType < DBusEnums::LastBusType)) {
+        setBusType(static_cast<DBusEnums::BusType>(busType));
     }
 }
 

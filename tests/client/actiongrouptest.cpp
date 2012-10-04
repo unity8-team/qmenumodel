@@ -49,12 +49,12 @@ private Q_SLOTS:
     void init()
     {
         m_model.stop();
-        m_model.setBusType(QDBusObject::SessionBus);
+        m_model.setBusType(DBusEnums::SessionBus);
         m_model.setBusName(MENU_SERVICE_NAME);
         m_model.setObjectPath(MENU_OBJECT_PATH);
 
         m_actionGroup.stop();
-        m_actionGroup.setBusType(QDBusObject::SessionBus);
+        m_actionGroup.setBusType(DBusEnums::SessionBus);
         m_actionGroup.setBusName(MENU_SERVICE_NAME);
         m_actionGroup.setObjectPath(MENU_OBJECT_PATH);
     }
@@ -70,16 +70,16 @@ private Q_SLOTS:
     void testBusTypeProperty()
     {
         m_actionGroup.setProperty("busType", 1);
-        QCOMPARE(m_actionGroup.busType(), QDBusObject::SessionBus);
+        QCOMPARE(m_actionGroup.busType(), DBusEnums::SessionBus);
 
         m_actionGroup.setProperty("busType", 2);
-        QCOMPARE(m_actionGroup.busType(), QDBusObject::SystemBus);
+        QCOMPARE(m_actionGroup.busType(), DBusEnums::SystemBus);
 
         m_actionGroup.setProperty("busType", 0);
-        QCOMPARE(m_actionGroup.busType(), QDBusObject::SystemBus);
+        QCOMPARE(m_actionGroup.busType(), DBusEnums::SystemBus);
 
         m_actionGroup.setProperty("busType", 10);
-        QCOMPARE(m_actionGroup.busType(), QDBusObject::SystemBus);
+        QCOMPARE(m_actionGroup.busType(), DBusEnums::SystemBus);
     }
 
     /*
@@ -90,12 +90,12 @@ private Q_SLOTS:
     {
         m_model.start();
         m_actionGroup.start();
-        QCOMPARE(m_actionGroup.status(), QDBusObject::Connecting);
+        QCOMPARE(m_actionGroup.status(), DBusEnums::Connecting);
 
         // Make menu available
         m_script.publishMenu();
 
-        QCOMPARE(m_actionGroup.status(), QDBusObject::Connected);
+        QCOMPARE(m_actionGroup.status(), DBusEnums::Connected);
     }
 
     /*
@@ -109,17 +109,17 @@ private Q_SLOTS:
 
         // Make menu available
         m_script.publishMenu();
-        QCOMPARE(m_actionGroup.status(), QDBusObject::Connected);
+        QCOMPARE(m_actionGroup.status(), DBusEnums::Connected);
 
         // Append menus
         m_script.walk(2);
 
         // Remove menu from dbus
         m_script.unpublishMenu();
-        QCOMPARE(m_actionGroup.status(), QDBusObject::Connecting);
+        QCOMPARE(m_actionGroup.status(), DBusEnums::Connecting);
 
         m_actionGroup.stop();
-        QCOMPARE(m_actionGroup.status(), QDBusObject::Disconnected);
+        QCOMPARE(m_actionGroup.status(), DBusEnums::Disconnected);
     }
 
     /*

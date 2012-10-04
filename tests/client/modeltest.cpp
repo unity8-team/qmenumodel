@@ -46,7 +46,7 @@ private Q_SLOTS:
     void init()
     {
         m_model.stop();
-        m_model.setBusType(QDBusObject::SessionBus);
+        m_model.setBusType(DBusEnums::SessionBus);
         m_model.setBusName(MENU_SERVICE_NAME);
         m_model.setObjectPath(MENU_OBJECT_PATH);
     }
@@ -70,16 +70,16 @@ private Q_SLOTS:
     void testBusTypeProperty()
     {
         m_model.setProperty("busType", 1);
-        QCOMPARE(m_model.busType(), QDBusObject::SessionBus);
+        QCOMPARE(m_model.busType(), DBusEnums::SessionBus);
 
         m_model.setProperty("busType", 2);
-        QCOMPARE(m_model.busType(), QDBusObject::SystemBus);
+        QCOMPARE(m_model.busType(), DBusEnums::SystemBus);
 
         m_model.setProperty("busType", 0);
-        QCOMPARE(m_model.busType(), QDBusObject::SystemBus);
+        QCOMPARE(m_model.busType(), DBusEnums::SystemBus);
 
         m_model.setProperty("busType", 10);
-        QCOMPARE(m_model.busType(), QDBusObject::SystemBus);
+        QCOMPARE(m_model.busType(), DBusEnums::SystemBus);
 
     }
 
@@ -98,7 +98,7 @@ private Q_SLOTS:
         // Wait for dbus sync
         QTest::qWait(500);
 
-        QCOMPARE(m_model.status(), QDBusObject::Connected);
+        QCOMPARE(m_model.status(), DBusEnums::Connected);
         QCOMPARE(m_model.rowCount(), 4);
 
         // Label (String)
@@ -146,7 +146,7 @@ private Q_SLOTS:
         // Wait for dbus sync
         QTest::qWait(500);
 
-        QCOMPARE(m_model.status(), QDBusObject::Connected);
+        QCOMPARE(m_model.status(), DBusEnums::Connected);
         QCOMPARE(m_model.rowCount(), 4);
 
         QVariant e = m_model.data(m_model.index(0, 0), QMenuModel::Extra);

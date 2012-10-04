@@ -24,27 +24,16 @@
 
 #include <gio/gio.h>
 
+#include "dbus-enums.h"
+
 class QDBusObject
 {
 public:
-    enum BusType {
-        None = 0,
-        SessionBus,
-        SystemBus,
-        LastBusType
-    };
-
-    enum ConnectionStatus {
-        Disconnected = 0,
-        Connecting,
-        Connected
-    };
-
     QDBusObject();
     ~QDBusObject();
 
-    BusType busType() const;
-    void setBusType(BusType type);
+    DBusEnums::BusType busType() const;
+    void setBusType(DBusEnums::BusType type);
 
     QString busName() const;
     void setBusName(const QString &busName);
@@ -52,7 +41,7 @@ public:
     QString objectPath() const;
     void setObjectPath(const QString &busName);
 
-    ConnectionStatus status() const;
+    DBusEnums::ConnectionStatus status() const;
 
     void connect();
     void disconnect();
@@ -62,19 +51,19 @@ protected:
     virtual void serviceVanish(GDBusConnection *connection) = 0;
 
     // notify functions
-    virtual void busTypeChanged(BusType type) = 0;
+    virtual void busTypeChanged(DBusEnums::BusType type) = 0;
     virtual void busNameChanged(const QString &busNameChanged) = 0;
     virtual void objectPathChanged(const QString &objectPath) = 0;
-    virtual void statusChanged(ConnectionStatus status) = 0;
+    virtual void statusChanged(DBusEnums::ConnectionStatus status) = 0;
 
 private:
     guint m_watchId;
-    BusType m_busType;
+    DBusEnums::BusType m_busType;
     QString m_busName;
     QString m_objectPath;
-    ConnectionStatus m_status;
+    DBusEnums::ConnectionStatus m_status;
 
-    void setStatus(ConnectionStatus status);
+    void setStatus(DBusEnums::ConnectionStatus status);
 
     // glib slots
     static void onServiceAppeared(GDBusConnection *connection, const gchar *name, const gchar *name_owner, gpointer data);

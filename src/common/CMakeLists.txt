@@ -11,6 +11,7 @@ set(QMENUMODELCOMMON_SRC
 
 set(QMENUMODELCOMMON_HEADERS
     converter.h
+    dbus-enums.h
     qmenumodel.h
     qdbusobject.h
     qdbusmenumodel.h

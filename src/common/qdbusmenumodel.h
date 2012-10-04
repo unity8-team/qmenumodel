@@ -38,10 +38,10 @@ public:
     ~QDBusMenuModel();    
 
 Q_SIGNALS:
-    void busTypeChanged(BusType type);
+    void busTypeChanged(DBusEnums::BusType type);
     void busNameChanged(const QString &busNameChanged);
     void objectPathChanged(const QString &objectPath);
-    void statusChanged(QDBusObject::ConnectionStatus status);
+    void statusChanged(DBusEnums::ConnectionStatus status);
 
 public Q_SLOTS:
     void start();
