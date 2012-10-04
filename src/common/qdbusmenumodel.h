@@ -52,7 +52,7 @@ protected:
     virtual void serviceVanish(GDBusConnection *connection);
 
 private:
-    // workaround to support int as bustType
+    // workaround to support int as busType
     void setIntBusType(int busType);
 };
 
