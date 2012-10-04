@@ -25,7 +25,7 @@ if(BUILD_WITH_COVERAGE)
     include(${CMAKE_SOURCE_DIR}/cmake/lcov.cmake)
 endif()
 
-add_subdirectory(src)
+add_subdirectory(libqmenumodel)
 
 # Tests Tools
 if(NOT DBUS_RUNNER)
