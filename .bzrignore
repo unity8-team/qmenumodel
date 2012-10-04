@@ -16,6 +16,9 @@ tests/client/menuchangestest
 tests/client/modeltest
 tests/client/servicetest
 
+doc/html/
+doc/qmenumodel.qdocconf
+
 obj-*
 debian/files
 debian/qmenumodel-qml
