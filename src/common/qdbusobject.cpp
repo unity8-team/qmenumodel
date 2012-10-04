@@ -152,7 +152,7 @@ void QDBusObject::connect()
                                       m_busName.toLatin1(),
                                       G_BUS_NAME_WATCHER_FLAGS_NONE,
                                       QDBusObject::onServiceAppeared,
-                                      QDBusObject::onServiceFanished,
+                                      QDBusObject::onServiceVanished,
                                       this,
                                       NULL);
 
@@ -179,7 +179,7 @@ void QDBusObject::onServiceAppeared(GDBusConnection *connection, const gchar *, 
     self->serviceAppear(connection);
 }
 
-void QDBusObject::onServiceFanished(GDBusConnection *connection, const gchar *, gpointer data)
+void QDBusObject::onServiceVanished(GDBusConnection *connection, const gchar *, gpointer data)
 {
     QDBusObject *self = reinterpret_cast<QDBusObject*>(data);    
 

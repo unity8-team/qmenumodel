@@ -67,7 +67,7 @@ private:
 
     // glib slots
     static void onServiceAppeared(GDBusConnection *connection, const gchar *name, const gchar *name_owner, gpointer data);
-    static void onServiceFanished(GDBusConnection *connection, const gchar *name, gpointer data);
+    static void onServiceVanished(GDBusConnection *connection, const gchar *name, gpointer data);
 };
 
 #endif
