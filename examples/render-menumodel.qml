@@ -3,7 +3,7 @@
 // /com/canonical/testmenu.
 
 import QtQuick 1.1
-import QMenuModel 0.1 // uninstalled, run qmlviewer with "-I ../src"
+import QMenuModel 0.1
 
 Item {
     id: container
@@ -51,9 +51,9 @@ Item {
             MouseArea {
                 id: delegatearea
                 anchors.fill: parent
-                //enabled: linkSubMenu != null
                 hoverEnabled: true
                 onClicked: {
+                    if (linkSubMenu == null) return
                     var newback = view.__back
                     newback.push(view.model)
                     view.__back = newback
