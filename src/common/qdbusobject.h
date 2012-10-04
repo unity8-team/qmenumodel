@@ -20,9 +20,11 @@
 #ifndef QDBUSOBJECT_H
 #define QDBUSOBJECT_H
 
-#include <QObject>
-
+extern "C" {
 #include <gio/gio.h>
+}
+
+#include <QString>
 
 #include "dbus-enums.h"
 

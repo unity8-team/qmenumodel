@@ -21,9 +21,9 @@
 #include "qstateaction.h"
 #include "converter.h"
 
-#include <QDebug>
-
+extern "C" {
 #include <gio/gio.h>
+}
 
 /*!
     \qmlclass QDBusActionGroup

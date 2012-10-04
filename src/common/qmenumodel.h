@@ -21,7 +21,10 @@
 #define QMENUMODEL_H
 
 #include <QAbstractListModel>
+
+extern "C" {
 #include <gio/gio.h>
+}
 
 class QMenuModel : public QAbstractListModel
 {

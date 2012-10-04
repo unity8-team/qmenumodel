@@ -23,8 +23,7 @@
 #include "qdbusobject.h"
 
 #include <QObject>
-#include <QAction>
-#include <QSet>
+#include <QVariant>
 
 class QStateAction;
 

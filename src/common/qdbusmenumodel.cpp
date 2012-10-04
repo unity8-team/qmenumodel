@@ -18,7 +18,6 @@
  */
 
 #include "qdbusmenumodel.h"
-#include <QDebug>
 
 /*!
     \qmlclass QDBusMenuModel
