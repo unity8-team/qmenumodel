@@ -26,7 +26,6 @@ if(BUILD_WITH_COVERAGE)
 endif()
 
 add_subdirectory(src)
-add_subdirectory(examples)
 
 # Tests Tools
 if(NOT DBUS_RUNNER)

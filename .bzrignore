@@ -7,8 +7,6 @@ cmake_install.cmake
 
 moc_*.cxx
 
-examples/run-example.sh
-
 tests/client/*.moc
 tests/client/actiongrouptest
 tests/client/convertertest
