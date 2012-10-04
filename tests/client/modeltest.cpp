@@ -57,14 +57,6 @@ private Q_SLOTS:
     }
 
     /*
-     * Test if columnCount is always 1
-     */
-    void testColumnCount()
-    {
-        QCOMPARE(m_model.columnCount(), 1);
-    }
-
-    /*
      * Test if parent function always return a empty QModelIndex
      */
     void testParent()
