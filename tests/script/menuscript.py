@@ -127,7 +127,7 @@ class ActionList(object):
         self._actions = []
         self._actions_bk = []
         self._objectPath = objectPath
-        self._bux = None
+        self._bus = None
         self._exportMenuID = None
         self._exportActionID = None
         self._ownNameID = None
