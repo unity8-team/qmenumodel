@@ -17,6 +17,10 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
+extern "C" {
+#include <glib.h>
+}
+
 #include "converter.h"
 
 #include <QObject>

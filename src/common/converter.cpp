@@ -1,6 +1,11 @@
+extern "C" {
+#include <glib.h>
+}
+
 #include "converter.h"
 
 #include <QDebug>
+#include <QVariant>
 
 /*! \internal */
 QVariant Converter::toQVariant(GVariant *value)

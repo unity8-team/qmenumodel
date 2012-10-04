@@ -20,8 +20,8 @@
 #ifndef CONVERTER_H
 #define CONVERTER_H
 
-#include <QVariant>
-#include <glib.h>
+typedef struct _GVariant GVariant;
+class QVariant;
 
 class Converter
 {
