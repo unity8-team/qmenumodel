@@ -63,6 +63,4 @@ ADD_CUSTOM_COMMAND(TARGET lcov
     COMMAND echo "Open ${CMAKE_BINARY_DIR}/coverage/index.html to view the coverage analysis results."
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
-ADD_DEPENDENCIES(lcov helloworld)
-
 

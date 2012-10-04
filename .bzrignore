@@ -7,6 +7,8 @@ cmake_install.cmake
 
 moc_*.cxx
 
+coverage/
+
 tests/client/*.moc
 tests/client/actiongrouptest
 tests/client/convertertest
