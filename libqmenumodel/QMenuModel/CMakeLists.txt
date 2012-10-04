@@ -39,7 +39,7 @@ target_link_libraries(qmenumodel-qml
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/qmldir"
                                                               "${CMAKE_CURRENT_BINARY_DIR}/qmldir")
 
-set(QMLPLUGIN_INSTALL_PREFIX "${QT_IMPORTS_DIR}/Ubuntu/QMenuModel/")
+set(QMLPLUGIN_INSTALL_PREFIX "${QT_IMPORTS_DIR}/QMenuModel")
 install(TARGETS qmenumodel-qml DESTINATION ${QMLPLUGIN_INSTALL_PREFIX})
 install(FILES qmldir DESTINATION ${QMLPLUGIN_INSTALL_PREFIX})
 
