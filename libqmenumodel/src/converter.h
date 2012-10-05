@@ -20,20 +20,15 @@
 #ifndef CONVERTER_H
 #define CONVERTER_H
 
-#include <QVariant>
-#include <glib.h>
+typedef struct _GVariant GVariant;
+class QVariant;
 
 class Converter
 {
 public:
     static QVariant toQVariant(GVariant *value);
     static GVariant* toGVariant(const QVariant &value);
-
-private:
-    Converter();
-    Converter(const Converter &other);
-
-    static GVariant* toGVariant(const QString &typeName, const QVariant &value);
 };
 
-#endif
+#endif // CONVERTER_H
+

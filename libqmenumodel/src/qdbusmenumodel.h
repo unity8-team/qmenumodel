@@ -23,7 +23,9 @@
 #include "qdbusobject.h"
 #include "qmenumodel.h"
 
+extern "C" {
 #include <gio/gio.h>
+}
 
 class QDBusMenuModel : public QMenuModel, public QDBusObject
 {
@@ -38,10 +40,10 @@ public:
     ~QDBusMenuModel();    
 
 Q_SIGNALS:
-    void busTypeChanged(BusType type);
+    void busTypeChanged(DBusEnums::BusType type);
     void busNameChanged(const QString &busNameChanged);
     void objectPathChanged(const QString &objectPath);
-    void statusChanged(QDBusObject::ConnectionStatus status);
+    void statusChanged(DBusEnums::ConnectionStatus status);
 
 public Q_SLOTS:
     void start();
@@ -52,7 +54,7 @@ protected:
     virtual void serviceVanish(GDBusConnection *connection);
 
 private:
-    // workaround to support int as bustType
+    // workaround to support int as busType
     void setIntBusType(int busType);
 };
 

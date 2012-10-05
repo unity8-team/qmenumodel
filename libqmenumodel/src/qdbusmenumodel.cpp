@@ -18,7 +18,6 @@
  */
 
 #include "qdbusmenumodel.h"
-#include <QDebug>
 
 /*!
     \qmlclass QDBusMenuModel
@@ -104,7 +103,7 @@ void QDBusMenuModel::serviceAppear(GDBusConnection *connection)
 /*! \internal */
 void QDBusMenuModel::setIntBusType(int busType)
 {
-    if ((busType > None) && (busType < LastBusType)) {
-        setBusType(static_cast<BusType>(busType));
+    if ((busType > DBusEnums::None) && (busType < DBusEnums::LastBusType)) {
+        setBusType(static_cast<DBusEnums::BusType>(busType));
     }
 }

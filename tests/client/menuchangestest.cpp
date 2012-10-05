@@ -46,7 +46,7 @@ private Q_SLOTS:
     void init()
     {
         m_model.stop();
-        m_model.setBusType(QDBusObject::SessionBus);
+        m_model.setBusType(DBusEnums::SessionBus);
         m_model.setBusName(MENU_SERVICE_NAME);
         m_model.setObjectPath(MENU_OBJECT_PATH);
     }

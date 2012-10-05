@@ -1,5 +1,5 @@
-project = QMenuModel QLM elements
-sourcedirs = @qmenumodelcommon_SOURCE_DIR@
+project = QMenuModel QML elements
+sourcedirs = @src_SOURCE_DIR@
 sources.fileextensions = "*.cpp"
 outputdir = html
 outputformats = HTML

@@ -1,6 +1,6 @@
-project(qmenumodelcommon)
+project(src)
 
-set(QMENUMODELCOMMON_SRC
+set(QMENUMODEL_SRC
     converter.cpp
     qmenumodel.cpp
     qdbusobject.cpp
@@ -9,8 +9,9 @@ set(QMENUMODELCOMMON_SRC
     qstateaction.cpp
 )
 
-set(QMENUMODELCOMMON_HEADERS
+set(QMENUMODEL_HEADERS
     converter.h
+    dbus-enums.h
     qmenumodel.h
     qdbusobject.h
     qdbusmenumodel.h
@@ -18,16 +19,16 @@ set(QMENUMODELCOMMON_HEADERS
     qstateaction.h
 )
 
-qt4_wrap_cpp(QMENUMODELCOMMON_MOC
-    ${QMENUMODELCOMMON_HEADERS}
+qt4_wrap_cpp(QMENUMODEL_MOC
+    ${QMENUMODEL_HEADERS}
 )
 
-add_library(qmenumodelcommon STATIC
-    ${QMENUMODELCOMMON_SRC}
-    ${QMENUMODELCOMMON_MOC}
+add_library(qmenumodel STATIC
+    ${QMENUMODEL_SRC}
+    ${QMENUMODEL_MOC}
 )
 
-set_target_properties(qmenumodelcommon PROPERTIES COMPILE_FLAGS -fPIC)
+set_target_properties(qmenumodel PROPERTIES COMPILE_FLAGS -fPIC)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -38,9 +39,8 @@ include_directories(
     ${GIO_INCLUDE_DIRS}
 )
 
-target_link_libraries(qmenumodelcommon
+target_link_libraries(qmenumodel
     ${QT_QTCORE_LIBRARY}
-    ${QT_QTGUI_LIBRARY}
     ${GLIB_LDFLAGS}
     ${GIO_LDFLAGS}
 )

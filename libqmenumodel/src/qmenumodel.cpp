@@ -91,12 +91,6 @@ GMenuModel *QMenuModel::menuModel() const
 }
 
 /*! \internal */
-int QMenuModel::columnCount(const QModelIndex &) const
-{
-    return 1;
-}
-
-/*! \internal */
 QVariant QMenuModel::data(const QModelIndex &index, int role) const
 {
     QVariant attribute;

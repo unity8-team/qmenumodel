@@ -4,7 +4,7 @@ macro(declare_test testname)
 
     add_executable(${testname} ${testname}.cpp ${TEST_MOC_FILE})
     target_link_libraries(${testname}
-                          qmenumodelcommon
+                          qmenumodel
                           dbusmenuscript
                           ${QT_QTTEST_LIBRARY}
                           ${QT_QTCORE_LIBRARY}
@@ -30,7 +30,7 @@ macro(declare_simple_test testname)
 
     add_executable(${testname} ${testname}.cpp ${TEST_MOC_FILE})
     target_link_libraries(${testname}
-                          qmenumodelcommon
+                          qmenumodel
                           ${QT_QTTEST_LIBRARY}
                           ${QT_QTCORE_LIBRARY}
                           ${QT_QTGUI_LIBRARY}
@@ -45,7 +45,7 @@ macro(declare_simple_test testname)
                          TIMEOUT ${CTEST_TESTING_TIMEOUT})
 endmacro(declare_simple_test testname)
 
-include_directories(${qmenumodelcommon_SOURCE_DIR}
+include_directories(${src_SOURCE_DIR}
                     ${dbusmenuscript_SOURCE_DIR}
                     ${CMAKE_CURRENT_BINARY_DIR}
                     ${QT_INCLUDE_DIR}

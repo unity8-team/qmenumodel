@@ -1,0 +1,8 @@
+= TODO =
+
+ • Expose a plain Qt library as well as the QML plugin, so that QDBusMenuModel
+   can be used from C++ too
+ • Use PIMPLs to clean up the headers (see point above)
+ • Add a server-side API to allow applications to export their menus on the bus
+ • …
+

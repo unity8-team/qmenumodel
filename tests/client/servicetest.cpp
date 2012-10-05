@@ -34,7 +34,7 @@ private:
 
     void setupModel(QDBusMenuModel *model)
     {
-        model->setBusType(QDBusObject::SessionBus);
+        model->setBusType(DBusEnums::SessionBus);
         model->setBusName(MENU_SERVICE_NAME);
         model->setObjectPath(MENU_OBJECT_PATH);
     }
@@ -53,7 +53,7 @@ private Q_SLOTS:
     void init()
     {
         m_model.stop();
-        m_model.setBusType(QDBusObject::SessionBus);
+        m_model.setBusType(DBusEnums::SessionBus);
         m_model.setBusName(MENU_SERVICE_NAME);
         m_model.setObjectPath(MENU_OBJECT_PATH);
     }
@@ -66,10 +66,10 @@ private Q_SLOTS:
     void testMenuStartStopWithNoService()
     {
         m_model.start();
-        QCOMPARE(m_model.status(), QDBusObject::Connecting);
+        QCOMPARE(m_model.status(), DBusEnums::Connecting);
 
         m_model.stop();
-        QCOMPARE(m_model.status(), QDBusObject::Disconnected);
+        QCOMPARE(m_model.status(), DBusEnums::Disconnected);
     }
 
     void testMenuStartStopWithService()
@@ -83,33 +83,33 @@ private Q_SLOTS:
         // Wait for dbus sync
         QTest::qWait(500);
 
-        QCOMPARE(m_model.status(), QDBusObject::Connected);
+        QCOMPARE(m_model.status(), DBusEnums::Connected);
 
         // Diconnect model
         m_model.stop();
-        QCOMPARE(m_model.status(), QDBusObject::Disconnected);
+        QCOMPARE(m_model.status(), DBusEnums::Disconnected);
     }
 
     void testMenuServiceAppearAndDissapear()
     {
         m_model.start();
-        QCOMPARE(m_model.status(), QDBusObject::Connecting);
+        QCOMPARE(m_model.status(), DBusEnums::Connecting);
 
-        QSignalSpy spy(&m_model, SIGNAL(statusChanged(QDBusObject::ConnectionStatus)));
+        QSignalSpy spy(&m_model, SIGNAL(statusChanged(DBusEnums::ConnectionStatus)));
 
         // Make menu available
         m_script.publishMenu();
 
         // singal changed to connected
         QCOMPARE(spy.count(), 1);
-        QCOMPARE(m_model.status(), QDBusObject::Connected);
+        QCOMPARE(m_model.status(), DBusEnums::Connected);
 
         // remove menu service
         m_script.unpublishMenu();
 
         // signal changed to connecting
         QCOMPARE(spy.count(), 2);
-        QCOMPARE(m_model.status(), QDBusObject::Connecting);
+        QCOMPARE(m_model.status(), DBusEnums::Connecting);
     }
 };
 

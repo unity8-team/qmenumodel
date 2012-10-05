@@ -7,4 +7,4 @@ add_custom_target(qdoc)
 add_custom_command(TARGET qdoc
                    COMMAND ${QDOC_BIN} ${QMENUMODEL_DOC_FILE}
                    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                   COMMENT "QDoc working...")
+                   COMMENT "QDoc running...")
