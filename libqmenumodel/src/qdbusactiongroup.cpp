@@ -26,12 +26,12 @@ extern "C" {
 }
 
 /*!
-    \qmlclass QDBusActionGroup
+    \qmltype QDBusActionGroup
     \inherits QDBusObject
 
     \brief A DBusActionGroup implementation to be used with \l QDBusMenuModel
 
-    \bold {This component is under heavy development.}
+    \b {This component is under heavy development.}
 
      This class can be used as a proxy for an action group that is exported over D-Bus
 
@@ -67,7 +67,7 @@ QDBusActionGroup::~QDBusActionGroup()
 
     Look for a action with the same name and return a \l QStateAction object.
 
-    \bold Note: methods should only be called after the Component has completed.
+    \b Note: methods should only be called after the Component has completed.
 */
 QStateAction *QDBusActionGroup::action(const QString &name)
 {

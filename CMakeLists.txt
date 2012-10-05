@@ -1,12 +1,13 @@
 project(qmenumodel)
 
-cmake_minimum_required(VERSION 2.8.0)
+cmake_minimum_required(VERSION 2.8.9)
 
-find_package(Qt4 REQUIRED)
-
+find_package(Qt5Core REQUIRED)
 include(FindPkgConfig)
 pkg_check_modules(GLIB REQUIRED glib-2.0>=2.32)
 pkg_check_modules(GIO REQUIRED gio-2.0>=2.32)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_definitions(-DQT_NO_KEYWORDS)
 
 find_program(DBUS_RUNNER dbus-test-runner)
@@ -39,12 +40,11 @@ endif()
 OPTION(GENERATE_DOC "Enable qdoc generation" OFF)
 if(GENERATE_DOC)
     message(STATUS "QDoc enabled.")
-    find_program(QDOC_BIN qdoc3)
+    find_program(QDOC_BIN qdoc)
     if(NOT QDOC_BIN)
         message(FATAL_ERROR "qdoc command not found")
     else()
         add_subdirectory(doc)
     endif()
 endif()
-
 

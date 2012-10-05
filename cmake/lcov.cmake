@@ -29,7 +29,7 @@
 set(REMOVE_PATTERN
     q*.h
     *.moc
-    moc_*.cxx
+    moc_*.cpp
     locale_facets.h
     new)
 

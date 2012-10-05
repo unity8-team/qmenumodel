@@ -17,6 +17,10 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
+extern "C" {
+#include <glib-object.h>
+}
+
 #include "qdbusmenumodel.h"
 #include "dbusmenuscript.h"
 
@@ -42,6 +46,7 @@ private:
 private Q_SLOTS:
     void initTestCase()
     {
+        g_type_init();
         Q_ASSERT(m_script.connect());
     }
 

@@ -20,12 +20,12 @@
 #include "qdbusmenumodel.h"
 
 /*!
-    \qmlclass QDBusMenuModel
+    \qmltype QDBusMenuModel
     \inherits QDBusObject
 
     \brief The QDBusMenuModel class defines the list model for DBus menus
 
-    \bold {This component is under heavy development.}
+    \b {This component is under heavy development.}
 
     This class expose the menu previous exported over DBus.
 
@@ -63,7 +63,7 @@ QDBusMenuModel::~QDBusMenuModel()
     The status will change to connecting after call this function, and as soon the busName
     apperas and the objectPat was found this will change to Connected.
 
-    \bold Note: methods should only be called after the Component has completed.
+    \b Note: methods should only be called after the Component has completed.
 */
 void QDBusMenuModel::start()
 {
@@ -75,7 +75,7 @@ void QDBusMenuModel::start()
 
     Stops dbus watch and clear the model, the status wil change to Disconnected.
 
-    \bold Note: methods should only be called after the Component has completed.
+    \b Note: methods should only be called after the Component has completed.
 */
 void QDBusMenuModel::stop()
 {
