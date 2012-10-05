@@ -22,12 +22,12 @@
 #include "qdbusactiongroup.h"
 
 /*!
-    \qmlclass QStateAction
+    \qmltype QStateAction
     \inherits QAction
 
     \brief A QStateAction implementation to be used with \l QDBusActionGroup
 
-    \bold {This component is under heavy development.}
+    \b {This component is under heavy development.}
 
      This class can be used as a proxy for an action that is exported over D-Bus
 

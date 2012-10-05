@@ -22,10 +22,10 @@
 #include <QDebug>
 
 /*!
-    \qmlclass QDBusObject
+    \qmltype QDBusObject
     \brief The QDBusObject is a base class
 
-    \bold {This component is under heavy development.}
+    \b {This component is under heavy development.}
 
     This is a abstracted class used by QDBusMenuModel and QDBusActionGroup
 */
@@ -37,8 +37,8 @@
     This must be seteed before call start method
     The valid values are:
     \list
-        \o 1 - SessionBus
-        \o 2 - SystemBus
+        \li 1 - SessionBus
+        \li 2 - SystemBus
     \endlist
 */
 
@@ -62,9 +62,9 @@
 
     Te velid status are:
     \list
-        \o 0 - Disconnected
-        \o 1 - Connecting
-        \o 2 - Connected
+        \li 0 - Disconnected
+        \li 1 - Connecting
+        \li 2 - Connected
     \endlist
 */
 

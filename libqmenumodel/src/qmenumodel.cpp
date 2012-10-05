@@ -23,10 +23,10 @@
 #include <QDebug>
 
 /*!
-    \qmlclass QMenuModel
+    \qmltype QMenuModel
     \brief The QMenuModel class implements the base list model for menus
 
-    \bold {This component is under heavy development.}
+    \b {This component is under heavy development.}
 
     This is a abstracted class used by \l QDBusMenuModel.
 */
