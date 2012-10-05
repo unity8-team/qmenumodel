@@ -8,7 +8,7 @@ set(DBUSMENUSCRIPT_HEADERS
     dbusmenuscript.h
 )
 
-qt4_wrap_cpp(DBUSMENUSCRIPT_MOC
+qt5_wrap_cpp(DBUSMENUSCRIPT_MOC
     ${DBUSMENUSCRIPT_HEADERS}
 )
 
@@ -26,6 +26,8 @@ include_directories(
     ${QT_QTCORE_INCLUDE_DIR}
     ${QT_QTDBUS_INCLUDE_DIR}
 )
+
+qt5_use_modules(dbusmenuscript Core DBus Test)
 
 target_link_libraries(dbusmenuscript
     ${QT_QTCORE_LIBRARY}

@@ -2,7 +2,7 @@
 // under the well-known name com.canonical.testmenu and at the object path
 // /com/canonical/testmenu.
 
-import QtQuick 1.1
+import QtQuick 2.0
 import QMenuModel 0.1
 
 Item {
@@ -129,7 +129,7 @@ Item {
             x: 5
             y: 5
             anchors.margins: 4
-            font.pixelSize: 12
+            font.pixelSize: 11
         }
     }
 }

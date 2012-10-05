@@ -1,1 +1,3 @@
+module QMenuModel
 plugin qmenumodel-qml
+

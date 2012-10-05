@@ -19,7 +19,7 @@ set(QMENUMODEL_HEADERS
     qstateaction.h
 )
 
-qt4_wrap_cpp(QMENUMODEL_MOC
+qt5_wrap_cpp(QMENUMODEL_MOC
     ${QMENUMODEL_HEADERS}
 )
 
@@ -39,8 +39,11 @@ include_directories(
     ${GIO_INCLUDE_DIRS}
 )
 
+qt5_use_modules(qmenumodel Core Widgets)
+
 target_link_libraries(qmenumodel
     ${QT_QTCORE_LIBRARY}
     ${GLIB_LDFLAGS}
     ${GIO_LDFLAGS}
 )
+

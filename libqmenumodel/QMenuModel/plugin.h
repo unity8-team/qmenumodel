@@ -20,14 +20,16 @@
 #ifndef QMENUMODELQMLPLUGIN_H
 #define QMENUMODELQMLPLUGIN_H
 
-#include <QDeclarativeExtensionPlugin>
+#include <QQmlExtensionPlugin>
 
-
-class QMenuModelQmlPlugin : public QDeclarativeExtensionPlugin
+class QMenuModelQmlPlugin : public QQmlExtensionPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "com.canonical.qmenumodel")
+
 public:
     void registerTypes(const char *uri);
 };
 
 #endif
+

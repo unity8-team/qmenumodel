@@ -8,7 +8,7 @@ set(QMLPLUGIN_HEADERS
     plugin.h
 )
 
-qt4_wrap_cpp(QMLPLUGIN_MOC
+qt5_wrap_cpp(QMLPLUGIN_MOC
     ${QMLPLUGIN_HEADERS}
 )
 
@@ -27,6 +27,8 @@ include_directories(
     ${GLIB_INCLUDE_DIRS}
     ${GIO_INCLUDE_DIRS}
 )
+
+qt5_use_modules(qmenumodel-qml Qml Widgets)
 
 target_link_libraries(qmenumodel-qml
     qmenumodel

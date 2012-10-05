@@ -4,8 +4,8 @@ QML binding in applications.
 To export an example menu model on the bus, run 'exportmenu.py'.
 
 To render this menu in a QML application, run 'render-menumodel.qml' in
-qmlviewer. You will need to inform qmlviewer of the location of the QMenuModel
-if it’s not installed system-wide, e.g.:
+qmlscene. You will need to inform qmlscene of the location of the QMenuModel
+plugin if it’s not installed system-wide, e.g.:
 
-    qmlviewer -I libqmenumodel examples/render-menumodel.qml
+    qmlscene -I libqmenumodel examples/render-menumodel.qml
 

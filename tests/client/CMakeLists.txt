@@ -1,8 +1,9 @@
 macro(declare_test testname)
     set(TEST_MOC_FILE ${CMAKE_CURRENT_BINARY_DIR}/${testname}.moc)
-    qt4_generate_moc(${testname}.cpp ${TEST_MOC_FILE})
+    qt5_generate_moc(${testname}.cpp ${TEST_MOC_FILE})
 
     add_executable(${testname} ${testname}.cpp ${TEST_MOC_FILE})
+    qt5_use_modules(${testname} Core DBus Widgets Test)
     target_link_libraries(${testname}
                           qmenumodel
                           dbusmenuscript
@@ -26,9 +27,10 @@ endmacro(declare_test testname)
 
 macro(declare_simple_test testname)
     set(TEST_MOC_FILE ${CMAKE_CURRENT_BINARY_DIR}/${testname}.moc)
-    qt4_generate_moc(${testname}.cpp ${TEST_MOC_FILE})
+    qt5_generate_moc(${testname}.cpp ${TEST_MOC_FILE})
 
     add_executable(${testname} ${testname}.cpp ${TEST_MOC_FILE})
+    qt5_use_modules(${testname} Core Test)
     target_link_libraries(${testname}
                           qmenumodel
                           ${QT_QTTEST_LIBRARY}
@@ -67,3 +69,4 @@ declare_test(menuchangestest)
 declare_test(modeltest)
 declare_test(actiongrouptest)
 declare_simple_test(convertertest)
+
