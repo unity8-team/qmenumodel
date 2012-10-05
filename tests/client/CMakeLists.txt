@@ -1,18 +1,12 @@
 macro(declare_test testname)
-    set(TEST_MOC_FILE ${CMAKE_CURRENT_BINARY_DIR}/${testname}.moc)
-    qt5_generate_moc(${testname}.cpp ${TEST_MOC_FILE})
-
-    add_executable(${testname} ${testname}.cpp ${TEST_MOC_FILE})
+    add_executable(${testname} ${testname}.cpp)
     qt5_use_modules(${testname} Core DBus Widgets Test)
     target_link_libraries(${testname}
                           qmenumodel
                           dbusmenuscript
-                          ${QT_QTTEST_LIBRARY}
-                          ${QT_QTCORE_LIBRARY}
-                          ${QT_QTGUI_LIBRARY}
-                          ${QT_QTDBUS_LIBRARY}
                           ${GLIB_LDFLAGS}
-                          ${GIO_LDFLAGS})
+                          ${GIO_LDFLAGS}
+    )
 
     add_test(${testname}
              ${DBUS_RUNNER}
@@ -26,19 +20,13 @@ macro(declare_test testname)
 endmacro(declare_test testname)
 
 macro(declare_simple_test testname)
-    set(TEST_MOC_FILE ${CMAKE_CURRENT_BINARY_DIR}/${testname}.moc)
-    qt5_generate_moc(${testname}.cpp ${TEST_MOC_FILE})
-
-    add_executable(${testname} ${testname}.cpp ${TEST_MOC_FILE})
+    add_executable(${testname} ${testname}.cpp)
     qt5_use_modules(${testname} Core Test)
     target_link_libraries(${testname}
                           qmenumodel
-                          ${QT_QTTEST_LIBRARY}
-                          ${QT_QTCORE_LIBRARY}
-                          ${QT_QTGUI_LIBRARY}
-                          ${QT_QTDBUS_LIBRARY}
                           ${GLIB_LDFLAGS}
-                          ${GIO_LDFLAGS})
+                          ${GIO_LDFLAGS}
+    )
 
     add_test(${testname}
              ${CMAKE_CURRENT_BINARY_DIR}/${testname})
@@ -49,14 +37,8 @@ endmacro(declare_simple_test testname)
 
 include_directories(${src_SOURCE_DIR}
                     ${dbusmenuscript_SOURCE_DIR}
-                    ${CMAKE_CURRENT_BINARY_DIR}
-                    ${QT_INCLUDE_DIR}
-                    ${QT_QTTEST_INCLUDE_DIR}
-                    ${QT_QTCORE_INCLUDE_DIR}
-                    ${QT_QTGUI_INCLUDE_DIR}
-                    ${QT_QTDBUS_INCLUDE_DIR}
                     ${GLIB_INCLUDE_DIRS}
-                    ${GIO_INCLUDE_DIRS})
+)
 
 add_definitions(-DTEST_SUITE)
 set(TEST_PYTHONPATH ${dbusmenuscript_SOURCE_DIR})
