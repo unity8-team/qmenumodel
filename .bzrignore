@@ -6,6 +6,8 @@ Testing/
 cmake_install.cmake
 install_manifest.txt
 
+libqmenumodel/src/libqmenumodel.so*
+
 moc_*.cpp
 *_automoc.cpp
 
