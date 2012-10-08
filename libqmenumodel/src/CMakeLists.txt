@@ -23,6 +23,12 @@ set_target_properties(${SHAREDLIBNAME} PROPERTIES
 
 include_directories(
     ${GLIB_INCLUDE_DIRS}
+    ${GIO_INCLUDE_DIRS}
+)
+
+target_link_libraries(${SHAREDLIBNAME}
+    ${GLIB_LDFLAGS}
+    ${GIO_LDFLAGS}
 )
 
 qt5_use_modules(${SHAREDLIBNAME} Core Widgets)
