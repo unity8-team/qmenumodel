@@ -180,8 +180,8 @@ void QDBusObject::onServiceAppeared(GDBusConnection *connection, const gchar *, 
 {
     QDBusObject *self = reinterpret_cast<QDBusObject*>(data);
 
-    self->setStatus(DBusEnums::Connected);
     self->serviceAppear(connection);
+    self->setStatus(DBusEnums::Connected);
 }
 
 void QDBusObject::onServiceVanished(GDBusConnection *connection, const gchar *, gpointer data)
