@@ -100,7 +100,7 @@ void QDBusObject::setBusType(DBusEnums::BusType type)
         if (m_status != DBusEnums::Disconnected)
             disconnect();
         m_busType = type;
-        busTypeChanged(m_busType);
+        Q_EMIT busTypeChanged(m_busType);
     }
 }
 
@@ -115,7 +115,7 @@ void QDBusObject::setBusName(const QString &busName)
         if (m_status != DBusEnums::Disconnected)
             disconnect();
         m_busName = busName;
-        busNameChanged(m_busName);
+        Q_EMIT busNameChanged(m_busName);
     }
 }
 
@@ -130,7 +130,7 @@ void QDBusObject::setObjectPath(const QString &objectPath)
         if (m_status != DBusEnums::Disconnected)
             disconnect();
         m_objectPath = objectPath;
-        objectPathChanged(m_objectPath);
+        Q_EMIT objectPathChanged(m_objectPath);
     }
 }
 
@@ -138,7 +138,7 @@ void QDBusObject::setStatus(DBusEnums::ConnectionStatus status)
 {
     if (m_status != status) {
         m_status = status;
-        statusChanged(m_status);
+        Q_EMIT statusChanged(m_status);
     }
 }
 
