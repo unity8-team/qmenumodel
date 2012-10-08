@@ -17,6 +17,10 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
+extern "C" {
+#include <glib-object.h>
+}
+
 #include "qdbusobject.h"
 
 #include <QDebug>
@@ -73,6 +77,7 @@ QDBusObject::QDBusObject()
      m_busType(DBusEnums::None),
      m_status(DBusEnums::Disconnected)
 {
+    g_type_init();
     qRegisterMetaType<DBusEnums::ConnectionStatus>("DBusEnums::ConnectionStatus");
 }
 

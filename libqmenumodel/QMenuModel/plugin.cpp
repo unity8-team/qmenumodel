@@ -17,10 +17,6 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
-extern "C" {
-#include <glib-object.h>
-}
-
 #include "plugin.h"
 #include "qmenumodel.h"
 #include "qdbusmenumodel.h"
@@ -31,7 +27,6 @@ extern "C" {
 
 void QMenuModelQmlPlugin::registerTypes(const char *uri)
 {
-    g_type_init();
     qmlRegisterUncreatableType<QMenuModel>(uri, 0, 1, "QMenuModel",
                                            "QMenuModel is a interface");
     qmlRegisterUncreatableType<QStateAction>(uri, 0, 1, "QStateAction",
