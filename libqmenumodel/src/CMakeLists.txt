@@ -26,3 +26,18 @@ include_directories(
 
 qt5_use_modules(qmenumodel Core Widgets)
 
+install(TARGETS qmenumodel LIBRARY DESTINATION lib${LIB_SUFFIX})
+
+set(QMENUMODEL_HEADERS
+    dbus-enums.h
+    qdbusactiongroup.h
+    qdbusmenumodel.h
+    qdbusobject.h
+    qmenumodel.h
+    qstateaction.h
+)
+
+install(FILES ${QMENUMODEL_HEADERS}
+    DESTINATION include/qmenumodel
+)
+
