@@ -15,6 +15,7 @@ Section: libs
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
+Pre-Depends: ${misc:Pre-Depends}
 Description: Qt binding for GMenuModel - shared library
  Qt binding for GMenuModel that allows connecting to a menu model exposed on
  D-Bus and presents it as a list model.
