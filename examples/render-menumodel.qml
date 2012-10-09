@@ -15,7 +15,11 @@ Item {
         busType: DBus.SessionBus
         busName: "com.canonical.testmenu"
         objectPath: "/com/canonical/testmenu"
-        onStatusChanged: console.log("status of menu model changed to", status)
+        onStatusChanged: {
+            if (status == DBus.Connecting) {
+                view.reset()
+            }
+        }
     }
 
     ListView {
@@ -28,7 +32,6 @@ Item {
         anchors.margins: 10
         spacing: 3
         model: menuModel
-        Component.onCompleted: menuModel.start()
         delegate: Rectangle {
             width: parent.width
             height: 30
@@ -85,6 +88,11 @@ Item {
             newback.pop()
             view.__back = newback
         }
+        function reset() {
+            while (view.__back.length > 0) {
+                goback()
+            }
+        }
     }
 
     Rectangle {
@@ -132,5 +140,7 @@ Item {
             font.pixelSize: 11
         }
     }
+
+    Component.onCompleted: menuModel.start()
 }
 
