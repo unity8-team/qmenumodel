@@ -27,6 +27,10 @@
 
 class QStateAction;
 
+typedef struct _GVariant GVariant;
+typedef struct _GActionGroup GActionGroup;
+typedef struct _GDBusActionGroup GDBusActionGroup;
+
 class QDBusActionGroup : public QObject, public QDBusObject
 {
     Q_OBJECT
@@ -77,9 +81,9 @@ private:
     void clear();
 
     // glib slots
-    static void onActionAdded(GDBusActionGroup *ag, gchar *name, gpointer data);
-    static void onActionRemoved(GDBusActionGroup *ag, gchar *name, gpointer data);
-    static void onActionStateChanged(GDBusActionGroup *ag, gchar *name, GVariant *value, gpointer data);
+    static void onActionAdded(GDBusActionGroup *ag, char *name, void *data);
+    static void onActionRemoved(GDBusActionGroup *ag, char *name, void *data);
+    static void onActionStateChanged(GDBusActionGroup *ag, char *name, GVariant *value, void *data);
 };
 
 #endif

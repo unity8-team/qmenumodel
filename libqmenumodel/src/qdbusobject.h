@@ -20,13 +20,11 @@
 #ifndef QDBUSOBJECT_H
 #define QDBUSOBJECT_H
 
-extern "C" {
-#include <gio/gio.h>
-}
-
 #include <QString>
 
 #include "dbus-enums.h"
+
+typedef struct _GDBusConnection GDBusConnection;
 
 class QDBusObject
 {
@@ -59,7 +57,7 @@ protected:
     virtual void statusChanged(DBusEnums::ConnectionStatus status) = 0;
 
 private:
-    guint m_watchId;
+    quint32 m_watchId;
     DBusEnums::BusType m_busType;
     QString m_busName;
     QString m_objectPath;
@@ -68,8 +66,8 @@ private:
     void setStatus(DBusEnums::ConnectionStatus status);
 
     // glib slots
-    static void onServiceAppeared(GDBusConnection *connection, const gchar *name, const gchar *name_owner, gpointer data);
-    static void onServiceVanished(GDBusConnection *connection, const gchar *name, gpointer data);
+    static void onServiceAppeared(GDBusConnection *connection, const char *name, const char *name_owner, void *data);
+    static void onServiceVanished(GDBusConnection *connection, const char *name, void *data);
 };
 
 #endif

@@ -17,6 +17,10 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
+extern "C" {
+#include <gio/gio.h>
+}
+
 #include "qmenumodel.h"
 #include "converter.h"
 
@@ -205,10 +209,10 @@ QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
 
 /*! \internal */
 void QMenuModel::onItemsChanged(GMenuModel *,
-                                gint position,
-                                gint removed,
-                                gint added,
-                                gpointer data)
+                                int position,
+                                int removed,
+                                int added,
+                                void *data)
 {
     QMenuModel *self = reinterpret_cast<QMenuModel*>(data);
 

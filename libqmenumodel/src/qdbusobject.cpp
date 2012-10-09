@@ -17,6 +17,11 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
+extern "C" {
+#include <glib-object.h>
+#include <gio/gio.h>
+}
+
 #include "qdbusobject.h"
 
 #include <QDebug>
@@ -171,7 +176,7 @@ void QDBusObject::disconnect()
     }
 }
 
-void QDBusObject::onServiceAppeared(GDBusConnection *connection, const gchar *, const gchar *, gpointer data)
+void QDBusObject::onServiceAppeared(GDBusConnection *connection, const char *, const char *, void *data)
 {
     QDBusObject *self = reinterpret_cast<QDBusObject*>(data);
 
@@ -179,7 +184,7 @@ void QDBusObject::onServiceAppeared(GDBusConnection *connection, const gchar *, 
     self->serviceAppear(connection);
 }
 
-void QDBusObject::onServiceVanished(GDBusConnection *connection, const gchar *, gpointer data)
+void QDBusObject::onServiceVanished(GDBusConnection *connection, const char *, void *data)
 {
     QDBusObject *self = reinterpret_cast<QDBusObject*>(data);    
 

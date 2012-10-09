@@ -22,9 +22,7 @@
 
 #include <QAbstractListModel>
 
-extern "C" {
-#include <gio/gio.h>
-}
+typedef struct _GMenuModel GMenuModel;
 
 class QMenuModel : public QAbstractListModel
 {
@@ -53,14 +51,14 @@ protected:
 
 private:
     GMenuModel *m_menuModel;
-    guint m_signalChangedId;
+    quint32 m_signalChangedId;
 
     QVariant getStringAttribute(const QModelIndex &index, const QString &attribute) const;
     QVariant getLink(const QModelIndex &index, const QString &linkName) const;
     QVariant getExtraProperties(const QModelIndex &index) const;
     QString parseExtraPropertyName(const QString &name) const;
 
-    static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
+    static void onItemsChanged(GMenuModel *model, int position, int removed, int added, void *data);
 };
 
 #endif
