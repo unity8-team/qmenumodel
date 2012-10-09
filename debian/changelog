@@ -2,6 +2,10 @@ qmenumodel (0.1.1) UNRELEASED; urgency=low
 
   * Renaming source package to qmenumodel
   * Port to Qt5
+  * Expose a C++ library, and separate into 3 binary packages:
+    - libqmenumodel0: C++ library
+    - libqmenumodel-dev: development headers for the C++ library
+    - qmenumodel-qml: QML module
 
  -- Olivier Tilloy <olivier.tilloy@canonical.com>  Thu, 04 Oct 2012 17:37:23 +0200
 
