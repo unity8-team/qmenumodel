@@ -2,6 +2,7 @@
 # -*- makefile -*-
 
 DEB_CMAKE_EXTRA_FLAGS = -DCMAKE_PREFIX_PATH=/opt/qt5/lib/cmake
+DEB_DH_MAKESHLIBS_ARGS_qmenumodel-qml = -Xlibqmenumodel-qml.so
 
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/rules/utils.mk
