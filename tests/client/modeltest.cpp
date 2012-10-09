@@ -209,6 +209,28 @@ private Q_SLOTS:
         QCOMPARE(v.toString(), QString("42"));
     }
 
+    /*
+     * Test if model is destroyed without crash
+     */
+    void testDestroyModel()
+    {
+        // Make menu available
+        m_script.publishMenu();
+        m_script.run();
+
+        // create a new model
+        QDBusMenuModel *model = new QDBusMenuModel();
+        model->setBusType(DBusEnums::SessionBus);
+        model->setBusName(MENU_SERVICE_NAME);
+        model->setObjectPath(MENU_OBJECT_PATH);
+        model->start();
+
+        // Wait for dbus sync
+        QTest::qWait(500);
+
+        delete model;
+    }
+
 };
 
 QTEST_MAIN(ModelTest)

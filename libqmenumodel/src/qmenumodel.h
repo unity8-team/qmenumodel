@@ -48,7 +48,7 @@ public:
 
 protected:
     QMenuModel(GMenuModel *other=0, QObject *parent=0);
-    void setMenuModel(GMenuModel *model);
+    void setMenuModel(GMenuModel *model, bool notify);
     GMenuModel *menuModel() const;
 
 private:

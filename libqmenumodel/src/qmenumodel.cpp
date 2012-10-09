@@ -46,23 +46,25 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
         rolesNames[Extra] = "extra";
     }
     setRoleNames(rolesNames);
-    setMenuModel(other);
+    setMenuModel(other, true);
 }
 
 /*! \internal */
 QMenuModel::~QMenuModel()
 {
-   setMenuModel(NULL);
+    setMenuModel(NULL, false);
 }
 
 /*! \internal */
-void QMenuModel::setMenuModel(GMenuModel *other)
+void QMenuModel::setMenuModel(GMenuModel *other, bool notify)
 {
     if (m_menuModel == other) {
         return;
     }
 
-    beginResetModel();
+    if (notify) {
+        beginResetModel();
+    }
 
     if (m_menuModel) {
         g_signal_handler_disconnect(m_menuModel, m_signalChangedId);
@@ -81,7 +83,9 @@ void QMenuModel::setMenuModel(GMenuModel *other)
                                              this);
     }
 
-    endResetModel();
+    if (notify) {
+        endResetModel();
+    }
 }
 
 /*! \internal */
