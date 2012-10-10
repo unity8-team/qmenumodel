@@ -85,7 +85,7 @@ void QDBusMenuModel::stop()
 /*! \internal */
 void QDBusMenuModel::serviceVanish(GDBusConnection *)
 {
-    setMenuModel(NULL, true);
+    setMenuModel(NULL);
 }
 
 /*! \internal */
@@ -94,7 +94,7 @@ void QDBusMenuModel::serviceAppear(GDBusConnection *connection)
     GMenuModel *model = reinterpret_cast<GMenuModel*>(g_dbus_menu_model_get(connection,
                                                                             busName().toLatin1(),
                                                                             objectPath().toLatin1()));
-    setMenuModel(model, true);
+    setMenuModel(model);
     if (model == NULL) {
         stop();
     }

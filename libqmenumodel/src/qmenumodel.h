@@ -48,7 +48,7 @@ public:
 
 protected:
     QMenuModel(GMenuModel *other=0, QObject *parent=0);
-    void setMenuModel(GMenuModel *model, bool notify);
+    void setMenuModel(GMenuModel *model);
     GMenuModel *menuModel() const;
 
 private:
@@ -59,6 +59,7 @@ private:
     QVariant getLink(const QModelIndex &index, const QString &linkName) const;
     QVariant getExtraProperties(const QModelIndex &index) const;
     QString parseExtraPropertyName(const QString &name) const;
+    void clearModel();
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
 };
