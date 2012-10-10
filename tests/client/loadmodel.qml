@@ -10,9 +10,7 @@ Item {
 
     onResetChanged: {
         if (reset) {
-            console.log("Remove page");
             view.model.destroy();
-            //pop();
         }
     }
 
@@ -22,16 +20,11 @@ Item {
         delegate: Text {
             text: label
         }
-        onCountChanged: {
-            console.log("Row count: " + count);
-        }
     }
 
     Component.onCompleted: {
         var model = Qt.createQmlObject("import QMenuModel 0.1; QDBusMenuModel { id: menuModel; busType: globalBusType; busName: globalBusName; objectPath: globalObjectPath; }", view, "");
         model.start();
-        console.log("New model: " + model)
-        console.log("New model2: " + model)
         view.model = model;
     }
 }
