@@ -65,7 +65,7 @@ private Q_SLOTS:
     /*
      * Test if model is destroyed without crash
      */
-    void destoyModel()
+    void destroyModel()
     {
         m_script.publishMenu();
         m_script.run();
