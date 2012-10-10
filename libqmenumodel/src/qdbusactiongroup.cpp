@@ -212,21 +212,21 @@ void QDBusActionGroup::updateActionState(const QString &name, const QVariant &st
 }
 
 /*! \internal */
-void QDBusActionGroup::onActionAdded(GDBusActionGroup *, char *name, void *data)
+void QDBusActionGroup::onActionAdded(GDBusActionGroup *, gchar *name, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
     Q_EMIT self->actionAppear(name);
 }
 
 /*! \internal */
-void QDBusActionGroup::onActionRemoved(GDBusActionGroup *, char *name, void *data)
+void QDBusActionGroup::onActionRemoved(GDBusActionGroup *, gchar *name, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
     Q_EMIT self->actionVanish(name);
 }
 
 /*! \internal */
-void QDBusActionGroup::onActionStateChanged(GDBusActionGroup *, char *name, GVariant *value, void *data)
+void QDBusActionGroup::onActionStateChanged(GDBusActionGroup *, gchar *name, GVariant *value, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
     Q_EMIT self->actionStateChanged(name, Converter::toQVariant(value));

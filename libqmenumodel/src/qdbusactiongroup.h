@@ -27,6 +27,8 @@
 
 class QStateAction;
 
+typedef char gchar;
+typedef void* gpointer;
 typedef struct _GVariant GVariant;
 typedef struct _GActionGroup GActionGroup;
 typedef struct _GDBusActionGroup GDBusActionGroup;
@@ -81,9 +83,9 @@ private:
     void clear();
 
     // glib slots
-    static void onActionAdded(GDBusActionGroup *ag, char *name, void *data);
-    static void onActionRemoved(GDBusActionGroup *ag, char *name, void *data);
-    static void onActionStateChanged(GDBusActionGroup *ag, char *name, GVariant *value, void *data);
+    static void onActionAdded(GDBusActionGroup *ag, gchar *name, gpointer data);
+    static void onActionRemoved(GDBusActionGroup *ag, gchar *name, gpointer data);
+    static void onActionStateChanged(GDBusActionGroup *ag, gchar *name, GVariant *value, gpointer data);
 };
 
 #endif

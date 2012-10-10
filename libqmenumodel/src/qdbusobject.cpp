@@ -176,7 +176,7 @@ void QDBusObject::disconnect()
     }
 }
 
-void QDBusObject::onServiceAppeared(GDBusConnection *connection, const char *, const char *, void *data)
+void QDBusObject::onServiceAppeared(GDBusConnection *connection, const gchar *, const gchar *, gpointer data)
 {
     QDBusObject *self = reinterpret_cast<QDBusObject*>(data);
 
@@ -184,7 +184,7 @@ void QDBusObject::onServiceAppeared(GDBusConnection *connection, const char *, c
     self->serviceAppear(connection);
 }
 
-void QDBusObject::onServiceVanished(GDBusConnection *connection, const char *, void *data)
+void QDBusObject::onServiceVanished(GDBusConnection *connection, const gchar *, gpointer data)
 {
     QDBusObject *self = reinterpret_cast<QDBusObject*>(data);    
 

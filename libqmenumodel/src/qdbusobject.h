@@ -24,6 +24,9 @@
 
 #include "dbus-enums.h"
 
+typedef unsigned int guint;
+typedef char gchar;
+typedef void* gpointer;
 typedef struct _GDBusConnection GDBusConnection;
 
 class QDBusObject
@@ -57,7 +60,7 @@ protected:
     virtual void statusChanged(DBusEnums::ConnectionStatus status) = 0;
 
 private:
-    quint32 m_watchId;
+    guint m_watchId;
     DBusEnums::BusType m_busType;
     QString m_busName;
     QString m_objectPath;
@@ -66,8 +69,8 @@ private:
     void setStatus(DBusEnums::ConnectionStatus status);
 
     // glib slots
-    static void onServiceAppeared(GDBusConnection *connection, const char *name, const char *name_owner, void *data);
-    static void onServiceVanished(GDBusConnection *connection, const char *name, void *data);
+    static void onServiceAppeared(GDBusConnection *connection, const gchar *name, const gchar *name_owner, gpointer data);
+    static void onServiceVanished(GDBusConnection *connection, const gchar *name, gpointer data);
 };
 
 #endif

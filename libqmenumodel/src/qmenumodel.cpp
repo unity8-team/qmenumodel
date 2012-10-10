@@ -209,10 +209,10 @@ QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
 
 /*! \internal */
 void QMenuModel::onItemsChanged(GMenuModel *,
-                                int position,
-                                int removed,
-                                int added,
-                                void *data)
+                                gint position,
+                                gint removed,
+                                gint added,
+                                gpointer data)
 {
     QMenuModel *self = reinterpret_cast<QMenuModel*>(data);
 
