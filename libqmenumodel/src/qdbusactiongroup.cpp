@@ -22,6 +22,7 @@
 #include "converter.h"
 
 extern "C" {
+#include <glib.h>
 #include <gio/gio.h>
 }
 

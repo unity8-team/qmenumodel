@@ -20,13 +20,14 @@
 #ifndef QDBUSOBJECT_H
 #define QDBUSOBJECT_H
 
-extern "C" {
-#include <gio/gio.h>
-}
-
 #include <QString>
 
 #include "dbus-enums.h"
+
+typedef unsigned int guint;
+typedef char gchar;
+typedef void* gpointer;
+typedef struct _GDBusConnection GDBusConnection;
 
 class QDBusObject
 {

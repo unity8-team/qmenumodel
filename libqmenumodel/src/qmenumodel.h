@@ -22,9 +22,10 @@
 
 #include <QAbstractListModel>
 
-extern "C" {
-#include <gio/gio.h>
-}
+typedef int gint;
+typedef unsigned int guint;
+typedef void* gpointer;
+typedef struct _GMenuModel GMenuModel;
 
 class QMenuModel : public QAbstractListModel
 {

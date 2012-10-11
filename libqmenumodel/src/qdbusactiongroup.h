@@ -27,6 +27,12 @@
 
 class QStateAction;
 
+typedef char gchar;
+typedef void* gpointer;
+typedef struct _GVariant GVariant;
+typedef struct _GActionGroup GActionGroup;
+typedef struct _GDBusActionGroup GDBusActionGroup;
+
 class QDBusActionGroup : public QObject, public QDBusObject
 {
     Q_OBJECT
