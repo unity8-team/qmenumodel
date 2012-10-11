@@ -84,6 +84,35 @@ private Q_SLOTS:
         QTest::qWait(500);
     }
 
+    /*
+     * Test the menu model disappearing from the bus and reappearing
+     * while the QML application is running.
+     */
+    void testServiceDisappear()
+    {
+        m_script.publishMenu();
+        m_script.run();
+        QTest::qWait(500);
+
+        QQuickView *view = new QQuickView;
+        view->engine()->addImportPath(QML_BASE_DIR);
+        view->engine()->rootContext()->setContextProperty("globalBusType", DBusEnums::SessionBus);
+        view->engine()->rootContext()->setContextProperty("globalBusName", MENU_SERVICE_NAME);
+        view->engine()->rootContext()->setContextProperty("globalObjectPath", MENU_OBJECT_PATH);
+        view->setSource(QUrl::fromLocalFile(LOADMODEL2_QML));
+        view->show();
+        QTest::qWait(500);
+
+        m_script.unpublishMenu();
+        QTest::qWait(500);
+
+        m_script.publishMenu();
+        m_script.run();
+        QTest::qWait(500);
+
+        delete view;
+        QTest::qWait(1000);
+    }
 };
 
 QTEST_MAIN(QMLTest)

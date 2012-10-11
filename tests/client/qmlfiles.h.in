@@ -1,2 +1,3 @@
 const char* QML_BASE_DIR = "@libqmenumodel_BINARY_DIR@";
 const char* LOADMODEL_QML = "@CMAKE_CURRENT_SOURCE_DIR@/loadmodel.qml";
+const char* LOADMODEL2_QML = "@CMAKE_CURRENT_SOURCE_DIR@/loadmodel2.qml";
