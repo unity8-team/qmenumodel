@@ -1,9 +1,13 @@
-qmenumodel (0.1.1) UNRELEASED; urgency=low
+qmenumodel (0.1.2) quantal; urgency=low
 
+  [ Olivier Tilloy ]
   * Renaming source package to qmenumodel
   * Port to Qt5
 
- -- Olivier Tilloy <olivier.tilloy@canonical.com>  Thu, 04 Oct 2012 17:37:23 +0200
+  [ Ricardo Mendoza ]
+  * Bump version for Release
+
+ -- Ricardo Mendoza <ricardo.mendoza@canonical.com>  Thu, 11 Oct 2012 12:55:53 -0430
 
 qmenumodel-qml (0.1.0) quantal; urgency=low
 
