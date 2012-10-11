@@ -19,6 +19,7 @@
 
 extern "C" {
 #include <glib-object.h>
+#include <gio/gio.h>
 }
 
 #include "qdbusobject.h"

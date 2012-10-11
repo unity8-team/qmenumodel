@@ -17,6 +17,10 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
+extern "C" {
+#include <gio/gio.h>
+}
+
 #include "qmenumodel.h"
 #include "converter.h"
 

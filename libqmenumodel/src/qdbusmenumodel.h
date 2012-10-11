@@ -23,10 +23,6 @@
 #include "qdbusobject.h"
 #include "qmenumodel.h"
 
-extern "C" {
-#include <gio/gio.h>
-}
-
 class QDBusMenuModel : public QMenuModel, public QDBusObject
 {
     Q_OBJECT
