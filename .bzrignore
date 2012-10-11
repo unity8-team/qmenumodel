@@ -16,6 +16,8 @@ tests/client/actiongrouptest
 tests/client/convertertest
 tests/client/menuchangestest
 tests/client/modeltest
+tests/client/qmlfiles.h
+tests/client/qmltest
 tests/client/servicetest
 
 doc/html/
