@@ -10,6 +10,7 @@ Item {
 
     onResetChanged: {
         if (reset) {
+            // destroy the current model and check if it will not crash the QML engine
             view.model.destroy();
         }
     }
@@ -23,6 +24,7 @@ Item {
     }
 
     Component.onCompleted: {
+        // dynamically create the model to destroy it later
         var model = Qt.createQmlObject("import QMenuModel 0.1; QDBusMenuModel { id: menuModel; busType: globalBusType; busName: globalBusName; objectPath: globalObjectPath; }", view, "");
         model.start();
         view.model = model;
