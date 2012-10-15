@@ -33,7 +33,7 @@ class QDBusMenuModel : public QMenuModel, public QDBusObject
 
 public:
     QDBusMenuModel(QObject *parent=0);
-    ~QDBusMenuModel();    
+    ~QDBusMenuModel();
 
 Q_SIGNALS:
     void busTypeChanged(DBusEnums::BusType type);

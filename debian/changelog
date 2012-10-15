@@ -1,3 +1,12 @@
+qmenumodel (0.1.4) UNRELEASED; urgency=low
+
+  * Expose a C++ library, and separate into 3 binary packages:
+    - libqmenumodel0: C++ library
+    - libqmenumodel-dev: development headers for the C++ library
+    - qmenumodel-qml: QML module
+
+ -- Olivier Tilloy <olivier.tilloy@canonical.com>  Mon, 15 Oct 2012 11:51:13 +0200
+
 qmenumodel (0.1.3) quantal; urgency=low
 
   * Rebuild for armhf

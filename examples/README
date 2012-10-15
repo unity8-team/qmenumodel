@@ -1,11 +1,23 @@
 This directory contains examples that demonstrate how to use the QMenuModel
-QML binding in applications.
+binding in Qt and QML applications.
+
 
 To export an example menu model on the bus, run 'exportmenu.py'.
+
 
 To render this menu in a QML application, run 'render-menumodel.qml' in
 qmlscene. You will need to inform qmlscene of the location of the QMenuModel
 plugin if it’s not installed system-wide, e.g.:
 
-    qmlscene -I libqmenumodel examples/render-menumodel.qml
+    $ qmlscene -I libqmenumodel examples/render-menumodel.qml
+
+
+To compile a C++ executable that uses libqmenumodel to monitor and print
+information about the exported menu, run `cmake` and then `make` from this
+directory. This assumes that libqmenumodel-dev is installed on the system
+(it won’t work with a local copy). Then, run the executable generated:
+
+    $ cmake .
+    $ make
+    $ ./info-menumodel
 
