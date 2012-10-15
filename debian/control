@@ -10,10 +10,36 @@ Build-Depends: debhelper (>= 8.0.0),
                qtdeclarative (>= 5.0),
 Standards-Version: 3.9.2
 
+Package: libqmenumodel0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+Pre-Depends: ${misc:Pre-Depends}
+Description: Qt binding for GMenuModel - shared library
+ Qt binding for GMenuModel that allows connecting to a menu model exposed on
+ D-Bus and presents it as a list model.
+
+Package: libqmenumodel-dev
+Section: libdevel
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         libqmenumodel0 (= ${binary:Version}),
+         qtbase (>= 5.0),
+Description: Qt binding for GMenuModel - development files
+ Qt binding for GMenuModel that allows connecting to a menu model exposed on
+ D-Bus and presents it as a list model.
+ .
+ This package contains the development headers for libqmenumodel.
+
 Package: qmenumodel-qml
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-Description: QML bindings for GMenuModel
+         libqmenumodel0 (= ${binary:Version}),
+Description: Qt binding for GMenuModel - QML module
+ QML module that allows connecting to a menu model exposed on D-Bus and presents
+ it as a list model.
 

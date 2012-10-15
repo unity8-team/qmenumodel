@@ -1,0 +1,4 @@
+usr/include/qmenumodel/*.h
+usr/lib/*/pkgconfig/qmenumodel.pc
+usr/lib/*/libqmenumodel.so
+

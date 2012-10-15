@@ -1,8 +1,9 @@
 = TODO =
 
- • Expose a plain Qt library as well as the QML plugin, so that QDBusMenuModel
-   can be used from C++ too
- • Use PIMPLs to clean up the headers (see point above)
+ • Use PIMPLs to clean up the headers
  • Add a server-side API to allow applications to export their menus on the bus
+ • [optional] Add a ProjectConfig.cmake file to allow other projects using
+   cmake to express a dependency on libqmenumodel without requesting pkgconfig
+   (see http://www.vtk.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file)
  • …
 

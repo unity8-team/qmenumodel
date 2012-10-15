@@ -2,6 +2,9 @@ project(qmenumodel)
 
 cmake_minimum_required(VERSION 2.8.9)
 
+# Standard install paths
+include(GNUInstallDirs)
+
 find_package(Qt5Core REQUIRED)
 include(FindPkgConfig)
 pkg_check_modules(GLIB REQUIRED glib-2.0>=2.32)
