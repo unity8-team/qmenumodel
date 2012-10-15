@@ -38,6 +38,19 @@ QVariant Converter::toQVariant(GVariant *value)
         gsize size = 0;
         const gchar *v = g_variant_get_string(value, &size);
         result.setValue(QString::fromLatin1(v, size));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_VARDICT)) {
+        GVariantIter iter;
+        GVariant *vvalue;
+        gchar *key;
+        QVariantMap qmap;
+
+        g_variant_iter_init (&iter, value);
+        while (g_variant_iter_loop (&iter, "{sv}", &key, &vvalue))
+        {
+            qmap.insert(QString::fromLatin1(key), toQVariant(vvalue));
+        }
+
+        result.setValue(qmap);
     } else {
         qWarning() << "Unsupported GVariant value";
     }
@@ -109,6 +122,21 @@ GVariant* Converter::toGVariant(const QVariant &value)
     case QVariant::UInt:
         result = g_variant_new_uint32(value.toUInt());
         break;
+    case QVariant::Map:
+    {
+        GVariantBuilder *b;
+        GVariant *dict;
+
+        b = g_variant_builder_new(G_VARIANT_TYPE ("a{sv}"));
+        QMapIterator<QString, QVariant> i(value.toMap());
+        while (i.hasNext()) {
+            i.next();
+            g_variant_builder_add(b, "{sv}", reinterpret_cast<const char*>(i.key().toLatin1().data()), toGVariant(i.value()));
+        }
+        result = g_variant_builder_end(b);
+        g_variant_builder_unref(b);
+        break;
+    }
     default:
         result = ::toGVariant(value.typeName(), value);
     }
