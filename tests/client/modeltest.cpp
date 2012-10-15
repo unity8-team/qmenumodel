@@ -202,6 +202,16 @@ private Q_SLOTS:
         v = extra["string"];
         QCOMPARE(v.type(), QVariant::String);
         QCOMPARE(v.toString(), QString("42"));
+
+        // Map
+        v = extra["map"];
+        QVariantMap map;
+        map.insert("int64", QVariant::fromValue<long>(-42));
+        map.insert("string", "42");
+        map.insert("double", 42.42);
+
+        QCOMPARE(v.type(), QVariant::Map);
+        QCOMPARE(v.toMap(), map);
     }
 
 };

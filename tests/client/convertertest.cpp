@@ -35,7 +35,7 @@ private:
     bool compare(const QVariant &qv, const GVariantType *type)
     {
         bool result;
-        GVariant *gv = Converter::toGVariant(qv);        
+        GVariant *gv = Converter::toGVariant(qv);
         result = g_variant_type_equal(g_variant_get_type(gv), type);
         if (!result) {
             qWarning() << "types are different: QVariant:" << qv.typeName()
@@ -48,7 +48,6 @@ private:
 
 private Q_SLOTS:
 
-    
     /*
      * Test converter QVariant to GVariant
      */
@@ -86,6 +85,9 @@ private Q_SLOTS:
 
         // ByteArray
         QVERIFY(compare(QVariant(QByteArray("42")), G_VARIANT_TYPE_BYTESTRING));
+
+        // Map
+        QVERIFY(compare(QVariantMap(), G_VARIANT_TYPE_VARDICT));
     }
 
 };
