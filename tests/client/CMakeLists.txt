@@ -1,6 +1,6 @@
 macro(declare_test testname)
     add_executable(${testname} ${testname}.cpp)
-    qt5_use_modules(${testname} Core DBus Widgets Test)
+    qt5_use_modules(${testname} Core DBus Widgets Test Qml Quick)
     target_link_libraries(${testname}
                           qmenumodel
                           dbusmenuscript
@@ -50,5 +50,8 @@ declare_test(servicetest)
 declare_test(menuchangestest)
 declare_test(modeltest)
 declare_test(actiongrouptest)
+declare_test(qmltest)
 declare_simple_test(convertertest)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/qmlfiles.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/qmlfiles.h)

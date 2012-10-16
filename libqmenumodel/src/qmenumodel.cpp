@@ -56,7 +56,7 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
 /*! \internal */
 QMenuModel::~QMenuModel()
 {
-   setMenuModel(NULL);
+    clearModel();
 }
 
 /*! \internal */
@@ -68,11 +68,7 @@ void QMenuModel::setMenuModel(GMenuModel *other)
 
     beginResetModel();
 
-    if (m_menuModel) {
-        g_signal_handler_disconnect(m_menuModel, m_signalChangedId);
-        m_signalChangedId = 0;
-        g_object_unref(m_menuModel);
-    }
+    clearModel();
 
     m_menuModel = other;
 
@@ -92,6 +88,17 @@ void QMenuModel::setMenuModel(GMenuModel *other)
 GMenuModel *QMenuModel::menuModel() const
 {
     return m_menuModel;
+}
+
+/*! \internal */
+void QMenuModel::clearModel()
+{
+    if (m_menuModel) {
+        g_signal_handler_disconnect(m_menuModel, m_signalChangedId);
+        m_signalChangedId = 0;
+        g_object_unref(m_menuModel);
+        m_menuModel = NULL;
+    }
 }
 
 /*! \internal */
