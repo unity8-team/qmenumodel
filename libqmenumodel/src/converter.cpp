@@ -127,7 +127,7 @@ GVariant* Converter::toGVariant(const QVariant &value)
         GVariantBuilder *b;
         GVariant *dict;
 
-        b = g_variant_builder_new(G_VARIANT_TYPE ("a{sv}"));
+        b = g_variant_builder_new(G_VARIANT_TYPE_VARDICT);
         QMapIterator<QString, QVariant> i(value.toMap());
         while (i.hasNext()) {
             i.next();
