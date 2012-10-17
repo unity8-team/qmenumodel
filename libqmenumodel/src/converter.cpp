@@ -131,7 +131,7 @@ GVariant* Converter::toGVariant(const QVariant &value)
         QMapIterator<QString, QVariant> i(value.toMap());
         while (i.hasNext()) {
             i.next();
-            g_variant_builder_add(b, "{sv}", reinterpret_cast<const char*>(i.key().toLatin1().data()), toGVariant(i.value()));
+            g_variant_builder_add(b, "{sv}", i.key().toUtf8().data(), toGVariant(i.value()));
         }
         result = g_variant_builder_end(b);
         g_variant_builder_unref(b);
