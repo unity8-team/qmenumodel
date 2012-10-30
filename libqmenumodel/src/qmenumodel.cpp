@@ -156,10 +156,10 @@ QVariant QMenuModel::getStringAttribute(const QModelIndex &index,
     gchar* value = NULL;
     g_menu_model_get_item_attribute(m_menuModel,
                                     index.row(),
-                                    attribute.toLatin1(),
+                                    attribute.toUtf8().data(),
                                     "s", &value);
     if (value) {
-        result = QVariant(QString::fromLatin1(value));
+        result = QVariant(QString::fromUtf8(value));
         g_free(value);
     }
     return result;
@@ -173,7 +173,7 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
 
     link = g_menu_model_get_item_link(m_menuModel,
                                       index.row(),
-                                      linkName.toLatin1());
+                                      linkName.toUtf8().data());
 
     if (link) {      
         QMenuModel *other = new QMenuModel(link, const_cast<QMenuModel*>(this));
