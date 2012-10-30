@@ -1,4 +1,5 @@
 #!/usr/bin/python2.7
+# -*- coding: utf-8 -*-
 
 import time
 from gi.repository import GLib
@@ -21,6 +22,7 @@ al.appendItem("Menu0", "Menu0Act", None, None, {'x-boolean' : GLib.Variant('b', 
                                                 'x-uint64' : GLib.Variant('t', 42),
                                                 'x-double' : GLib.Variant('d', 42.42),
                                                 'x-string' : GLib.Variant('s', u'42'),
+                                                'x-utf8' : GLib.Variant('s', u'dança'),
                                                 'x-map' : GLib.Variant('a{sv}', pmap),
                                                })
 al.appendItem("Menu1", "Menu1Act")
