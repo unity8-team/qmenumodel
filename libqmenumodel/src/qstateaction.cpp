@@ -115,7 +115,7 @@ void QStateAction::setState(const QVariant &state)
 /*! \internal */
 void QStateAction::onTriggered()
 {
-    updateState(QVariant());
+    m_group->activateAction(text(), QVariant());
 }
 
 /*! \internal */

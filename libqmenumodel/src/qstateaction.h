@@ -30,8 +30,8 @@ class QStateAction : public QAction
     Q_OBJECT
     Q_PROPERTY(QVariant state READ state WRITE setState NOTIFY stateChanged)
     Q_PROPERTY(bool valid READ isValid NOTIFY validChanged)
-public:        
-    QVariant state() const;    
+public:
+    QVariant state() const;
     bool isValid() const;
 
     Q_INVOKABLE void updateState(const QVariant &state);

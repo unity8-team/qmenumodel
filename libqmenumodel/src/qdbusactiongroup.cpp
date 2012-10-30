@@ -211,6 +211,13 @@ void QDBusActionGroup::updateActionState(const QString &name, const QVariant &st
     }
 }
 
+void QDBusActionGroup::activateAction(const QString &name, const QVariant &parameter)
+{
+    if (m_actionGroup != NULL) {
+        g_action_group_activate_action(m_actionGroup, name.toLatin1(), Converter::toGVariant(parameter));
+    }
+}
+
 /*! \internal */
 void QDBusActionGroup::onActionAdded(GDBusActionGroup *, gchar *name, gpointer data)
 {
