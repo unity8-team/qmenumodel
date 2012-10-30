@@ -46,6 +46,7 @@ public:
     ~QDBusActionGroup();
 
     void updateActionState(const QString &name, const QVariant &state);
+    void activateAction(const QString &name, const QVariant &parameter);
     bool hasAction(const QString &name);
 
     Q_INVOKABLE QStateAction *action(const QString &name);

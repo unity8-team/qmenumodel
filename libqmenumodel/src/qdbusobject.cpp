@@ -155,7 +155,7 @@ void QDBusObject::connect()
     } else if ((m_busType > DBusEnums::None) && !m_objectPath.isEmpty() && !m_busName.isEmpty()) {
         GBusType type = m_busType == DBusEnums::SessionBus ? G_BUS_TYPE_SESSION : G_BUS_TYPE_SYSTEM;
         m_watchId = g_bus_watch_name (type,
-                                      m_busName.toLatin1(),
+                                      m_busName.toUtf8().data(),
                                       G_BUS_NAME_WATCHER_FLAGS_AUTO_START,
                                       QDBusObject::onServiceAppeared,
                                       QDBusObject::onServiceVanished,

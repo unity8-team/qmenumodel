@@ -83,7 +83,7 @@ QStateAction *QDBusActionGroup::action(const QString &name)
 QVariant QDBusActionGroup::actionState(const QString &name)
 {
     QVariant result;
-    GVariant *state = g_action_group_get_action_state(m_actionGroup, name.toLatin1());
+    GVariant *state = g_action_group_get_action_state(m_actionGroup, name.toUtf8().data());
     result = Converter::toQVariant(state);
     if (state) {
         g_variant_unref(state);
@@ -95,7 +95,7 @@ QVariant QDBusActionGroup::actionState(const QString &name)
 bool QDBusActionGroup::hasAction(const QString &name)
 {
     if (m_actionGroup) {
-        return g_action_group_has_action(m_actionGroup, name.toLatin1());
+        return g_action_group_has_action(m_actionGroup, name.toUtf8().data());
     } else {
         return false;
     }
@@ -121,8 +121,8 @@ void QDBusActionGroup::serviceVanish(GDBusConnection *)
 void QDBusActionGroup::serviceAppear(GDBusConnection *connection)
 {
     GDBusActionGroup *ag = g_dbus_action_group_get(connection,
-                                                   busName().toLatin1(),
-                                                   objectPath().toLatin1());
+                                                   busName().toUtf8().data(),
+                                                   objectPath().toUtf8().data());
     setActionGroup(ag);
     if (ag == NULL) {
         stop();
@@ -160,7 +160,7 @@ void QDBusActionGroup::setActionGroup(GDBusActionGroup *ag)
         g_signal_handler_disconnect(m_actionGroup, m_signalActionAddId);
         g_signal_handler_disconnect(m_actionGroup, m_signalActionRemovedId);
         g_signal_handler_disconnect(m_actionGroup, m_signalStateChangedId);
-        m_signalActionAddId = m_signalActionRemovedId = m_signalStateChangedId = 0;        
+        m_signalActionAddId = m_signalActionRemovedId = m_signalStateChangedId = 0;
         clear();
     }
 
@@ -207,7 +207,14 @@ void QDBusActionGroup::clear()
 void QDBusActionGroup::updateActionState(const QString &name, const QVariant &state)
 {
     if (m_actionGroup != NULL) {
-        g_action_group_activate_action(m_actionGroup, name.toLatin1(), Converter::toGVariant(state));
+        g_action_group_change_action_state(m_actionGroup, name.toUtf8().data(), Converter::toGVariant(state));
+    }
+}
+
+void QDBusActionGroup::activateAction(const QString &name, const QVariant &parameter)
+{
+    if (m_actionGroup != NULL) {
+        g_action_group_activate_action(m_actionGroup, name.toUtf8().data(), Converter::toGVariant(parameter));
     }
 }
 
