@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 
 import time
 from gi.repository import GLib
@@ -8,7 +8,7 @@ al = ActionList(MENU_OBJECT_PATH)
 
 # create map
 pmap = {'int64' : GLib.Variant('x',  -42),
-        'string': GLib.Variant('s',  u'42'),
+        'string': GLib.Variant('s',  '42'),
         'double': GLib.Variant('d',  42.42)}
 
 al.appendItem("Menu0", "Menu0Act", None, None, {'x-boolean' : GLib.Variant('b', True),
@@ -20,7 +20,7 @@ al.appendItem("Menu0", "Menu0Act", None, None, {'x-boolean' : GLib.Variant('b', 
                                                 'x-int64' : GLib.Variant('x',  -42),
                                                 'x-uint64' : GLib.Variant('t', 42),
                                                 'x-double' : GLib.Variant('d', 42.42),
-                                                'x-string' : GLib.Variant('s', u'42'),
+                                                'x-string' : GLib.Variant('s', '42'),
                                                 'x-map' : GLib.Variant('a{sv}', pmap),
                                                })
 al.appendItem("Menu1", "Menu1Act")

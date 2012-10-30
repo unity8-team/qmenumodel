@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 
 """
@@ -20,10 +20,10 @@ BUS_OBJECT_PATH = '/com/canonical/testactiongroup'
 def action_activated(action, data):
     name = action.get_name()
     if action.get_state_type() is None:
-        print 'stateless action activated: %s' % name
+        print('stateless action activated: %s' % name)
     else:
-        print 'stateful action activated: %s (current state: %s)' %
-              (name, action.get_state())
+        print('stateful action activated: %s (current state: %s)' %
+              (name, action.get_state()))
 
 
 if __name__ == '__main__':
