@@ -207,7 +207,7 @@ void QDBusActionGroup::clear()
 void QDBusActionGroup::updateActionState(const QString &name, const QVariant &state)
 {
     if (m_actionGroup != NULL) {
-        g_action_group_activate_action(m_actionGroup, name.toLatin1(), Converter::toGVariant(state));
+        g_action_group_change_action_state(m_actionGroup, name.toLatin1(), Converter::toGVariant(state));
     }
 }
 
