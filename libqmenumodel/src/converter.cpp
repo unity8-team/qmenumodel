@@ -37,7 +37,7 @@ QVariant Converter::toQVariant(GVariant *value)
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_STRING)) {
         gsize size = 0;
         const gchar *v = g_variant_get_string(value, &size);
-        result.setValue(QString::fromLatin1(v, size));
+        result.setValue(QString::fromUtf8(v, size));
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_VARDICT)) {
         GVariantIter iter;
         GVariant *vvalue;
@@ -47,7 +47,7 @@ QVariant Converter::toQVariant(GVariant *value)
         g_variant_iter_init (&iter, value);
         while (g_variant_iter_loop (&iter, "{sv}", &key, &vvalue))
         {
-            qmap.insert(QString::fromLatin1(key), toQVariant(vvalue));
+            qmap.insert(QString::fromUtf8(key), toQVariant(vvalue));
         }
 
         result.setValue(qmap);
@@ -117,7 +117,7 @@ GVariant* Converter::toGVariant(const QVariant &value)
         result = g_variant_new_int32(value.toInt());
         break;
     case QVariant::String:
-        result = g_variant_new_string(value.toString().toLatin1());
+        result = g_variant_new_string(value.toString().toUtf8().data());
         break;
     case QVariant::UInt:
         result = g_variant_new_uint32(value.toUInt());
