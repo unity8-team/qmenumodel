@@ -212,7 +212,13 @@ private Q_SLOTS:
 
         QCOMPARE(v.type(), QVariant::Map);
         QCOMPARE(v.toMap(), map);
-    }
+
+        // Utf8
+        v = extra["utf8"];
+        QCOMPARE(v.type(), QVariant::String);
+        QCOMPARE(v.toString(), QString("dança"));
+
+   }
 
     /*
      * Test if model is destroyed without crash
