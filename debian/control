@@ -2,13 +2,13 @@ Source: qmenumodel
 Section: libs
 Priority: optional
 Maintainer: Renato Araujo Oliveira Filho <renato@canonical.com>
-Build-Depends: debhelper (>= 8.0.0),
-               cdbs,
+Build-Depends: debhelper (>= 9.0.0),
                cmake (>= 2.8.9),
                libglib2.0-dev,
                qtbase (>= 5.0),
                qtdeclarative (>= 5.0),
-Standards-Version: 3.9.2
+               python3 (>= 3.2),
+Standards-Version: 3.9.3
 
 Package: libqmenumodel0
 Section: libs
