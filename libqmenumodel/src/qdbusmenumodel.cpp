@@ -96,8 +96,8 @@ void QDBusMenuModel::serviceVanish(GDBusConnection *)
 void QDBusMenuModel::serviceAppear(GDBusConnection *connection)
 {
     GMenuModel *model = reinterpret_cast<GMenuModel*>(g_dbus_menu_model_get(connection,
-                                                                            busName().toLatin1(),
-                                                                            objectPath().toLatin1()));
+                                                                            busName().toUtf8().data(),
+                                                                            objectPath().toUtf8().data()));
     setMenuModel(model);
     if (model == NULL) {
         stop();
