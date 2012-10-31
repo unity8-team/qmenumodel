@@ -24,7 +24,7 @@ extern "C" {
 #include "converter.h"
 
 #include <QObject>
-#include <QtTestGui>
+#include <QtTest>
 #include <QDebug>
 
 class ConverterTest : public QObject
