@@ -8,6 +8,7 @@ Build-Depends: debhelper (>= 9.0.0),
                qtbase (>= 5.0),
                qtdeclarative (>= 5.0),
                python3,
+               dbus-test-runner,
 Standards-Version: 3.9.3
 
 Package: libqmenumodel0
