@@ -78,7 +78,6 @@ private Q_SLOTS:
         view->engine()->rootContext()->setContextProperty("globalBusName", MENU_SERVICE_NAME);
         view->engine()->rootContext()->setContextProperty("globalObjectPath", MENU_OBJECT_PATH);
         view->setSource(QUrl::fromLocalFile(LOADMODEL_QML));
-        view->show();
         QTest::qWait(500);
         view->engine()->rootContext()->setContextProperty("resetModel", true);
         QTest::qWait(500);
@@ -100,7 +99,6 @@ private Q_SLOTS:
         view->engine()->rootContext()->setContextProperty("globalBusName", MENU_SERVICE_NAME);
         view->engine()->rootContext()->setContextProperty("globalObjectPath", MENU_OBJECT_PATH);
         view->setSource(QUrl::fromLocalFile(LOADMODEL2_QML));
-        view->show();
         QTest::qWait(500);
 
         m_script.unpublishMenu();
