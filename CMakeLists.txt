@@ -32,16 +32,6 @@ endif()
 add_subdirectory(libqmenumodel)
 
 # Tests Tools
-set(XVFB_EXEC "")
-option(USE_XVFB "Uses xvfb-run with the unit tests to avoid QtWidgets tests fails without X." FALSE)
-if(USE_XVFB)
-    find_program(XVFB_RUN NAMES xvfb-run)
-    if (NOT ${XVFB_RUN} MATCHES "XVFB_RUN-NOTFOUND")
-        set(XVFB_EXEC ${XVFB_RUN} -a)
-        message(STATUS "Using xvfb-run to perform QtWidget tests.")
-    endif()
-endif()
-
 if(NOT DBUS_RUNNER)
     message(STATUS "dbus-test-runner not found tests disabled.")
 else()

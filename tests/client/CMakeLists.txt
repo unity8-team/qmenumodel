@@ -9,7 +9,6 @@ macro(declare_test testname)
     )
 
     add_test(${testname}
-             ${XVFB_EXEC}
              ${DBUS_RUNNER}
              --task ${CMAKE_CURRENT_BINARY_DIR}/${testname} --task-name Client
              --task ${CMAKE_CURRENT_SOURCE_DIR}/script_${testname}.py --task-name Server
