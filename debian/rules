@@ -5,7 +5,7 @@
 #export DH_VERBOSE=1
 
 override_dh_auto_configure:
-	PATH=/opt/qt5/bin:${PATH} dh_auto_configure
+	PATH=/opt/qt5/bin:${PATH} dh_auto_configure -- -DUSE_XVFB=On
 
 override_dh_makeshlibs:
 	dh_makeshlibs -Xlibqmenumodel-qml.so

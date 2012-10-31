@@ -11,6 +11,7 @@ Build-Depends: debhelper (>= 9.0.0),
                dbus-test-runner,
                libgles2-mesa-dev,
                libgl-dev,
+               xvfb,
 Standards-Version: 3.9.3
 
 Package: libqmenumodel0
