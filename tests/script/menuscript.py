@@ -114,7 +114,7 @@ class Action(object):
                 # Remove action
                 self._list._rootAction.remove(self._kargs['actionName'])
         else:
-            print "Remove menu item"
+            print("Remove menu item")
 
     def run(self):
         if self._action == 'append':
