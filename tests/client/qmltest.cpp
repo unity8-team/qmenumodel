@@ -44,8 +44,7 @@ private:
 private Q_SLOTS:
     void initTestCase()
     {
-        g_type_init();
-        Q_ASSERT(m_script.connect());
+        QVERIFY(m_script.connect());
     }
 
     void cleanupTestCase()
