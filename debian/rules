@@ -1,10 +1,15 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-DEB_CMAKE_EXTRA_FLAGS = -DCMAKE_PREFIX_PATH=/opt/qt5/lib/cmake
-DEB_DH_MAKESHLIBS_ARGS_qmenumodel-qml = -Xlibqmenumodel-qml.so
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
 
-include /usr/share/cdbs/1/rules/debhelper.mk
-include /usr/share/cdbs/1/rules/utils.mk
-include /usr/share/cdbs/1/class/cmake.mk
+override_dh_auto_configure:
+	PATH=/opt/qt5/bin:${PATH} dh_auto_configure
+
+override_dh_makeshlibs:
+	dh_makeshlibs -Xlibqmenumodel-qml.so
+
+%:
+	dh $@ --parallel
 

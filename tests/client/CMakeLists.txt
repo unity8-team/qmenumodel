@@ -15,7 +15,7 @@ macro(declare_test testname)
              --ignore-return)
     set_tests_properties(${testname} PROPERTIES
                          TIMEOUT ${CTEST_TESTING_TIMEOUT}
-                         ENVIRONMENT "PYTHONPATH=${TEST_PYTHONPATH}")
+                         ENVIRONMENT "PYTHONPATH=${TEST_PYTHONPATH};QT_QPA_PLATFORM=minimal")
 
 endmacro(declare_test testname)
 
