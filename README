@@ -26,10 +26,10 @@ installed, install it and then re-run cmake. Then run either of these commands:
 = Getting code coverage information =
 
 To run the unit tests and generate code coverage information, you need to re-run
-cmake with BUILD_WITH_COVERAGE set to ON and then invoke `make lcov`.
+cmake with ENABLE_COVERAGE set to ON and then invoke `make lcov`.
 This requires lcov to be installed.
 
-    $ cmake -DBUILD_WITH_COVERAGE=ON .
+    $ cmake -DENABLE_COVERAGE=ON .
     $ make lcov
 
 This will generate a report (coverage/index.html) which you can view in a
