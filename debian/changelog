@@ -1,3 +1,16 @@
+qmenumodel (0.1.6) quantal; urgency=low
+
+  [ Renato Araujo Oliveira Filho ]
+  * Changed the 'g_bus_watch_name' flag to auto start the service.
+  * Replaced gchar ⇄  QString conversion function, from Latin1 to Utf8.
+  * Use the correct function "g_action_group_change_action_state" to change the
+    action state.
+
+  [ Olivier Tilloy ]
+  * Migrate all the scripts to python3.
+
+ -- Olivier Tilloy <olivier.tilloy@canonical.com>  Wed, 31 Oct 2012 18:19:15 +0100
+
 qmenumodel (0.1.5) quantal; urgency=low
 
   [ Renato Araujo Oliveira Filho]
