@@ -22,7 +22,7 @@
 
 #include <QObject>
 #include <QSignalSpy>
-#include <QtTestGui>
+#include <QtTest>
 #include <QDebug>
 
 class ServiceTest : public QObject
