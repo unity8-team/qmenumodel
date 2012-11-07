@@ -22,6 +22,7 @@ tests/client/modeltest
 tests/client/qmlfiles.h
 tests/client/qmltest
 tests/client/servicetest
+tests/client/test_*.xml
 tests/script/__pycache__/
 
 doc/html/
