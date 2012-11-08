@@ -10,7 +10,7 @@ macro(declare_test testname)
 
     add_test(${testname}
              ${DBUS_RUNNER}
-             --task ${CMAKE_CURRENT_BINARY_DIR}/${testname} --task-name Client
+             --task ${CMAKE_CURRENT_BINARY_DIR}/${testname} -p -xunitxml -p -o -p test_${testname}.xml --task-name Client
              --task ${CMAKE_CURRENT_SOURCE_DIR}/script_${testname}.py --task-name Server
              --ignore-return)
     set_tests_properties(${testname} PROPERTIES
