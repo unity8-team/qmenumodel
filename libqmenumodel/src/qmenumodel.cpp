@@ -51,12 +51,52 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
     }
     setRoleNames(rolesNames);
     setMenuModel(other);
+
+    QObject::connect(this, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SIGNAL(countChanged()));
+    QObject::connect(this, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SIGNAL(countChanged()));
+    QObject::connect(this, SIGNAL(modelReset()), this, SIGNAL(countChanged()));
 }
 
 /*! \internal */
 QMenuModel::~QMenuModel()
 {
     clearModel();
+}
+
+/*!
+    \qmlmethod QDBusMenuModel::get(int)
+
+    Returns the item at index in the model. This allows the item data to be accessed from JavaScript:
+
+    \b Note: methods should only be called after the Component has completed.
+*/
+
+QVariantMap QMenuModel::get(int row) const
+{
+    QVariantMap result;
+    int rowCountValue = rowCount();
+    if ((rowCountValue > 0) && (row >= 0) && (row < rowCountValue)) {
+        QModelIndex i = index(row);
+        result.insert("action", data(i, Action));
+        result.insert("label", data(i, Label));
+        result.insert("linkSection", data(i, LinkSection));
+        result.insert("linkSubMenu", data(i, LinkSubMenu));
+        result.insert("extra", data(i, Extra));
+    }
+
+    return result;
+}
+
+/*!
+    \qmlmethod QDBusMenuModel::count()
+
+    The number of data entries in the model.
+
+    \b Note: methods should only be called after the Component has completed.
+*/
+int QMenuModel::count() const
+{
+    return rowCount();
 }
 
 /*! \internal */

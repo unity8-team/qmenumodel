@@ -30,6 +30,7 @@ typedef struct _GMenuModel GMenuModel;
 class QMenuModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 public:
     enum MenuRoles {
@@ -42,10 +43,16 @@ public:
 
     ~QMenuModel();
 
+    Q_INVOKABLE QVariantMap get(int row) const;
+    int count() const;
+
     /* QAbstractItemModel */
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QModelIndex parent (const QModelIndex &index) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+Q_SIGNALS:
+    void countChanged();
 
 protected:
     QMenuModel(GMenuModel *other=0, QObject *parent=0);
