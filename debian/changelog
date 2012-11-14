@@ -1,3 +1,12 @@
+qmenumodel (0.1.7) quantal; urgency=low
+
+  [ Renato Araujo Oliveira Filho ]
+  * Fixed tests to avoid crashing if dbus session is not available.
+  * Updated debian package to use debhelper instead of cdbs.
+  * Updates to get coverage and test results in jenkins.
+
+ -- Olivier Tilloy <olivier.tilloy@canonical.com>  Wed, 14 Nov 2012 10:43:15 +0100
+
 qmenumodel (0.1.6) quantal; urgency=low
 
   [ Renato Araujo Oliveira Filho ]
