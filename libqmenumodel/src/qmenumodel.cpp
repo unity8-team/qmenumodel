@@ -41,15 +41,6 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
       m_menuModel(0),
       m_signalChangedId(0)
 {
-    static QHash<int, QByteArray> rolesNames;
-    if (rolesNames.empty()) {
-        rolesNames[Action] = "action";
-        rolesNames[Label] = "label";
-        rolesNames[LinkSection] = "linkSection";
-        rolesNames[LinkSubMenu] = "linkSubMenu";
-        rolesNames[Extra] = "extra";
-    }
-    setRoleNames(rolesNames);
     setMenuModel(other);
 }
 
@@ -99,6 +90,20 @@ void QMenuModel::clearModel()
         g_object_unref(m_menuModel);
         m_menuModel = NULL;
     }
+}
+
+/*! \internal */
+QHash<int, QByteArray> QMenuModel::roleNames() const
+{
+    static QHash<int, QByteArray> roles;
+    if (roles.isEmpty()) {
+        roles[Action] = "action";
+        roles[Label] = "label";
+        roles[LinkSection] = "linkSection";
+        roles[LinkSubMenu] = "linkSubMenu";
+        roles[Extra] = "extra";
+    }
+    return roles;
 }
 
 /*! \internal */
