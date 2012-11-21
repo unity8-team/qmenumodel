@@ -72,6 +72,11 @@ void QMenuModel::setMenuModel(GMenuModel *other)
                                              this);
     }
 
+    QList<QMenuModel*> list = findChildren<QMenuModel*>();
+    Q_FOREACH(QMenuModel *model, list) {
+        delete model;
+    }
+
     endResetModel();
 }
 
