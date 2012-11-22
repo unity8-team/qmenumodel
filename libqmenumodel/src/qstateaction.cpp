@@ -88,19 +88,28 @@ bool QStateAction::isValid() const
     return m_valid;
 }
 
-QString QStateAction::name() const
-{
-    return m_name;
-}
-
+/*!
+    Request for the state of action to be changed to \a paramenter.
+    This call merely requests a change. The action may refuse to change its state or may change its state to something other than \a paramenter.
+*/
 void QStateAction::updateState(const QVariant &parameter)
 {
     m_group->updateActionState(m_name, parameter);
 }
 
+/*!
+    Activates the action passing \a parameter.
+    \a parameter must be the correct type of parameter for the action
+*/
 void QStateAction::activate(const QVariant &parameter)
 {
     m_group->activateAction(m_name, parameter);
+}
+
+/*! \internal */
+QString QStateAction::name() const
+{
+    return m_name;
 }
 
 /*! \internal */
