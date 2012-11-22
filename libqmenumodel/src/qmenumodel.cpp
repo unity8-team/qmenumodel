@@ -91,7 +91,7 @@ void QMenuModel::clearModel()
         m_menuModel = NULL;
     }
 
-    QList<QMenuModel*> list = findChildren<QMenuModel*>();
+    QList<QMenuModel*> list = findChildren<QMenuModel*>(QString(), Qt::FindDirectChildrenOnly);
     Q_FOREACH(QMenuModel *model, list) {
         delete model;
     }
