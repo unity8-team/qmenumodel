@@ -141,7 +141,7 @@ private Q_SLOTS:
         QStateAction *act = m_actionGroup.action(action.toString());
         QVERIFY(act);
 
-        act->trigger();
+        act->activate();
         // wait for dbus propagation
         QTest::qWait(500);
 

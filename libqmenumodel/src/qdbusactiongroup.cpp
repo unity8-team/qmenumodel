@@ -104,7 +104,7 @@ bool QDBusActionGroup::hasAction(const QString &name)
 QStateAction *QDBusActionGroup::actionImpl(const QString &name)
 {
     Q_FOREACH(QStateAction *act, this->findChildren<QStateAction*>()) {
-        if (act->text() == name) {
+        if (act->name() == name) {
             return act;
         }
     }
@@ -194,7 +194,7 @@ void QDBusActionGroup::setActionGroup(GDBusActionGroup *ag)
 void QDBusActionGroup::clear()
 {
     Q_FOREACH(QStateAction *act, this->findChildren<QStateAction*>()) {
-        Q_EMIT actionVanish(act->text());
+        Q_EMIT actionVanish(act->name());
     }
 
     if (m_actionGroup != NULL) {

@@ -47,11 +47,10 @@
 
 /*! \internal */
 QStateAction::QStateAction(QDBusActionGroup *group, const QString &name)
-    : QAction(name, group),
-      m_group(group)
+    : QObject(group),
+      m_group(group),
+      m_name(name)
 {
-    QObject::connect(this, SIGNAL(triggered()), this, SLOT(onTriggered()));
-
     // This keep the code clean
     // But maybe we need move the action state control to QActionGroup to optimizations
     QObject::connect(m_group, SIGNAL(actionAppear(QString)),
@@ -89,9 +88,19 @@ bool QStateAction::isValid() const
     return m_valid;
 }
 
-void QStateAction::updateState(const QVariant &state)
+QString QStateAction::name() const
 {
-    m_group->updateActionState(text(), state);
+    return m_name;
+}
+
+void QStateAction::updateState(const QVariant &parameter)
+{
+    m_group->updateActionState(m_name, parameter);
+}
+
+void QStateAction::activate(const QVariant &parameter)
+{
+    m_group->activateAction(m_name, parameter);
 }
 
 /*! \internal */
@@ -113,15 +122,9 @@ void QStateAction::setState(const QVariant &state)
 }
 
 /*! \internal */
-void QStateAction::onTriggered()
-{
-    m_group->activateAction(text(), QVariant());
-}
-
-/*! \internal */
 void QStateAction::onActionAppear(const QString &name)
 {
-    if (text() == name) {
+    if (m_name == name) {
         setState(m_group->actionState(name));
         setValid(true);
     }
@@ -130,7 +133,7 @@ void QStateAction::onActionAppear(const QString &name)
 /*! \internal */
 void QStateAction::onActionVanish(const QString &name)
 {
-    if (text() == name) {
+    if (m_name == name) {
         setState(QVariant());
         setValid(false);
     }
@@ -139,7 +142,7 @@ void QStateAction::onActionVanish(const QString &name)
 /*! \internal */
 void QStateAction::onActionStateChanged(const QString &name, const QVariant &state)
 {
-    if (text() == name) {
+    if (m_name == name) {
         setState(state);
     }
 }
