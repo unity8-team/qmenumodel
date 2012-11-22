@@ -8,9 +8,15 @@ macro(declare_test testname)
                           ${GIO_LDFLAGS}
     )
 
+    if(TEST_XML_OUTPUT)
+        set(TEST_ARGS -p -xunitxml -p -o -p test_${testname}.xml)
+    else()
+        set(TEST_ARGS "")
+    endif()
+
     add_test(${testname}
              ${DBUS_RUNNER}
-             --task ${CMAKE_CURRENT_BINARY_DIR}/${testname} -p -xunitxml -p -o -p test_${testname}.xml --task-name Client
+             --task ${CMAKE_CURRENT_BINARY_DIR}/${testname} ${TEST_ARGS} --task-name Client
              --task ${CMAKE_CURRENT_SOURCE_DIR}/script_${testname}.py --task-name Server
              --ignore-return)
     set_tests_properties(${testname} PROPERTIES
