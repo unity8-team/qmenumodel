@@ -72,11 +72,6 @@ void QMenuModel::setMenuModel(GMenuModel *other)
                                              this);
     }
 
-    QList<QMenuModel*> list = findChildren<QMenuModel*>();
-    Q_FOREACH(QMenuModel *model, list) {
-        delete model;
-    }
-
     endResetModel();
 }
 
@@ -94,6 +89,11 @@ void QMenuModel::clearModel()
         m_signalChangedId = 0;
         g_object_unref(m_menuModel);
         m_menuModel = NULL;
+    }
+
+    QList<QMenuModel*> list = findChildren<QMenuModel*>();
+    Q_FOREACH(QMenuModel *model, list) {
+        delete model;
     }
 }
 
