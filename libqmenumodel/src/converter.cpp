@@ -59,8 +59,8 @@ QVariant Converter::toQVariant(GVariant *value)
             GVariant *v = g_variant_get_child_value(value, i);
             if (v) {
                 vlist << toQVariant(v);
+                g_variant_unref(v);
             }
-            g_variant_unref(v);
         }
 
         result.setValue(vlist);
