@@ -68,7 +68,7 @@ void QMenuModel::setMenuModelImpl(GMenuModel *other)
     m_menuModel = other;
 
     if (m_menuModel) {
-        g_object_weak_ref(reinterpret_cast<GObject*>(m_menuModel),
+        g_object_weak_ref(G_OBJECT(m_menuModel),
                           reinterpret_cast<GWeakNotify>(QMenuModel::onGMenuModelDestroyed),
                           this);
         // this will trigger the menu load
@@ -92,7 +92,7 @@ GMenuModel *QMenuModel::menuModel() const
 void QMenuModel::clearModel()
 {
     if (m_menuModel) {
-        g_object_weak_unref(reinterpret_cast<GObject*>(m_menuModel),
+        g_object_weak_unref(G_OBJECT(m_menuModel),
                             reinterpret_cast<GWeakNotify>(QMenuModel::onGMenuModelDestroyed),
                             this);
         g_signal_handler_disconnect(m_menuModel, m_signalChangedId);
