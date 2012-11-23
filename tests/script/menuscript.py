@@ -53,8 +53,9 @@ class Script(dbus.service.Object):
             self._list.walk()
             steps -= 1
 
+    """ TODO: We only support string states for now """
     @dbus.service.method(dbus_interface=INTERFACE_NAME,
-                         in_signature='', out_signature='s')
+                         in_signature='', out_signature='ss')
     def popActivatedAction(self):
         return self._list._activatedActions.pop(0)
 
@@ -94,7 +95,7 @@ class Action(object):
             parent.append_item(item)
 
             # Action
-            act = Gio.SimpleAction.new(self._kargs['actionName'], None)
+            act = Gio.SimpleAction.new(self._kargs['actionName'], self._kargs['actionStateType'])
             act.connect('activate', self._list._onActionActivated)
             self._list._rootAction.insert(act)
 
@@ -135,13 +136,14 @@ class ActionList(object):
         self._rootAction = None
         self._activatedActions = []
 
-    def appendItem(self, label, actionName, link=None, parentId=None,  properties=None):
+    def appendItem(self, label, actionName, link=None, parentId=None,  properties=None, actionStateType=None):
         self._actions.append(Action(self, 'append',
                                     parentId=parentId,
                                     label=label,
                                     actionName=actionName,
                                     link=link,
-                                    properties=properties))
+                                    properties=properties,
+                                    actionStateType=actionStateType))
 
     def removeItem(self, menuId, actionName=None):
         self._actions.append(Action(self, 'remove',
@@ -208,4 +210,4 @@ class ActionList(object):
         self._restore()
 
     def _onActionActivated(self, action, parameter):
-        self._activatedActions.append(action.get_name())
+        self._activatedActions.append((action.get_name(), parameter.get_string()))

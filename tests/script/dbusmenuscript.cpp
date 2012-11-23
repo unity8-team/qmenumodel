@@ -92,15 +92,20 @@ void DBusMenuScript::run()
     }
 }
 
-QString DBusMenuScript::popActivatedAction()
+QPair<QString, QVariant> DBusMenuScript::popActivatedAction()
 {
     if (m_script) {
         QDBusMessage reply = m_script->call("popActivatedAction");
         if (reply.arguments().count() > 0) {
-            return reply.arguments()[0].toString();
+            QVariant value;
+            QString name = reply.arguments()[0].toString();
+            if (reply.arguments().count() > 1) {
+                value = reply.arguments()[1];
+            }
+            return qMakePair(name, value);
         }
     }
 
-    return QString();
+    return qMakePair(QString(), QVariant());
 }
 

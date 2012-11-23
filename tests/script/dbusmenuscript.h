@@ -47,7 +47,7 @@ public:
     void publishMenu();
     void unpublishMenu();
 
-    QString popActivatedAction();
+    QPair<QString, QVariant> popActivatedAction();
 
 private:
     QDBusInterface *m_script;
