@@ -26,6 +26,7 @@ typedef int gint;
 typedef unsigned int guint;
 typedef void* gpointer;
 typedef struct _GMenuModel GMenuModel;
+typedef struct _GObject GObject;
 
 class QMenuModel : public QAbstractListModel
 {
@@ -62,8 +63,10 @@ private:
     QVariant getExtraProperties(const QModelIndex &index) const;
     QString parseExtraPropertyName(const QString &name) const;
     void clearModel();
+    void setMenuModelImpl(GMenuModel *model);
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
+    static void onGMenuModelDestroyed(gpointer data, GObject *oldObject);
 };
 
 #endif

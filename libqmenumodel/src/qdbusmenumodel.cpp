@@ -89,7 +89,11 @@ void QDBusMenuModel::stop()
 /*! \internal */
 void QDBusMenuModel::serviceVanish(GDBusConnection *)
 {
-    setMenuModel(NULL);
+    GMenuModel *model = menuModel();
+    if (model != NULL) {
+        setMenuModel(NULL);
+        g_object_unref(model);
+    }
 }
 
 /*! \internal */

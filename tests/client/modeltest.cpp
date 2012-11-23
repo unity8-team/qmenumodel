@@ -25,6 +25,19 @@
 #include <QtTest>
 #include <QDebug>
 
+extern "C" {
+#include <gio/gio.h>
+}
+
+class TestMenuModel : public QMenuModel
+{
+public:
+    TestMenuModel(GMenuModel *other, QObject *parent=0)
+        : QMenuModel(other, parent)
+    {
+    }
+};
+
 class ModelTest : public QObject
 {
     Q_OBJECT
@@ -242,6 +255,20 @@ private Q_SLOTS:
         delete model;
     }
 
+    /*
+     * Test if the model is clearead after GMenuModel be destroyed
+     */
+    void testDestroyGMenuModel()
+    {
+        GMenu *menu = g_menu_new();
+        g_menu_append(menu, "test-menu0", NULL);
+        g_menu_append(menu, "test-menu1", NULL);
+        TestMenuModel model(reinterpret_cast<GMenuModel*>(menu));
+        QCOMPARE(model.rowCount(), 2);
+
+        g_object_unref(menu);
+        QCOMPARE(model.rowCount(), 0);
+    }
 };
 
 QTEST_MAIN(ModelTest)

@@ -205,6 +205,9 @@ class ActionList(object):
         if self._ownNameID:
             Gio.bus_unown_name(self._ownNameID)
             self._ownNameID = None
+
+        self._root = None
+        self._rootAction = None
         self._restore()
 
     def _onActionActivated(self, action, parameter):
