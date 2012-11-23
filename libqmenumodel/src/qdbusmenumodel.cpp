@@ -99,12 +99,8 @@ void QDBusMenuModel::serviceAppear(GDBusConnection *connection)
                                                            busName().toUtf8().data(),
                                                            objectPath().toUtf8().data()));
     setMenuModel(model);
-    if (model == NULL) {
-        stop();
-    } else {
-        //setModel take care of the ref
-        g_object_unref(model);
-    }
+    //setModel take care of the ref
+    g_object_unref(model);
 }
 
 /*! \internal */

@@ -63,7 +63,6 @@ private:
     QVariant getExtraProperties(const QModelIndex &index) const;
     QString parseExtraPropertyName(const QString &name) const;
     void clearModel();
-    void setMenuModelImpl(GMenuModel *model);
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
 };
