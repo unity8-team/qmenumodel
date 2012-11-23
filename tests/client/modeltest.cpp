@@ -218,6 +218,12 @@ private Q_SLOTS:
         QCOMPARE(v.type(), QVariant::String);
         QCOMPARE(v.toString(), QString("dança"));
 
+        // Tuple
+        v = extra["tuple"];
+        QVariantList lst;
+        lst << "1" << 2 << 3.3;
+        QCOMPARE(v.type(), QVariant::List);
+        QCOMPARE(v.toList(), lst);
    }
 
     /*

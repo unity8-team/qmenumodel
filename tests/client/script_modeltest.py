@@ -24,6 +24,7 @@ al.appendItem("Menu0", "Menu0Act", None, None, {'x-boolean' : GLib.Variant('b', 
                                                 'x-string' : GLib.Variant('s', '42'),
                                                 'x-utf8' : GLib.Variant('s', 'dança'),
                                                 'x-map' : GLib.Variant('a{sv}', pmap),
+                                                'x-tuple' : GLib.Variant('(sid)', ("1", 2, 3.3)),
                                                })
 al.appendItem("Menu1", "Menu1Act")
 
