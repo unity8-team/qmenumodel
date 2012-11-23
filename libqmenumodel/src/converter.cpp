@@ -51,8 +51,21 @@ QVariant Converter::toQVariant(GVariant *value)
         }
 
         result.setValue(qmap);
+    } else if (g_variant_type_is_tuple(type)) {
+        gsize size = g_variant_n_children(value);
+        QVariantList vlist;
+
+        for (gsize i=0; i < size; i++) {
+            GVariant *v = g_variant_get_child_value(value, i);
+            if (v) {
+                vlist << toQVariant(v);
+                g_variant_unref(v);
+            }
+        }
+
+        result.setValue(vlist);
     } else {
-        qWarning() << "Unsupported GVariant value";
+        qWarning() << "Unsupported GVariant value" << (char*) type;
     }
 
     /* TODO: implement convertions to others types
@@ -64,7 +77,6 @@ QVariant Converter::toQVariant(GVariant *value)
      * G_VARIANT_TYPE_BASIC
      * G_VARIANT_TYPE_MAYBE
      * G_VARIANT_TYPE_ARRAY
-     * G_VARIANT_TYPE_TUPLE
      * G_VARIANT_TYPE_UNIT
      * G_VARIANT_TYPE_DICT_ENTRY
      * G_VARIANT_TYPE_DICTIONARY
@@ -72,7 +84,6 @@ QVariant Converter::toQVariant(GVariant *value)
      * G_VARIANT_TYPE_BYTESTRING
      * G_VARIANT_TYPE_OBJECT_PATH_ARRAY
      * G_VARIANT_TYPE_BYTESTRING_ARRAY
-     * G_VARIANT_TYPE_VARDICT
      */
 
     return result;
@@ -135,6 +146,17 @@ GVariant* Converter::toGVariant(const QVariant &value)
         }
         result = g_variant_builder_end(b);
         g_variant_builder_unref(b);
+        break;
+    }
+    case QVariant::List:
+    {
+        QVariantList lst = value.toList();
+        GVariant **vars = g_new(GVariant*, lst.size());
+        for (int i=0; i < lst.size(); i++) {
+            vars[i] = toGVariant(lst[i]);
+        }
+        result = g_variant_new_tuple(vars, lst.size());
+        g_free(vars);
         break;
     }
     default:
