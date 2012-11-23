@@ -89,11 +89,7 @@ void QDBusMenuModel::stop()
 /*! \internal */
 void QDBusMenuModel::serviceVanish(GDBusConnection *)
 {
-    GMenuModel *model = menuModel();
-    if (model != NULL) {
-        setMenuModel(NULL);
-        g_object_unref(model);
-    }
+    setMenuModel(NULL);
 }
 
 /*! \internal */
@@ -105,6 +101,9 @@ void QDBusMenuModel::serviceAppear(GDBusConnection *connection)
     setMenuModel(model);
     if (model == NULL) {
         stop();
+    } else {
+        //setModel take care of the ref
+        g_object_unref(model);
     }
 }
 

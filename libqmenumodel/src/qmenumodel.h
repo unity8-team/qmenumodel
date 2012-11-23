@@ -66,7 +66,6 @@ private:
     void setMenuModelImpl(GMenuModel *model);
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
-    static void onGMenuModelDestroyed(gpointer data, GObject *oldObject);
 };
 
 #endif

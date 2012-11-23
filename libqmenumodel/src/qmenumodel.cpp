@@ -56,11 +56,7 @@ void QMenuModel::setMenuModel(GMenuModel *other)
     if (m_menuModel == other) {
         return;
     }
-    setMenuModelImpl(other);
-}
 
-void QMenuModel::setMenuModelImpl(GMenuModel *other)
-{
     beginResetModel();
 
     clearModel();
@@ -68,9 +64,7 @@ void QMenuModel::setMenuModelImpl(GMenuModel *other)
     m_menuModel = other;
 
     if (m_menuModel) {
-        g_object_weak_ref(G_OBJECT(m_menuModel),
-                          reinterpret_cast<GWeakNotify>(QMenuModel::onGMenuModelDestroyed),
-                          this);
+        g_object_ref(m_menuModel);
         // this will trigger the menu load
         (void) g_menu_model_get_n_items(m_menuModel);
         m_signalChangedId = g_signal_connect(m_menuModel,
@@ -92,11 +86,9 @@ GMenuModel *QMenuModel::menuModel() const
 void QMenuModel::clearModel()
 {
     if (m_menuModel) {
-        g_object_weak_unref(G_OBJECT(m_menuModel),
-                            reinterpret_cast<GWeakNotify>(QMenuModel::onGMenuModelDestroyed),
-                            this);
         g_signal_handler_disconnect(m_menuModel, m_signalChangedId);
         m_signalChangedId = 0;
+        g_object_unref(m_menuModel);
         m_menuModel = NULL;
     }
 
@@ -194,7 +186,7 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
                                       index.row(),
                                       linkName.toUtf8().data());
 
-    if (link) {      
+    if (link) {
         QMenuModel *other = new QMenuModel(link, const_cast<QMenuModel*>(this));
         return QVariant::fromValue<QObject*>(other);
     }
@@ -231,14 +223,6 @@ QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
     }
 
     return extra;
-}
-/*! \internal */
-void QMenuModel::onGMenuModelDestroyed(gpointer data,
-                                       GObject *oldObject)
-{
-    QMenuModel *self = reinterpret_cast<QMenuModel*>(data);
-    self->m_menuModel = NULL;
-    self->setMenuModelImpl(NULL);
 }
 
 /*! \internal */
