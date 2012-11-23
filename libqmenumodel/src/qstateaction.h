@@ -20,21 +20,23 @@
 #ifndef QDBUSACTION_H
 #define QDBUSACTION_H
 
-#include <QAction>
+#include <QObject>
 #include <QVariant>
 
 class QDBusActionGroup;
 
-class QStateAction : public QAction
+class QStateAction : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant state READ state WRITE setState NOTIFY stateChanged)
+    Q_PROPERTY(QString name READ name)
+    Q_PROPERTY(QVariant state READ state NOTIFY stateChanged)
     Q_PROPERTY(bool valid READ isValid NOTIFY validChanged)
 public:
     QVariant state() const;
     bool isValid() const;
 
-    Q_INVOKABLE void updateState(const QVariant &state);
+    Q_INVOKABLE void activate(const QVariant &parameter = QVariant());
+    Q_INVOKABLE void updateState(const QVariant &parameter);
 
 Q_SIGNALS:
     void stateChanged(QVariant state);
@@ -44,16 +46,18 @@ private Q_SLOTS:
     void onActionAppear(const QString &name);
     void onActionVanish(const QString &name);
     void onActionStateChanged(const QString &name, const QVariant &state);
-    void onTriggered();
 
 private:
     QDBusActionGroup *m_group;
     QVariant m_state;
     bool m_valid;
+    QString m_name;
 
     QStateAction(QDBusActionGroup *group, const QString &name);
+
     void setValid(bool valid);
     void setState(const QVariant &state);
+    QString name() const;
 
     friend class QDBusActionGroup;
 };

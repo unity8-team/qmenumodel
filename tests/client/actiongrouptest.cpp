@@ -141,11 +141,16 @@ private Q_SLOTS:
         QStateAction *act = m_actionGroup.action(action.toString());
         QVERIFY(act);
 
-        act->trigger();
+        // test action name
+        QCOMPARE(act->property("name").toString(), QString("Menu1Act"));
+
+        act->activate(QVariant("42"));
         // wait for dbus propagation
         QTest::qWait(500);
 
-        QCOMPARE(m_script.popActivatedAction(), QString("Menu1Act"));
+        QPair<QString, QVariant> result = m_script.popActivatedAction();
+        QCOMPARE(result.first, QString("Menu1Act"));
+        QCOMPARE(result.second.toString(), QString("42"));
     }
 
     /*
