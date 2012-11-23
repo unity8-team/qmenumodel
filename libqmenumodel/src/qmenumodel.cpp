@@ -64,6 +64,7 @@ void QMenuModel::setMenuModel(GMenuModel *other)
     m_menuModel = other;
 
     if (m_menuModel) {
+        g_object_ref(m_menuModel);
         // this will trigger the menu load
         (void) g_menu_model_get_n_items(m_menuModel);
         m_signalChangedId = g_signal_connect(m_menuModel,
@@ -185,7 +186,7 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
                                       index.row(),
                                       linkName.toUtf8().data());
 
-    if (link) {      
+    if (link) {
         QMenuModel *other = new QMenuModel(link, const_cast<QMenuModel*>(this));
         return QVariant::fromValue<QObject*>(other);
     }

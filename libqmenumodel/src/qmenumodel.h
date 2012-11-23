@@ -26,6 +26,7 @@ typedef int gint;
 typedef unsigned int guint;
 typedef void* gpointer;
 typedef struct _GMenuModel GMenuModel;
+typedef struct _GObject GObject;
 
 class QMenuModel : public QAbstractListModel
 {

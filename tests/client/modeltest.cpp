@@ -25,6 +25,19 @@
 #include <QtTest>
 #include <QDebug>
 
+extern "C" {
+#include <gio/gio.h>
+}
+
+class TestMenuModel : public QMenuModel
+{
+public:
+    TestMenuModel(GMenuModel *other, QObject *parent=0)
+        : QMenuModel(other, parent)
+    {
+    }
+};
+
 class ModelTest : public QObject
 {
     Q_OBJECT
@@ -247,7 +260,6 @@ private Q_SLOTS:
 
         delete model;
     }
-
 };
 
 QTEST_MAIN(ModelTest)
