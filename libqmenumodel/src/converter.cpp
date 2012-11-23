@@ -55,7 +55,7 @@ QVariant Converter::toQVariant(GVariant *value)
         gsize size = g_variant_n_children(value);
         QVariantList vlist;
 
-        for(gsize i=0; i < size; i++) {
+        for (gsize i=0; i < size; i++) {
             GVariant *v = g_variant_get_child_value(value, i);
             if (v) {
                 vlist << toQVariant(v);
@@ -152,7 +152,7 @@ GVariant* Converter::toGVariant(const QVariant &value)
     {
         QVariantList lst = value.toList();
         GVariant **vars = g_new(GVariant*, lst.size());
-        for(int i=0; i < lst.size(); i++) {
+        for (int i=0; i < lst.size(); i++) {
             vars[i] = toGVariant(lst[i]);
         }
         result = g_variant_new_tuple(vars, lst.size());
