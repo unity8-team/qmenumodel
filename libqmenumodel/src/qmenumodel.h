@@ -45,7 +45,6 @@ public:
     ~QMenuModel();
 
     Q_INVOKABLE QVariantMap get(int row) const;
-    int count() const;
 
     /* QAbstractItemModel */
     QHash<int, QByteArray> roleNames() const;
@@ -70,6 +69,7 @@ private:
     QVariant getExtraProperties(const QModelIndex &index) const;
     QString parseExtraPropertyName(const QString &name) const;
     void clearModel();
+    int count() const;
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
 };

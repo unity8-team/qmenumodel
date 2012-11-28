@@ -65,16 +65,15 @@ QMenuModel::~QMenuModel()
 QVariantMap QMenuModel::get(int row) const
 {
     QVariantMap result;
-    int rowCountValue = rowCount();
-    if ((rowCountValue > 0) && (row >= 0) && (row < rowCountValue)) {
-        QModelIndex i = index(row);
-        result.insert("action", data(i, Action));
-        result.insert("label", data(i, Label));
-        result.insert("linkSection", data(i, LinkSection));
-        result.insert("linkSubMenu", data(i, LinkSubMenu));
-        result.insert("extra", data(i, Extra));
-    }
 
+    QModelIndex index = this->index(row);
+    if (index.isValid()) {
+        QMap<int, QVariant> data = itemData(index);
+        const QHash<int, QByteArray> roleNames = this->roleNames();
+        Q_FOREACH(int i, roleNames.keys()) {
+            result.insert(roleNames[i], data[i]);
+        }
+    }
     return result;
 }
 
