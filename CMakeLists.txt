@@ -32,6 +32,7 @@ endif()
 add_subdirectory(libqmenumodel)
 
 # Tests Tools
+OPTION(TEST_XML_OUTPUT "Print test results on xml files" ON)
 if(NOT DBUS_RUNNER)
     message(STATUS "dbus-test-runner not found tests disabled.")
 else()

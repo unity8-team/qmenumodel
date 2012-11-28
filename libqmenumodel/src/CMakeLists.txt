@@ -31,7 +31,7 @@ target_link_libraries(${SHAREDLIBNAME}
     ${GIO_LDFLAGS}
 )
 
-qt5_use_modules(${SHAREDLIBNAME} Core Widgets)
+qt5_use_modules(${SHAREDLIBNAME} Core)
 
 install(TARGETS ${SHAREDLIBNAME} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 

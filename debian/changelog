@@ -1,3 +1,27 @@
+qmenumodel (0.1.8) quantal; urgency=low
+
+  [ Renato Araujo Oliveira Filho ]
+  * Fixed memory leak after the service disappear.
+  * Implemented support to tuple conversions.
+  * Added 'TEST_XML_OUTPUT' option on cmake to enable/disalbe test output in
+    xml.
+  * Removed QAction dependency from QStateAction.
+  * Fixed QMenumodel behavior when the GMenuModel is destroyed.
+
+  [ Olivier Tilloy ]
+  * Reimplement roleNames() instead of using setRoleNames(…).
+
+ -- Renato Araujo Oliveira Filho <renato@canonical.com>  Fri, 23 Nov 2012 16:15:00 -0300
+
+qmenumodel (0.1.7) quantal; urgency=low
+
+  [ Renato Araujo Oliveira Filho ]
+  * Fixed tests to avoid crashing if dbus session is not available.
+  * Updated debian package to use debhelper instead of cdbs.
+  * Updates to get coverage and test results in jenkins.
+
+ -- Olivier Tilloy <olivier.tilloy@canonical.com>  Wed, 14 Nov 2012 10:43:15 +0100
+
 qmenumodel (0.1.6) quantal; urgency=low
 
   [ Renato Araujo Oliveira Filho ]

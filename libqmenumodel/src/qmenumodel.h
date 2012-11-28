@@ -26,6 +26,7 @@ typedef int gint;
 typedef unsigned int guint;
 typedef void* gpointer;
 typedef struct _GMenuModel GMenuModel;
+typedef struct _GObject GObject;
 
 class QMenuModel : public QAbstractListModel
 {
@@ -47,6 +48,7 @@ public:
     int count() const;
 
     /* QAbstractItemModel */
+    QHash<int, QByteArray> roleNames() const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QModelIndex parent (const QModelIndex &index) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;

@@ -88,6 +88,34 @@ private Q_SLOTS:
 
         // Map
         QVERIFY(compare(QVariantMap(), G_VARIANT_TYPE_VARDICT));
+
+    }
+
+    void testTupleConversion()
+    {
+        QVariantList qTuple;
+        qTuple << 1 << "2" << 3.3;
+
+        GVariant *gTuple = Converter::toGVariant(qTuple);
+        QVERIFY(g_variant_type_is_tuple(g_variant_get_type(gTuple)));
+        QCOMPARE(g_variant_n_children(gTuple), (gsize)3);
+
+        GVariant *v = g_variant_get_child_value(gTuple, 0);
+        int v0 = g_variant_get_int32(v);
+        QCOMPARE(v0, 1);
+        g_variant_unref(v);
+
+        v = g_variant_get_child_value(gTuple, 1);
+        const gchar *v1 = g_variant_get_string(v, NULL);
+        QCOMPARE(QString(v1), QString("2"));
+        g_variant_unref(v);
+
+        v = g_variant_get_child_value(gTuple, 2);
+        gdouble v2 = g_variant_get_double(v);
+        QCOMPARE(v2, 3.3);
+        g_variant_unref(v);
+
+        g_variant_unref(gTuple);
     }
 
 };

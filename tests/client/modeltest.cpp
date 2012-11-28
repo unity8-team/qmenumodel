@@ -25,6 +25,19 @@
 #include <QtTest>
 #include <QDebug>
 
+extern "C" {
+#include <gio/gio.h>
+}
+
+class TestMenuModel : public QMenuModel
+{
+public:
+    TestMenuModel(GMenuModel *other, QObject *parent=0)
+        : QMenuModel(other, parent)
+    {
+    }
+};
+
 class ModelTest : public QObject
 {
     Q_OBJECT
@@ -218,6 +231,12 @@ private Q_SLOTS:
         QCOMPARE(v.type(), QVariant::String);
         QCOMPARE(v.toString(), QString("dança"));
 
+        // Tuple
+        v = extra["tuple"];
+        QVariantList lst;
+        lst << "1" << 2 << 3.3;
+        QCOMPARE(v.type(), QVariant::List);
+        QCOMPARE(v.toList(), lst);
    }
 
     /*
@@ -241,7 +260,6 @@ private Q_SLOTS:
 
         delete model;
     }
-
 };
 
 QTEST_MAIN(ModelTest)

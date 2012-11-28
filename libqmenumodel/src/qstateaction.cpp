@@ -47,11 +47,10 @@
 
 /*! \internal */
 QStateAction::QStateAction(QDBusActionGroup *group, const QString &name)
-    : QAction(name, group),
-      m_group(group)
+    : QObject(group),
+      m_group(group),
+      m_name(name)
 {
-    QObject::connect(this, SIGNAL(triggered()), this, SLOT(onTriggered()));
-
     // This keep the code clean
     // But maybe we need move the action state control to QActionGroup to optimizations
     QObject::connect(m_group, SIGNAL(actionAppear(QString)),
@@ -89,9 +88,28 @@ bool QStateAction::isValid() const
     return m_valid;
 }
 
-void QStateAction::updateState(const QVariant &state)
+/*!
+    Request for the state of action to be changed to \a paramenter.
+    This call merely requests a change. The action may refuse to change its state or may change its state to something other than \a paramenter.
+*/
+void QStateAction::updateState(const QVariant &parameter)
 {
-    m_group->updateActionState(text(), state);
+    m_group->updateActionState(m_name, parameter);
+}
+
+/*!
+    Activates the action passing \a parameter.
+    \a parameter must be the correct type of parameter for the action
+*/
+void QStateAction::activate(const QVariant &parameter)
+{
+    m_group->activateAction(m_name, parameter);
+}
+
+/*! \internal */
+QString QStateAction::name() const
+{
+    return m_name;
 }
 
 /*! \internal */
@@ -113,15 +131,9 @@ void QStateAction::setState(const QVariant &state)
 }
 
 /*! \internal */
-void QStateAction::onTriggered()
-{
-    m_group->activateAction(text(), QVariant());
-}
-
-/*! \internal */
 void QStateAction::onActionAppear(const QString &name)
 {
-    if (text() == name) {
+    if (m_name == name) {
         setState(m_group->actionState(name));
         setValid(true);
     }
@@ -130,7 +142,7 @@ void QStateAction::onActionAppear(const QString &name)
 /*! \internal */
 void QStateAction::onActionVanish(const QString &name)
 {
-    if (text() == name) {
+    if (m_name == name) {
         setState(QVariant());
         setValid(false);
     }
@@ -139,7 +151,7 @@ void QStateAction::onActionVanish(const QString &name)
 /*! \internal */
 void QStateAction::onActionStateChanged(const QString &name, const QVariant &state)
 {
-    if (text() == name) {
+    if (m_name == name) {
         setState(state);
     }
 }

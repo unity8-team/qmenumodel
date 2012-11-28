@@ -95,13 +95,12 @@ void QDBusMenuModel::serviceVanish(GDBusConnection *)
 /*! \internal */
 void QDBusMenuModel::serviceAppear(GDBusConnection *connection)
 {
-    GMenuModel *model = reinterpret_cast<GMenuModel*>(g_dbus_menu_model_get(connection,
-                                                                            busName().toUtf8().data(),
-                                                                            objectPath().toUtf8().data()));
+    GMenuModel *model = G_MENU_MODEL(g_dbus_menu_model_get(connection,
+                                                           busName().toUtf8().data(),
+                                                           objectPath().toUtf8().data()));
     setMenuModel(model);
-    if (model == NULL) {
-        stop();
-    }
+    //setModel take care of the ref
+    g_object_unref(model);
 }
 
 /*! \internal */

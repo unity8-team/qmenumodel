@@ -41,15 +41,6 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
       m_menuModel(0),
       m_signalChangedId(0)
 {
-    static QHash<int, QByteArray> rolesNames;
-    if (rolesNames.empty()) {
-        rolesNames[Action] = "action";
-        rolesNames[Label] = "label";
-        rolesNames[LinkSection] = "linkSection";
-        rolesNames[LinkSubMenu] = "linkSubMenu";
-        rolesNames[Extra] = "extra";
-    }
-    setRoleNames(rolesNames);
     setMenuModel(other);
 
     QObject::connect(this, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SIGNAL(countChanged()));
@@ -113,6 +104,7 @@ void QMenuModel::setMenuModel(GMenuModel *other)
     m_menuModel = other;
 
     if (m_menuModel) {
+        g_object_ref(m_menuModel);
         // this will trigger the menu load
         (void) g_menu_model_get_n_items(m_menuModel);
         m_signalChangedId = g_signal_connect(m_menuModel,
@@ -139,6 +131,25 @@ void QMenuModel::clearModel()
         g_object_unref(m_menuModel);
         m_menuModel = NULL;
     }
+
+    QList<QMenuModel*> list = findChildren<QMenuModel*>(QString(), Qt::FindDirectChildrenOnly);
+    Q_FOREACH(QMenuModel *model, list) {
+        delete model;
+    }
+}
+
+/*! \internal */
+QHash<int, QByteArray> QMenuModel::roleNames() const
+{
+    static QHash<int, QByteArray> roles;
+    if (roles.isEmpty()) {
+        roles[Action] = "action";
+        roles[Label] = "label";
+        roles[LinkSection] = "linkSection";
+        roles[LinkSubMenu] = "linkSubMenu";
+        roles[Extra] = "extra";
+    }
+    return roles;
 }
 
 /*! \internal */
@@ -215,7 +226,7 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
                                       index.row(),
                                       linkName.toUtf8().data());
 
-    if (link) {      
+    if (link) {
         QMenuModel *other = new QMenuModel(link, const_cast<QMenuModel*>(this));
         return QVariant::fromValue<QObject*>(other);
     }
