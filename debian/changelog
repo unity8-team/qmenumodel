@@ -1,3 +1,10 @@
+qmenumodel (0.1.9) quantal; urgency=low
+
+  * Created auxiliary functions. To allows access the model data from
+    JavaScript;
+
+ -- Renato Araujo Oliveira Filho <renato@canonical.com>  Thu, 29 Nov 2012 18:11:20 -0300
+
 qmenumodel (0.1.8) quantal; urgency=low
 
   [ Renato Araujo Oliveira Filho ]
