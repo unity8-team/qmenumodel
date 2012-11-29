@@ -43,9 +43,9 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
 {
     setMenuModel(other);
 
-    QObject::connect(this, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SIGNAL(countChanged()));
-    QObject::connect(this, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SIGNAL(countChanged()));
-    QObject::connect(this, SIGNAL(modelReset()), this, SIGNAL(countChanged()));
+    connect(this, SIGNAL(rowsInserted(const QModelIndex &, int, int)), SIGNAL(countChanged()));
+    connect(this, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), SIGNAL(countChanged()));
+    connect(this, SIGNAL(modelReset()), SIGNAL(countChanged()));
 }
 
 /*! \internal */
