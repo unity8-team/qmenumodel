@@ -260,6 +260,44 @@ private Q_SLOTS:
 
         delete model;
     }
+
+    /*
+     * Test get function
+     */
+    void testGetData()
+    {
+        // Make menu available
+        m_script.publishMenu();
+        m_script.run();
+
+        // create a new model
+        QDBusMenuModel *model = new QDBusMenuModel();
+        model->setBusType(DBusEnums::SessionBus);
+        model->setBusName(MENU_SERVICE_NAME);
+        model->setObjectPath(MENU_OBJECT_PATH);
+        model->start();
+
+        // Wait for dbus sync
+        QTest::qWait(500);
+
+        // count
+        QCOMPARE(model->property("count").toInt(), model->rowCount());
+
+        QVariantMap data = model->get(0);
+
+        QVERIFY(data.contains("action"));
+        QVERIFY(data.contains("extra"));
+        QVERIFY(data.contains("label"));
+        QVERIFY(data.contains("linkSection"));
+        QVERIFY(data.contains("linkSubMenu"));
+
+        QCOMPARE(data["action"].toString(), QString("Menu0Act"));
+
+        QVariantMap extra = data["extra"].toMap();
+        QCOMPARE(extra.size(), 13);
+        QCOMPARE(extra["boolean"].toBool(), true);
+
+    }
 };
 
 QTEST_MAIN(ModelTest)

@@ -31,6 +31,7 @@ typedef struct _GObject GObject;
 class QMenuModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 public:
     enum MenuRoles {
@@ -43,11 +44,16 @@ public:
 
     ~QMenuModel();
 
+    Q_INVOKABLE QVariantMap get(int row) const;
+
     /* QAbstractItemModel */
     QHash<int, QByteArray> roleNames() const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QModelIndex parent (const QModelIndex &index) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
+Q_SIGNALS:
+    void countChanged();
 
 protected:
     QMenuModel(GMenuModel *other=0, QObject *parent=0);
@@ -63,6 +69,7 @@ private:
     QVariant getExtraProperties(const QModelIndex &index) const;
     QString parseExtraPropertyName(const QString &name) const;
     void clearModel();
+    int count() const;
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
 };
