@@ -28,6 +28,8 @@ typedef void* gpointer;
 typedef struct _GMenuModel GMenuModel;
 typedef struct _GObject GObject;
 
+class CacheData;
+
 class QMenuModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -60,7 +62,11 @@ protected:
     void setMenuModel(GMenuModel *model);
     GMenuModel *menuModel() const;
 
+    // help function for test
+    QList<CacheData*> cache() const;
+
 private:
+    QList<CacheData*> m_cache;
     GMenuModel *m_menuModel;
     guint m_signalChangedId;
 

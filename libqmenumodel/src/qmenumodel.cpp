@@ -26,6 +26,24 @@ extern "C" {
 
 #include <QDebug>
 
+class CacheData
+{
+public:
+    CacheData(QMenuModel *link, int pos)
+        : link(link),
+          pos(pos)
+    {
+    }
+
+    ~CacheData()
+    {
+        delete link;
+    }
+
+    QMenuModel *link;
+    int pos;
+};
+
 /*!
     \qmltype QMenuModel
     \brief The QMenuModel class implements the base list model for menus
@@ -131,10 +149,10 @@ void QMenuModel::clearModel()
         m_menuModel = NULL;
     }
 
-    QList<QMenuModel*> list = findChildren<QMenuModel*>(QString(), Qt::FindDirectChildrenOnly);
-    Q_FOREACH(QMenuModel *model, list) {
-        delete model;
+    Q_FOREACH(CacheData *data, m_cache) {
+        delete data;
     }
+    m_cache.clear();
 }
 
 /*! \internal */
@@ -226,8 +244,23 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
                                       linkName.toUtf8().data());
 
     if (link) {
-        QMenuModel *other = new QMenuModel(link, const_cast<QMenuModel*>(this));
-        return QVariant::fromValue<QObject*>(other);
+        QMenuModel *result = 0;
+        Q_FOREACH(CacheData *cache, m_cache) {
+            if ((cache->link->menuModel() == link) &&
+                (cache->pos == index.row())) {
+                result = cache->link;
+                break;
+            }
+        }
+
+        if (result == 0) {
+            QMenuModel *self = const_cast<QMenuModel*>(this);
+            result = new QMenuModel(link, self);
+            self->m_cache << new CacheData(result, index.row());
+        }
+
+        g_object_unref(link);
+        return QVariant::fromValue<QObject*>(result);
     }
 
     return QVariant();
@@ -265,7 +298,13 @@ QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
 }
 
 /*! \internal */
-void QMenuModel::onItemsChanged(GMenuModel *,
+QList<CacheData*> QMenuModel::cache() const
+{
+    return m_cache;
+}
+
+/*! \internal */
+void QMenuModel::onItemsChanged(GMenuModel *model,
                                 gint position,
                                 gint removed,
                                 gint added,
@@ -275,11 +314,29 @@ void QMenuModel::onItemsChanged(GMenuModel *,
 
     if (removed > 0) {
         self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
+        for(int i=position, iMax=position+removed; i < iMax; i++) {
+            QList<CacheData*> lst = self->m_cache;
+            Q_FOREACH(CacheData* data, lst) {
+                if (data->pos == position) {
+                    self->m_cache.removeOne(data);
+                    delete data;
+                } else if (data->pos >= position) {
+                    data->pos -= removed;
+                }
+            }
+        }
         self->endRemoveRows();
     }
 
     if (added > 0) {
         self->beginInsertRows(QModelIndex(), position, position + added - 1);
+        for(int i=position, iMax=position+added; i < iMax; i++) {
+            Q_FOREACH(CacheData* data, self->m_cache) {
+                if (data->pos >= position) {
+                    data->pos += added;
+                }
+            }
+        }
         self->endInsertRows();
     }
 }
