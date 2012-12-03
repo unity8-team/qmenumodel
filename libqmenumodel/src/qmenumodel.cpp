@@ -24,26 +24,6 @@ extern "C" {
 #include "qmenumodel.h"
 #include "converter.h"
 
-#include <QDebug>
-
-class CacheData
-{
-public:
-    CacheData(QMenuModel *link, int pos)
-        : link(link),
-          pos(pos)
-    {
-    }
-
-    ~CacheData()
-    {
-        delete link;
-    }
-
-    QMenuModel *link;
-    int pos;
-};
-
 /*!
     \qmltype QMenuModel
     \brief The QMenuModel class implements the base list model for menus
@@ -149,8 +129,8 @@ void QMenuModel::clearModel()
         m_menuModel = NULL;
     }
 
-    Q_FOREACH(CacheData *data, m_cache) {
-        delete data;
+    Q_FOREACH(QMenuModel* child, m_cache) {
+        delete child;
     }
     m_cache.clear();
 }
@@ -243,31 +223,25 @@ QVariant QMenuModel::getStringAttribute(const QModelIndex &index,
 QVariant QMenuModel::getLink(const QModelIndex &index,
                              const QString &linkName)
 {
-    GMenuModel *link;
-
-    link = g_menu_model_get_item_link(m_menuModel,
-                                      index.row(),
-                                      linkName.toUtf8().data());
-
+    GMenuModel *link = g_menu_model_get_item_link(m_menuModel,
+                                                  index.row(),
+                                                  linkName.toUtf8().data());
     if (link) {
-        QMenuModel *result = 0;
-        Q_FOREACH(CacheData *cache, m_cache) {
-            if ((cache->link->menuModel() == link) &&
-                (cache->pos == index.row())) {
-                result = cache->link;
-                break;
+        QMenuModel* child = 0;
+        int key = index.row();
+        if (m_cache.contains(key)) {
+            QMenuModel* cached = m_cache.value(key);
+            if (cached->menuModel() == link) {
+                child = cached;
             }
         }
-
-        if (result == 0) {
-            result = new QMenuModel(link, this);
-            m_cache << new CacheData(result, index.row());
+        if (child == 0) {
+            child = new QMenuModel(link, this);
+            m_cache.insert(key, child);
         }
-
         g_object_unref(link);
-        return QVariant::fromValue<QObject*>(result);
+        return QVariant::fromValue<QObject*>(child);
     }
-
     return QVariant();
 }
 
@@ -303,7 +277,7 @@ QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
 }
 
 /*! \internal */
-QList<CacheData*> QMenuModel::cache() const
+QHash<int, QMenuModel*> QMenuModel::cache() const
 {
     return m_cache;
 }
@@ -317,17 +291,17 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
 {
     QMenuModel *self = reinterpret_cast<QMenuModel*>(data);
 
+    int prevcount = g_menu_model_get_n_items(model) + removed - added;
     if (removed > 0) {
         self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
-        for(int i=position, iMax=position+removed; i < iMax; i++) {
-            QList<CacheData*> lst = self->m_cache;
-            Q_FOREACH(CacheData* data, lst) {
-                if (data->pos == position) {
-                    self->m_cache.removeOne(data);
-                    delete data;
-                } else if (data->pos >= position) {
-                    data->pos -= removed;
-                }
+        for (int i = position, iMax = position + removed; i < iMax; ++i) {
+            if (self->m_cache.contains(i)) {
+                delete self->m_cache.take(i);
+            }
+        }
+        for (int i = position + removed; i < prevcount; ++i) {
+            if (self->m_cache.contains(i)) {
+                self->m_cache.insert(i - removed, self->m_cache.take(i));
             }
         }
         self->endRemoveRows();
@@ -335,11 +309,9 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
 
     if (added > 0) {
         self->beginInsertRows(QModelIndex(), position, position + added - 1);
-        for(int i=position, iMax=position+added; i < iMax; i++) {
-            Q_FOREACH(CacheData* data, self->m_cache) {
-                if (data->pos >= position) {
-                    data->pos += added;
-                }
+        for (int i = prevcount - removed - 1; i >= position; --i) {
+            if (self->m_cache.contains(i)) {
+                self->m_cache.insert(i + added, self->m_cache.take(i));
             }
         }
         self->endInsertRows();

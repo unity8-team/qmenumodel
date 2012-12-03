@@ -21,14 +21,13 @@
 #define QMENUMODEL_H
 
 #include <QAbstractListModel>
+#include <QHash>
 
 typedef int gint;
 typedef unsigned int guint;
 typedef void* gpointer;
 typedef struct _GMenuModel GMenuModel;
 typedef struct _GObject GObject;
-
-class CacheData;
 
 class QMenuModel : public QAbstractListModel
 {
@@ -63,10 +62,10 @@ protected:
     GMenuModel *menuModel() const;
 
     // help function for test
-    QList<CacheData*> cache() const;
+    QHash<int, QMenuModel*> cache() const;
 
 private:
-    QList<CacheData*> m_cache;
+    QHash<int, QMenuModel*> m_cache;
     GMenuModel *m_menuModel;
     guint m_signalChangedId;
 
