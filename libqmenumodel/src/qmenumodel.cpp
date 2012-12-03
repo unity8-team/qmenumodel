@@ -185,11 +185,17 @@ QVariant QMenuModel::data(const QModelIndex &index, int role) const
                 attribute = getStringAttribute(index, G_MENU_ATTRIBUTE_LABEL);
                 break;
             case LinkSection:
-                attribute = getLink(index, G_MENU_LINK_SECTION);
+            {
+                QMenuModel *self = const_cast<QMenuModel*>(this);
+                attribute = self->getLink(index, G_MENU_LINK_SECTION);
                 break;
+            }
             case LinkSubMenu:
-                attribute = getLink(index, G_MENU_LINK_SUBMENU);
+            {
+                QMenuModel *self = const_cast<QMenuModel*>(this);
+                attribute = self->getLink(index, G_MENU_LINK_SUBMENU);
                 break;
+            }
             case Extra:
                 attribute = getExtraProperties(index);
                 break;
@@ -235,7 +241,7 @@ QVariant QMenuModel::getStringAttribute(const QModelIndex &index,
 
 /*! \internal */
 QVariant QMenuModel::getLink(const QModelIndex &index,
-                             const QString &linkName) const
+                             const QString &linkName)
 {
     GMenuModel *link;
 
@@ -254,9 +260,8 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
         }
 
         if (result == 0) {
-            QMenuModel *self = const_cast<QMenuModel*>(this);
-            result = new QMenuModel(link, self);
-            self->m_cache << new CacheData(result, index.row());
+            result = new QMenuModel(link, this);
+            m_cache << new CacheData(result, index.row());
         }
 
         g_object_unref(link);

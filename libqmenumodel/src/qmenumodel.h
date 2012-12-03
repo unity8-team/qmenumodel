@@ -71,7 +71,7 @@ private:
     guint m_signalChangedId;
 
     QVariant getStringAttribute(const QModelIndex &index, const QString &attribute) const;
-    QVariant getLink(const QModelIndex &index, const QString &linkName) const;
+    QVariant getLink(const QModelIndex &index, const QString &linkName);
     QVariant getExtraProperties(const QModelIndex &index) const;
     QString parseExtraPropertyName(const QString &name) const;
     void clearModel();
