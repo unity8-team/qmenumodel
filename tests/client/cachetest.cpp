@@ -81,7 +81,7 @@ private Q_SLOTS:
         g_type_init();
     }
 
-    // Test if the link attribute always returns the same cached menu
+    // Verify that the link attribute always returns the same cached menu
     void testStaticMenuCache()
     {
         TestModel menu;
@@ -105,13 +105,16 @@ private Q_SLOTS:
         QVERIFY(data.value<QObject*>() == data2.value<QObject*>());
     }
 
-    // Test if the cache is correctly updated after inserting a new item
-    void testAddItem()
+    // Verify that the cache is correctly updated after inserting a new item
+    void testInsertItems()
     {
         TestModel menu;
 
         QModelIndex index = menu.index(3);
         QVariant data = menu.data(index, QMenuModel::LinkSection);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 3);
+
+        menu.insertItem(0, 4, "newMenu");
         QCOMPARE(menu.cacheIndexes(), QList<int>() << 3);
 
         menu.insertItem(0, 1, "newMenu");
@@ -124,8 +127,8 @@ private Q_SLOTS:
         QVERIFY(data.value<QObject*>() == data2.value<QObject*>());
     }
 
-    // Test if the cache is correctly updated after removing an item that wasn’t cached
-    void testRemoveItem()
+    // Verify that the cache is correctly updated after removing an item that wasn’t cached
+    void testRemoveNonCachedItem()
     {
         TestModel menu;
 
@@ -143,7 +146,7 @@ private Q_SLOTS:
         QVERIFY(data.value<QObject*>() == data2.value<QObject*>());
     }
 
-    // Test if the cache is correctly updated after removing a cached item
+    // Verify that the cache is correctly updated after removing a cached item
     void testRemoveCachedItem()
     {
         TestModel menu;
@@ -153,6 +156,31 @@ private Q_SLOTS:
         QCOMPARE(menu.cacheIndexes(), QList<int>() << 3);
 
         menu.removeItem(0, 3);
+        QVERIFY(menu.cacheIndexes().isEmpty());
+    }
+
+    // Verify that the cache is correctly updated after multiple insertions and removals 
+    void testMultiplesUpdates()
+    {
+        TestModel menu;
+        QVERIFY(menu.cacheIndexes().isEmpty());
+
+        menu.data(menu.index(3), QMenuModel::LinkSection);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 3);
+
+        menu.insertItem(0, 1, "newMenu");
+        menu.insertItem(0, 2, "newMenu");
+        menu.insertItem(0, 6, "newMenu");
+        menu.insertItem(0, 3, "newMenu");
+        menu.insertItem(0, 7, "newMenu");
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 6);
+
+        menu.removeItem(0, 4);
+        menu.removeItem(0, 6);
+        menu.removeItem(0, 2);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 4);
+
+        menu.removeItem(0, 4);
         QVERIFY(menu.cacheIndexes().isEmpty());
     }
 };
