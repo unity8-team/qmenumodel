@@ -21,7 +21,6 @@
 #define QMENUMODEL_H
 
 #include <QAbstractListModel>
-#include <QHash>
 
 typedef int gint;
 typedef unsigned int guint;
@@ -65,12 +64,12 @@ protected:
     QHash<int, QMenuModel*> cache() const;
 
 private:
-    QHash<int, QMenuModel*> m_cache;
+    QHash<int, QMenuModel*>* m_cache;
     GMenuModel *m_menuModel;
     guint m_signalChangedId;
 
     QVariant getStringAttribute(const QModelIndex &index, const QString &attribute) const;
-    QVariant getLink(const QModelIndex &index, const QString &linkName);
+    QVariant getLink(const QModelIndex &index, const QString &linkName) const;
     QVariant getExtraProperties(const QModelIndex &index) const;
     QString parseExtraPropertyName(const QString &name) const;
     void clearModel();

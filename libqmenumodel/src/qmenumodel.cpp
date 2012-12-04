@@ -39,6 +39,7 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
       m_menuModel(0),
       m_signalChangedId(0)
 {
+    m_cache = new QHash<int, QMenuModel*>;
     setMenuModel(other);
 
     connect(this, SIGNAL(rowsInserted(const QModelIndex &, int, int)), SIGNAL(countChanged()));
@@ -50,6 +51,7 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
 QMenuModel::~QMenuModel()
 {
     clearModel();
+    delete m_cache;
 }
 
 /*!
@@ -129,10 +131,10 @@ void QMenuModel::clearModel()
         m_menuModel = NULL;
     }
 
-    Q_FOREACH(QMenuModel* child, m_cache) {
+    Q_FOREACH(QMenuModel* child, *m_cache) {
         delete child;
     }
-    m_cache.clear();
+    m_cache->clear();
 }
 
 /*! \internal */
@@ -165,17 +167,11 @@ QVariant QMenuModel::data(const QModelIndex &index, int role) const
                 attribute = getStringAttribute(index, G_MENU_ATTRIBUTE_LABEL);
                 break;
             case LinkSection:
-            {
-                QMenuModel *self = const_cast<QMenuModel*>(this);
-                attribute = self->getLink(index, G_MENU_LINK_SECTION);
+                attribute = getLink(index, G_MENU_LINK_SECTION);
                 break;
-            }
             case LinkSubMenu:
-            {
-                QMenuModel *self = const_cast<QMenuModel*>(this);
-                attribute = self->getLink(index, G_MENU_LINK_SUBMENU);
+                attribute = getLink(index, G_MENU_LINK_SUBMENU);
                 break;
-            }
             case Extra:
                 attribute = getExtraProperties(index);
                 break;
@@ -221,7 +217,7 @@ QVariant QMenuModel::getStringAttribute(const QModelIndex &index,
 
 /*! \internal */
 QVariant QMenuModel::getLink(const QModelIndex &index,
-                             const QString &linkName)
+                             const QString &linkName) const
 {
     GMenuModel *link = g_menu_model_get_item_link(m_menuModel,
                                                   index.row(),
@@ -229,15 +225,15 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
     if (link) {
         QMenuModel* child = 0;
         int key = index.row();
-        if (m_cache.contains(key)) {
-            QMenuModel* cached = m_cache.value(key);
+        if (m_cache->contains(key)) {
+            QMenuModel* cached = m_cache->value(key);
             if (cached->menuModel() == link) {
                 child = cached;
             }
         }
         if (child == 0) {
-            child = new QMenuModel(link, this);
-            m_cache.insert(key, child);
+            child = new QMenuModel(link);
+            m_cache->insert(key, child);
         }
         g_object_unref(link);
         return QVariant::fromValue<QObject*>(child);
@@ -279,7 +275,7 @@ QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
 /*! \internal */
 QHash<int, QMenuModel*> QMenuModel::cache() const
 {
-    return m_cache;
+    return *m_cache;
 }
 
 /*! \internal */
@@ -290,18 +286,19 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
                                 gpointer data)
 {
     QMenuModel *self = reinterpret_cast<QMenuModel*>(data);
+    QHash<int, QMenuModel*>* cache = self->m_cache;
 
     int prevcount = g_menu_model_get_n_items(model) + removed - added;
     if (removed > 0) {
         self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
         for (int i = position, iMax = position + removed; i < iMax; ++i) {
-            if (self->m_cache.contains(i)) {
-                delete self->m_cache.take(i);
+            if (cache->contains(i)) {
+                delete cache->take(i);
             }
         }
         for (int i = position + removed; i < prevcount; ++i) {
-            if (self->m_cache.contains(i)) {
-                self->m_cache.insert(i - removed, self->m_cache.take(i));
+            if (cache->contains(i)) {
+                cache->insert(i - removed, cache->take(i));
             }
         }
         self->endRemoveRows();
@@ -310,8 +307,8 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
     if (added > 0) {
         self->beginInsertRows(QModelIndex(), position, position + added - 1);
         for (int i = prevcount - removed - 1; i >= position; --i) {
-            if (self->m_cache.contains(i)) {
-                self->m_cache.insert(i + added, self->m_cache.take(i));
+            if (cache->contains(i)) {
+                cache->insert(i + added, cache->take(i));
             }
         }
         self->endInsertRows();
