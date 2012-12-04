@@ -81,9 +81,7 @@ private Q_SLOTS:
         g_type_init();
     }
 
-    //
-    // Test if the link property always returns the same element
-    //
+    // Test if the link attribute always returns the same cached menu
     void testStaticMenuCache()
     {
         TestModel menu;
@@ -107,10 +105,7 @@ private Q_SLOTS:
         QVERIFY(data.value<QObject*>() == data2.value<QObject*>());
     }
 
-
-    //
-    // Test if cache works after add a new item
-    //
+    // Test if the cache is correctly updated after inserting a new item
     void testAddItem()
     {
         TestModel menu;
@@ -129,10 +124,7 @@ private Q_SLOTS:
         QVERIFY(data.value<QObject*>() == data2.value<QObject*>());
     }
 
-
-    //
-    // Test if cache works after remove a item
-    //
+    // Test if the cache is correctly updated after removing an item that wasn’t cached
     void testRemoveItem()
     {
         TestModel menu;
@@ -151,9 +143,7 @@ private Q_SLOTS:
         QVERIFY(data.value<QObject*>() == data2.value<QObject*>());
     }
 
-    //
-    // Test if cached item is removed after removed from the menu
-    //
+    // Test if the cache is correctly updated after removing a cached item
     void testRemoveCachedItem()
     {
         TestModel menu;
