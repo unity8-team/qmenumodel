@@ -26,12 +26,11 @@ extern "C" {
 #include <QtTest>
 
 
-class MenuModelTestClass : public QMenuModel
+class TestModel : public QMenuModel
 {
     Q_OBJECT
 public:
-    MenuModelTestClass()
-        : QMenuModel(0)
+    TestModel() : QMenuModel(0)
     {
         GMenu *menu3 = g_menu_new();
         g_menu_append(menu3, "menu4", NULL);
@@ -61,9 +60,11 @@ public:
         g_menu_insert(menu, index, label.toUtf8().data(), NULL);
     }
 
-    int cacheSize() const
+    QList<int> cacheIndexes() const
     {
-        return cache().size();
+        QList<int> indexes = cache().keys();
+        qSort(indexes);
+        return indexes;
     }
 
 private:
@@ -73,6 +74,7 @@ private:
 class CacheTest : public QObject
 {
     Q_OBJECT
+
 private Q_SLOTS:
     void initTestCase()
     {
@@ -84,15 +86,15 @@ private Q_SLOTS:
     //
     void testStaticMenuCache()
     {
-        MenuModelTestClass menu;
+        TestModel menu;
 
         QModelIndex index = menu.index(3);
 
         QVariant data = menu.data(index, QMenuModel::LinkSection);
-        QCOMPARE(menu.cacheSize(), 1);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 3);
 
         QVariant data2 = menu.data(index, QMenuModel::LinkSection);
-        QCOMPARE(menu.cacheSize(), 1);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 3);
 
         QVERIFY(data.value<QObject*>() == data2.value<QObject*>());
 
@@ -101,6 +103,7 @@ private Q_SLOTS:
         index = section->index(1);
         data = menu.data(index, QMenuModel::LinkSection);
         data2 = menu.data(index, QMenuModel::LinkSection);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 3);
         QVERIFY(data.value<QObject*>() == data2.value<QObject*>());
     }
 
@@ -110,17 +113,19 @@ private Q_SLOTS:
     //
     void testAddItem()
     {
-        MenuModelTestClass menu;
+        TestModel menu;
 
         QModelIndex index = menu.index(3);
         QVariant data = menu.data(index, QMenuModel::LinkSection);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 3);
 
         menu.insertItem(0, 1, "newMenu");
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 4);
 
         index = menu.index(4);
         QVariant data2 = menu.data(index, QMenuModel::LinkSection);
 
-        QCOMPARE(menu.cacheSize(), 1);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 4);
         QVERIFY(data.value<QObject*>() == data2.value<QObject*>());
     }
 
@@ -130,17 +135,19 @@ private Q_SLOTS:
     //
     void testRemoveItem()
     {
-        MenuModelTestClass menu;
+        TestModel menu;
 
         QModelIndex index = menu.index(3);
         QVariant data = menu.data(index, QMenuModel::LinkSection);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 3);
 
         menu.removeItem(0, 1);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 2);
 
         index = menu.index(2);
         QVariant data2 = menu.data(index, QMenuModel::LinkSection);
 
-        QCOMPARE(menu.cacheSize(), 1);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 2);
         QVERIFY(data.value<QObject*>() == data2.value<QObject*>());
     }
 
@@ -149,14 +156,14 @@ private Q_SLOTS:
     //
     void testRemoveCachedItem()
     {
-        MenuModelTestClass menu;
+        TestModel menu;
 
         QModelIndex index = menu.index(3);
         QVariant data = menu.data(index, QMenuModel::LinkSection);
+        QCOMPARE(menu.cacheIndexes(), QList<int>() << 3);
 
-        QCOMPARE(menu.cacheSize(), 1);
         menu.removeItem(0, 3);
-        QCOMPARE(menu.cacheSize(), 0);
+        QVERIFY(menu.cacheIndexes().isEmpty());
     }
 };
 
