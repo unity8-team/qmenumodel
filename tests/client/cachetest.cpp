@@ -24,7 +24,6 @@ extern "C" {
 }
 
 #include <QtTest>
-#include <QDebug>
 
 
 class MenuModelTestClass : public QMenuModel
