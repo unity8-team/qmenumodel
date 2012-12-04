@@ -15,6 +15,7 @@
  *
  * Authors:
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
+ *      Olivier Tilloy <olivier.tilloy@canonical.com>
  */
 
 extern "C" {
