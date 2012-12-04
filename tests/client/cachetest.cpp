@@ -33,10 +33,6 @@ public:
     MenuModelTestClass()
         : QMenuModel(0)
     {
-    }
-
-    void loadMenu()
-    {
         GMenu *menu3 = g_menu_new();
         g_menu_append(menu3, "menu4", NULL);
         g_menu_append(menu3, "menu5", NULL);
@@ -89,7 +85,6 @@ private Q_SLOTS:
     void testStaticMenuCache()
     {
         MenuModelTestClass menu;
-        menu.loadMenu();
 
         QModelIndex index = menu.index(3);
 
@@ -116,7 +111,6 @@ private Q_SLOTS:
     void testAddItem()
     {
         MenuModelTestClass menu;
-        menu.loadMenu();
 
         QModelIndex index = menu.index(3);
         QVariant data = menu.data(index, QMenuModel::LinkSection);
@@ -137,7 +131,6 @@ private Q_SLOTS:
     void testRemoveItem()
     {
         MenuModelTestClass menu;
-        menu.loadMenu();
 
         QModelIndex index = menu.index(3);
         QVariant data = menu.data(index, QMenuModel::LinkSection);
@@ -157,7 +150,6 @@ private Q_SLOTS:
     void testRemoveCachedItem()
     {
         MenuModelTestClass menu;
-        menu.loadMenu();
 
         QModelIndex index = menu.index(3);
         QVariant data = menu.data(index, QMenuModel::LinkSection);
