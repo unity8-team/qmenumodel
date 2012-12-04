@@ -16,6 +16,7 @@ coverage/
 
 tests/client/*.moc
 tests/client/actiongrouptest
+tests/client/cachetest
 tests/client/convertertest
 tests/client/menuchangestest
 tests/client/modeltest

@@ -60,7 +60,11 @@ protected:
     void setMenuModel(GMenuModel *model);
     GMenuModel *menuModel() const;
 
+    // helper getter intended for use in tests only
+    QHash<int, QMenuModel*> cache() const;
+
 private:
+    QHash<int, QMenuModel*>* m_cache;
     GMenuModel *m_menuModel;
     guint m_signalChangedId;
 
