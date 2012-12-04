@@ -1,3 +1,9 @@
+qmenumodel (0.2) quantal; urgency=low
+
+  * Cache sub-menus.
+
+ -- Olivier Tilloy <olivier.tilloy@canonical.com>  Tue, 04 Dec 2012 11:57:59 +0100
+
 qmenumodel (0.1.9) quantal; urgency=low
 
   * Created auxiliary functions. To allows access the model data from
