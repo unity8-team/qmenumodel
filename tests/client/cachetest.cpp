@@ -81,6 +81,19 @@ private Q_SLOTS:
         g_type_init();
     }
 
+    // Verify that normal menu items are not cached (only sub-menus are)
+    void testCacheContents()
+    {
+        TestModel menu;
+        QVERIFY(menu.cacheIndexes().isEmpty());
+
+        menu.data(menu.index(1), QMenuModel::Label);
+        QVERIFY(menu.cacheIndexes().isEmpty());
+
+        menu.data(menu.index(2), QMenuModel::Action);
+        QVERIFY(menu.cacheIndexes().isEmpty());
+    }
+
     // Verify that the link attribute always returns the same cached menu
     void testStaticMenuCache()
     {
