@@ -38,6 +38,10 @@ QVariant Converter::toQVariant(GVariant *value)
         gsize size = 0;
         const gchar *v = g_variant_get_string(value, &size);
         result.setValue(QString::fromUtf8(v, size));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_VARIANT)) {
+        GVariant *var = g_variant_get_variant(value);
+        result = toQVariant(var);
+        g_variant_unref(var);
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_VARDICT)) {
         GVariantIter iter;
         GVariant *vvalue;
@@ -51,6 +55,14 @@ QVariant Converter::toQVariant(GVariant *value)
         }
 
         result.setValue(qmap);
+    } else if (g_variant_type_is_array(type)) {
+        QVariantList lst;
+        for (int i = 0, iMax = g_variant_n_children(value); i < iMax; i++) {
+            GVariant *child = g_variant_get_child_value(value, i);
+            lst << toQVariant(child);
+            g_variant_unref(child);
+        }
+        result.setValue(lst);
     } else if (g_variant_type_is_tuple(type)) {
         gsize size = g_variant_n_children(value);
         QVariantList vlist;
@@ -72,11 +84,9 @@ QVariant Converter::toQVariant(GVariant *value)
      * G_VARIANT_TYPE_HANDLE
      * G_VARIANT_TYPE_OBJECT_PATH
      * G_VARIANT_TYPE_SIGNATURE
-     * G_VARIANT_TYPE_VARIANT
      * G_VARIANT_TYPE_ANY
      * G_VARIANT_TYPE_BASIC
      * G_VARIANT_TYPE_MAYBE
-     * G_VARIANT_TYPE_ARRAY
      * G_VARIANT_TYPE_UNIT
      * G_VARIANT_TYPE_DICT_ENTRY
      * G_VARIANT_TYPE_DICTIONARY
