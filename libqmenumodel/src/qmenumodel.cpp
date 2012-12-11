@@ -51,7 +51,7 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
 /*! \internal */
 QMenuModel::~QMenuModel()
 {
-    clearModel();
+    clearModel(true);
     delete m_cache;
 }
 
@@ -123,7 +123,7 @@ GMenuModel *QMenuModel::menuModel() const
 }
 
 /*! \internal */
-void QMenuModel::clearModel()
+void QMenuModel::clearModel(bool destructor)
 {
     if (m_menuModel) {
         g_signal_handler_disconnect(m_menuModel, m_signalChangedId);
@@ -133,7 +133,10 @@ void QMenuModel::clearModel()
     }
 
     Q_FOREACH(QMenuModel* child, *m_cache) {
-        child->setMenuModel(NULL);
+        // avoid emit signals during the object destruction this can crash qml
+        if (!destructor) {
+            child->setMenuModel(NULL);
+        }
         child->deleteLater();
     }
     m_cache->clear();
