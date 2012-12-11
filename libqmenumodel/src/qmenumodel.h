@@ -72,7 +72,7 @@ private:
     QVariant getLink(const QModelIndex &index, const QString &linkName) const;
     QVariant getExtraProperties(const QModelIndex &index) const;
     QString parseExtraPropertyName(const QString &name) const;
-    void clearModel();
+    void clearModel(bool destructor=false);
     int count() const;
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
