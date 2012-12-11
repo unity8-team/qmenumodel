@@ -84,6 +84,7 @@ void QDBusMenuModel::start()
 void QDBusMenuModel::stop()
 {
     QDBusObject::disconnect();
+    setMenuModel(NULL);
 }
 
 /*! \internal */
