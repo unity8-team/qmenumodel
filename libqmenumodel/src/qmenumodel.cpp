@@ -133,7 +133,8 @@ void QMenuModel::clearModel()
     }
 
     Q_FOREACH(QMenuModel* child, *m_cache) {
-        delete child;
+        child->setMenuModel(NULL);
+        child->deleteLater();
     }
     m_cache->clear();
 }
@@ -295,7 +296,9 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
         // Remove invalidated menus from the cache
         for (int i = position, iMax = position + removed; i < iMax; ++i) {
             if (cache->contains(i)) {
-                delete cache->take(i);
+                QMenuModel *model = cache->take(i);
+                model->setMenuModel(NULL);
+                model->deleteLater();
             }
         }
         // Update the indexes of other cached menus to account for the removals
