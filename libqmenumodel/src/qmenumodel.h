@@ -67,6 +67,7 @@ private:
     QHash<int, QMenuModel*>* m_cache;
     GMenuModel *m_menuModel;
     guint m_signalChangedId;
+    guint m_rowCount;
 
     QVariant getStringAttribute(const QModelIndex &index, const QString &attribute) const;
     QVariant getLink(const QModelIndex &index, const QString &linkName) const;

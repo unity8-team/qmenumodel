@@ -38,7 +38,8 @@ extern "C" {
 QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
     : QAbstractListModel(parent),
       m_menuModel(0),
-      m_signalChangedId(0)
+      m_signalChangedId(0),
+      m_rowCount(0)
 {
     m_cache = new QHash<int, QMenuModel*>;
     setMenuModel(other);
@@ -87,7 +88,7 @@ QVariantMap QMenuModel::get(int row) const
 */
 int QMenuModel::count() const
 {
-    return rowCount();
+    return m_rowCount;
 }
 
 /*! \internal */
@@ -105,12 +106,13 @@ void QMenuModel::setMenuModel(GMenuModel *other)
 
     if (m_menuModel) {
         g_object_ref(m_menuModel);
-        // this will trigger the menu load
-        (void) g_menu_model_get_n_items(m_menuModel);
+        m_rowCount = g_menu_model_get_n_items(m_menuModel);
         m_signalChangedId = g_signal_connect(m_menuModel,
                                              "items-changed",
                                              G_CALLBACK(QMenuModel::onItemsChanged),
                                              this);
+    } else {
+        m_rowCount = 0;
     }
 
     endResetModel();
@@ -296,12 +298,13 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
     int prevcount = g_menu_model_get_n_items(model) + removed - added;
     if (removed > 0) {
         self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
+        self->m_rowCount -= removed;
         // Remove invalidated menus from the cache
         for (int i = position, iMax = position + removed; i < iMax; ++i) {
             if (cache->contains(i)) {
-                QMenuModel *model = cache->take(i);
-                model->setMenuModel(NULL);
-                model->deleteLater();
+                QMenuModel *cached = cache->take(i);
+                cached->setMenuModel(NULL);
+                cached->deleteLater();
             }
         }
         // Update the indexes of other cached menus to account for the removals
@@ -321,6 +324,7 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
                 cache->insert(i + added, cache->take(i));
             }
         }
+        self->m_rowCount += removed;
         self->endInsertRows();
     }
 }
