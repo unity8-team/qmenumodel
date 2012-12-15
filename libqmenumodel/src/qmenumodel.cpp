@@ -234,9 +234,7 @@ QVariant QMenuModel::getLink(const QModelIndex &index,
         int key = index.row();
         if (m_cache->contains(key)) {
             QMenuModel* cached = m_cache->value(key);
-            if (cached->menuModel() == link) {
-                child = cached;
-            }
+            child = cached;
         }
         if (child == 0) {
             child = new QMenuModel(link);
@@ -297,7 +295,7 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
 
     int prevcount = g_menu_model_get_n_items(model) + removed - added;
     if (removed > 0) {
-        self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
+        Q_EMIT self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
         self->m_rowCount -= removed;
         // Remove invalidated menus from the cache
         for (int i = position, iMax = position + removed; i < iMax; ++i) {
@@ -313,19 +311,19 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
                 cache->insert(i - removed, cache->take(i));
             }
         }
-        self->endRemoveRows();
+        Q_EMIT self->endRemoveRows();
     }
 
     if (added > 0) {
-        self->beginInsertRows(QModelIndex(), position, position + added - 1);
+        Q_EMIT self->beginInsertRows(QModelIndex(), position, position + added - 1);
         // Update the indexes of cached menus to account for the insertions
         for (int i = prevcount - removed - 1; i >= position; --i) {
             if (cache->contains(i)) {
                 cache->insert(i + added, cache->take(i));
             }
         }
-        self->m_rowCount += removed;
-        self->endInsertRows();
+        self->m_rowCount += added;
+        Q_EMIT self->endInsertRows();
     }
 }
 
