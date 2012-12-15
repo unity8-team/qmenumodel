@@ -295,7 +295,7 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
 
     int prevcount = g_menu_model_get_n_items(model) + removed - added;
     if (removed > 0) {
-        Q_EMIT self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
+        self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
         self->m_rowCount -= removed;
         // Remove invalidated menus from the cache
         for (int i = position, iMax = position + removed; i < iMax; ++i) {
@@ -311,11 +311,11 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
                 cache->insert(i - removed, cache->take(i));
             }
         }
-        Q_EMIT self->endRemoveRows();
+        self->endRemoveRows();
     }
 
     if (added > 0) {
-        Q_EMIT self->beginInsertRows(QModelIndex(), position, position + added - 1);
+        self->beginInsertRows(QModelIndex(), position, position + added - 1);
         // Update the indexes of cached menus to account for the insertions
         for (int i = prevcount - removed - 1; i >= position; --i) {
             if (cache->contains(i)) {
@@ -323,7 +323,7 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
             }
         }
         self->m_rowCount += added;
-        Q_EMIT self->endInsertRows();
+        self->endInsertRows();
     }
 }
 
