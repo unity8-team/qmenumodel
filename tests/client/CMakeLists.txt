@@ -59,6 +59,7 @@ declare_test(actiongrouptest)
 declare_test(qmltest)
 declare_simple_test(convertertest)
 declare_simple_test(cachetest)
+declare_simple_test(modelsignalstest)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/qmlfiles.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/qmlfiles.h)
