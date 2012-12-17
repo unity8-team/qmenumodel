@@ -29,15 +29,6 @@ extern "C" {
 #include <gio/gio.h>
 }
 
-class TestMenuModel : public QMenuModel
-{
-public:
-    TestMenuModel(GMenuModel *other, QObject *parent=0)
-        : QMenuModel(other, parent)
-    {
-    }
-};
-
 class ModelTest : public QObject
 {
     Q_OBJECT
@@ -296,7 +287,6 @@ private Q_SLOTS:
         QVariantMap extra = data["extra"].toMap();
         QCOMPARE(extra.size(), 13);
         QCOMPARE(extra["boolean"].toBool(), true);
-
     }
 };
 

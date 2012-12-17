@@ -39,7 +39,10 @@ QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
     : QAbstractListModel(parent),
       m_menuModel(0),
       m_signalChangedId(0),
-      m_rowCount(0)
+      m_rowCount(0),
+      m_currentOperationPosition(0),
+      m_currentOperationAdded(0),
+      m_currentOperationRemoved(0)
 {
     m_cache = new QHash<int, QMenuModel*>;
     setMenuModel(other);
@@ -162,25 +165,34 @@ QHash<int, QByteArray> QMenuModel::roleNames() const
 QVariant QMenuModel::data(const QModelIndex &index, int role) const
 {
     QVariant attribute;
-    int rowCountValue = rowCount();
 
-    if ((rowCountValue > 0) && (index.row() >= 0) && (index.row() < rowCountValue)) {
+    // Return a empty variant if the remove operation is in progress
+    if ((m_currentOperationRemoved > 0) &&
+        (index.row() >= m_currentOperationPosition) &&
+        (index.row() < (m_currentOperationPosition + m_currentOperationRemoved))) {
+        return attribute;
+    }
+
+    int rowCountValue = rowCount() + (m_currentOperationAdded - m_currentOperationRemoved);
+    int row = rowIndex(index);
+
+    if ((row >= 0) && (row < rowCountValue)) {
         if (m_menuModel) {
             switch (role) {
             case Action:
-                attribute = getStringAttribute(index, G_MENU_ATTRIBUTE_ACTION);
+                attribute = getStringAttribute(row, G_MENU_ATTRIBUTE_ACTION);
                 break;
             case Label:
-                attribute = getStringAttribute(index, G_MENU_ATTRIBUTE_LABEL);
+                attribute = getStringAttribute(row, G_MENU_ATTRIBUTE_LABEL);
                 break;
             case LinkSection:
-                attribute = getLink(index, G_MENU_LINK_SECTION);
+                attribute = getLink(row, G_MENU_LINK_SECTION);
                 break;
             case LinkSubMenu:
-                attribute = getLink(index, G_MENU_LINK_SUBMENU);
+                attribute = getLink(row, G_MENU_LINK_SUBMENU);
                 break;
             case Extra:
-                attribute = getExtraProperties(index);
+                attribute = getExtraProperties(row);
                 break;
             default:
                 break;
@@ -199,20 +211,35 @@ QModelIndex QMenuModel::parent(const QModelIndex &index) const
 /*! \internal */
 int QMenuModel::rowCount(const QModelIndex &) const
 {
-    if (m_menuModel) {
-        return g_menu_model_get_n_items(m_menuModel);
-    }
-    return 0;
+    return m_rowCount;
 }
 
 /*! \internal */
-QVariant QMenuModel::getStringAttribute(const QModelIndex &index,
+int QMenuModel::rowIndex(const QModelIndex &index) const
+{
+    int row = index.row();
+    /*
+    if ((m_currentOperationAdded > 0) && (row >= m_currentOperationPosition)) {
+        row += m_currentOperationAdded;
+    } else if ((m_currentOperationRemoved > 0) && (row >= (row >= m_currentOperationPosition))) {
+
+    }
+    */
+    if (row >= m_currentOperationPosition) {
+        row += (m_currentOperationAdded - m_currentOperationRemoved);
+    }
+    return row;
+}
+
+
+/*! \internal */
+QVariant QMenuModel::getStringAttribute(int row,
                                         const QString &attribute) const
 {
     QVariant result;
     gchar* value = NULL;
     g_menu_model_get_item_attribute(m_menuModel,
-                                    index.row(),
+                                    row,
                                     attribute.toUtf8().data(),
                                     "s", &value);
     if (value) {
@@ -223,22 +250,23 @@ QVariant QMenuModel::getStringAttribute(const QModelIndex &index,
 }
 
 /*! \internal */
-QVariant QMenuModel::getLink(const QModelIndex &index,
+QVariant QMenuModel::getLink(int row,
                              const QString &linkName) const
 {
     GMenuModel *link = g_menu_model_get_item_link(m_menuModel,
-                                                  index.row(),
+                                                  row,
                                                   linkName.toUtf8().data());
     if (link) {
         QMenuModel* child = 0;
-        int key = index.row();
-        if (m_cache->contains(key)) {
-            QMenuModel* cached = m_cache->value(key);
-            child = cached;
+        if (m_cache->contains(row)) {
+            child = m_cache->value(row);
+            if (child->menuModel() != link) {
+                child->setMenuModel(link);
+            }
         }
         if (child == 0) {
             child = new QMenuModel(link);
-            m_cache->insert(key, child);
+            m_cache->insert(row, child);
         }
         g_object_unref(link);
         return QVariant::fromValue<QObject*>(child);
@@ -257,9 +285,9 @@ QString QMenuModel::parseExtraPropertyName(const QString &name) const
 }
 
 /*! \internal */
-QVariant QMenuModel::getExtraProperties(const QModelIndex &index) const
+QVariant QMenuModel::getExtraProperties(int row) const
 {
-    GMenuAttributeIter *iter = g_menu_model_iterate_item_attributes(m_menuModel, index.row());
+    GMenuAttributeIter *iter = g_menu_model_iterate_item_attributes(m_menuModel, row);
     if (iter == NULL) {
         return QVariant();
     }
@@ -293,9 +321,28 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
     QMenuModel *self = reinterpret_cast<QMenuModel*>(data);
     QHash<int, QMenuModel*>* cache = self->m_cache;
 
+    self->m_currentOperationPosition = position;
+    self->m_currentOperationAdded = added;
+    self->m_currentOperationRemoved = removed;
+
     int prevcount = g_menu_model_get_n_items(model) + removed - added;
     if (removed > 0) {
+        // help function to proxy model
+        for(int i=position, iMax=(position + removed - 1); i <= iMax; i++) {
+            if (cache->contains(i)) {
+                Q_EMIT self->aboutToRemoveLink(cache->value(i), i);
+            }
+        }
+
+        // We need clear the removed items before start remove it,
+        // because we do not have information about the previous data, and QML
+        // will try to retrieve it during the signal 'rowsAboutToBeRemoved'
+        QModelIndex start = self->index(position);
+        QModelIndex end = self->index(position + removed -1);
+        Q_EMIT self->dataChanged(start, end);
+
         self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
+        self->m_currentOperationPosition = self->m_currentOperationAdded = self->m_currentOperationRemoved = 0;
         self->m_rowCount -= removed;
         // Remove invalidated menus from the cache
         for (int i = position, iMax = position + removed; i < iMax; ++i) {
@@ -316,6 +363,7 @@ void QMenuModel::onItemsChanged(GMenuModel *model,
 
     if (added > 0) {
         self->beginInsertRows(QModelIndex(), position, position + added - 1);
+        self->m_currentOperationPosition = self->m_currentOperationAdded = self->m_currentOperationRemoved = 0;
         // Update the indexes of cached menus to account for the insertions
         for (int i = prevcount - removed - 1; i >= position; --i) {
             if (cache->contains(i)) {

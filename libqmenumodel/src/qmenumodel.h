@@ -54,6 +54,7 @@ public:
 
 Q_SIGNALS:
     void countChanged();
+    void aboutToRemoveLink(QMenuModel *link, int row);
 
 protected:
     QMenuModel(GMenuModel *other=0, QObject *parent=0);
@@ -69,12 +70,18 @@ private:
     guint m_signalChangedId;
     guint m_rowCount;
 
-    QVariant getStringAttribute(const QModelIndex &index, const QString &attribute) const;
-    QVariant getLink(const QModelIndex &index, const QString &linkName) const;
-    QVariant getExtraProperties(const QModelIndex &index) const;
+    //control variables
+    int m_currentOperationPosition;
+    int m_currentOperationAdded;
+    int m_currentOperationRemoved;
+
+    QVariant getStringAttribute(int row, const QString &attribute) const;
+    QVariant getLink(int row, const QString &linkName) const;
+    QVariant getExtraProperties(int row) const;
     QString parseExtraPropertyName(const QString &name) const;
     void clearModel(bool destructor=false);
     int count() const;
+    int rowIndex(const QModelIndex &index) const;
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
 };
