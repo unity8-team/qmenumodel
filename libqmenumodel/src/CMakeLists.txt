@@ -3,6 +3,7 @@ project(src)
 set(QMENUMODEL_SRC
     converter.cpp
     dbus-enums.h
+    menunode.cpp
     qmenumodel.cpp
     qdbusobject.cpp
     qdbusmenumodel.cpp

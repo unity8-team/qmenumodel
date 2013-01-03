@@ -27,7 +27,7 @@ endmacro(declare_test testname)
 
 macro(declare_simple_test testname)
     add_executable(${testname} ${testname}.cpp)
-    qt5_use_modules(${testname} Core Test)
+    qt5_use_modules(${testname} Core Test Widgets)
     target_link_libraries(${testname}
                           qmenumodel
                           ${GLIB_LDFLAGS}
@@ -54,12 +54,14 @@ endif()
 
 declare_test(servicetest)
 declare_test(menuchangestest)
-declare_test(modeltest)
+#declare_test(modeltest)
 declare_test(actiongrouptest)
 declare_test(qmltest)
 declare_simple_test(convertertest)
-declare_simple_test(cachetest)
+#declare_simple_test(cachetest)
 declare_simple_test(modelsignalstest)
+declare_simple_test(treetest)
+declare_simple_test(treeviewtest)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/qmlfiles.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/qmlfiles.h)

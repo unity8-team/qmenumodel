@@ -48,12 +48,11 @@ extern "C" {
     }
     \endcode
 */
-
-/*! \internal */
 QDBusMenuModel::QDBusMenuModel(QObject *parent)
-    :QMenuModel(0, parent)
+    : QMenuModel(0, parent)
 {
 }
+
 
 /*! \internal */
 QDBusMenuModel::~QDBusMenuModel()
