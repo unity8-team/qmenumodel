@@ -83,29 +83,33 @@ private Q_SLOTS:
         QModelIndex row4 = row3.child(0, 0);
         QVERIFY(row4.isValid());
         QCOMPARE(menu.rowCount(row4), 0);
+        QCOMPARE(menu.data(row4, QMenuModel::Depth).toInt(), 1);
         QCOMPARE(menu.data(row4, QMenuModel::Label).toString(), QString("menu4"));
 
         QModelIndex row5 = row3.child(1, 0);
         QVERIFY(row5.isValid());
         QCOMPARE(menu.rowCount(row5), 2);
+        QCOMPARE(menu.data(row5, QMenuModel::Depth).toInt(), 1);
         QCOMPARE(menu.data(row5, QMenuModel::Label).toString(), QString("menu5"));
 
         QModelIndex row6 = row5.child(0, 0);
         QVERIFY(row6.isValid());
         QCOMPARE(menu.rowCount(row6), 0);
+        QCOMPARE(menu.data(row6, QMenuModel::Depth).toInt(), 2);
         QCOMPARE(menu.data(row6, QMenuModel::Label).toString(), QString("menu6"));
 
         QModelIndex row7 = row5.child(1, 0);
         QVERIFY(row7.isValid());
         QCOMPARE(menu.rowCount(row7), 0);
+        QCOMPARE(menu.data(row7, QMenuModel::Depth).toInt(), 2);
         QCOMPARE(menu.data(row7, QMenuModel::Label).toString(), QString("menu7"));
 
         QModelIndex parent_6 = menu.parent(row6);
         QVERIFY(parent_6.isValid());
         QCOMPARE(menu.rowCount(parent_6), 2);
+        QCOMPARE(menu.data(parent_6, QMenuModel::Depth).toInt(), 1);
         QCOMPARE(menu.data(parent_6, QMenuModel::Label).toString(), QString("menu5"));
     }
-
 };
 
 QTEST_MAIN(TreeTest)

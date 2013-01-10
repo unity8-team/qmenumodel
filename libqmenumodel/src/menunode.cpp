@@ -26,9 +26,13 @@ MenuNode::MenuNode(const QString &linkType, GMenuModel *model, MenuNode *parent,
     : m_model(model),
       m_parent(parent),
       m_signalChangedId(0),
-      m_linkType(linkType)
+      m_linkType(linkType),
+      m_currentOpPosition(-1),
+      m_currentOpAdded(0),
+      m_currentOpRemoved(0)
 {
     g_object_ref(model);
+
     if (m_parent) {
         m_parent->insertChild(this, pos);
     }
@@ -114,7 +118,6 @@ int MenuNode::childPosition(GMenuModel *item) const
     }
     return 0;
 }
-
 int MenuNode::childPosition(const MenuNode *item) const
 {
     return childPosition(item->m_model);
@@ -136,6 +139,23 @@ int MenuNode::depth() const
     return depth;
 }
 
+int MenuNode::realPosition(int row) const
+{
+    int result = row;
+    if ((row >= 0) && (row < m_size)) {
+        if (row >= m_currentOpPosition) {
+            if ((m_currentOpRemoved > 0) && (row < (m_currentOpPosition + m_currentOpRemoved))) {
+                result = -1;
+            } else {
+                result += (m_currentOpAdded - m_currentOpRemoved);
+            }
+        }
+        return result;
+    } else {
+        return -1;
+    }
+}
+
 void MenuNode::change(int start, int added, int removed)
 {
     if (added > 0) {
@@ -143,6 +163,12 @@ void MenuNode::change(int start, int added, int removed)
             if (m_children.contains(i)) {
                 m_children.insert(i + added, m_children.take(i));
             }
+        }
+
+        m_size += added;
+
+        for (int i = start; i < (start + added); i++) {
+            MenuNode::create(m_model, i, this, m_listener);
         }
     }
 
@@ -155,6 +181,7 @@ void MenuNode::change(int start, int added, int removed)
                 m_children.insert(i - removed, m_children.take(i));
             }
         }
+        m_size -= removed;
     }
 }
 
@@ -200,15 +227,26 @@ MenuNode *MenuNode::create(GMenuModel *model, int pos, MenuNode *parent, QObject
     return 0;
 }
 
+void MenuNode::commitOperation()
+{
+    change(m_currentOpPosition, m_currentOpAdded, m_currentOpRemoved);
+
+    m_currentOpPosition = -1;
+    m_currentOpAdded = m_currentOpRemoved = 0;
+}
+
 void MenuNode::onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data)
 {
     MenuNode *self = reinterpret_cast<MenuNode*>(data);
+    self->m_currentOpPosition = position;
+    self->m_currentOpAdded = added;
+    self->m_currentOpRemoved = removed;
+
     if (self->m_listener) {
         const QMetaObject *mobj = self->m_listener->metaObject();
         int slotIndex = mobj->indexOfSlot(QMetaObject::normalizedSignature("onItemsChanged(MenuNode*, int, int, int)"));
         if (slotIndex > -1) {
             QMetaMethod slot = mobj->method(slotIndex);
-            qDebug() << "invoke" << model << "pos" << position << removed << added;
             slot.invoke(self->m_listener,
                         Q_ARG(MenuNode*, self),
                         Q_ARG(int, position),
@@ -217,7 +255,6 @@ void MenuNode::onItemsChanged(GMenuModel *model, gint position, gint removed, gi
         } else {
             qWarning() << "Slot 'onItemsChanged(MenuNode*, int, int, int)' not found in" << self->m_listener;
         }
-    } else {
-        qDebug() << "No listener" << position << removed << added;
     }
+    self->commitOperation();
 }

@@ -53,6 +53,9 @@ public:
     void change(int start, int added, int removed);
     MenuNode *find(GMenuModel *item);
 
+    int realPosition(int row) const;
+    void commitOperation();
+
     static MenuNode *create(GMenuModel *model, int pos, MenuNode *parent=0, QObject *listener=0);
 
 private:
@@ -63,6 +66,9 @@ private:
     QObject *m_listener;
     gulong m_signalChangedId;
     QString m_linkType;
+    int m_currentOpPosition;
+    int m_currentOpAdded;
+    int m_currentOpRemoved;
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
 };

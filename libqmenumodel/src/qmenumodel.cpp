@@ -25,7 +25,6 @@ extern "C" {
 #include "qmenumodel.h"
 #include "menunode.h"
 #include "converter.h"
-#include <QDebug>
 #include <QCoreApplication>
 #include <QThread>
 
@@ -54,7 +53,6 @@ QMenuModel::~QMenuModel()
 /*! \internal */
 void QMenuModel::setMenuModel(GMenuModel *other)
 {
-    //qDebug() << "SetModel" << m_root << other;
     if ((m_root != 0) && (m_root->model() == other)) {
         return;
     }
@@ -65,7 +63,6 @@ void QMenuModel::setMenuModel(GMenuModel *other)
 
     if (other) {
         m_root = new MenuNode("", other, 0, 0, this);
-        //qDebug() << "new size:" << m_root << m_root->size();
     }
 
     endResetModel();
@@ -99,7 +96,6 @@ QHash<int, QByteArray> QMenuModel::roleNames() const
 QModelIndex QMenuModel::index(int row, int column, const QModelIndex &parent) const
 {
     MenuNode *node = nodeFromIndex(parent);
-    //qDebug() << "get index: root" << m_root << "node:" << node << "row" << row << "parent is valid:" << parent.isValid() << "parent row:" <<  parent.row();
     if (node == 0) {
         return QModelIndex();
     }
@@ -135,10 +131,9 @@ QVariant QMenuModel::data(const QModelIndex &index, int role) const
     }
 
     MenuNode *node = nodeFromIndex(index);
-    int rowCountValue = node->size();
-    int row = index.row();
+    int row = node ? node->realPosition(index.row()) : -1;
 
-    if (node && (row >= 0) && (row < rowCountValue)) {
+    if (row >= 0) {
         switch (role) {
         case Action:
             attribute = getStringAttribute(node, row, G_MENU_ATTRIBUTE_ACTION);
@@ -179,7 +174,10 @@ int QMenuModel::rowCount(const QModelIndex &index) const
         }
         return 0;
     }
-    return m_root->size();
+    if (m_root) {
+        return m_root->size();
+    }
+    return 0;
 }
 
 /*! \internal */
@@ -233,13 +231,11 @@ void QMenuModel::onItemsChanged(MenuNode *node,
                                 int removed,
                                 int added)
 {
-    qDebug() << "+[onItemsChanged]" << this << "pos" << position << "removed" << removed << "added" << added << "thread" << QThread::currentThread();
-
     QModelIndex index = indexFromNode(node);
     if (removed > 0) {
         beginRemoveRows(index, position, position + removed - 1);
 
-        node->change(position, added, removed);
+        node->commitOperation();
 
         endRemoveRows();
     }
@@ -247,15 +243,10 @@ void QMenuModel::onItemsChanged(MenuNode *node,
     if (added > 0) {
         beginInsertRows(index, position, position + added - 1);
 
-        node->change(position, added, removed);
-        for (int i = position; i < (position + added); i++) {
-            MenuNode::create(node->model(), i, node, this);
-        }
+        node->commitOperation();
 
         endInsertRows();
     }
-
-    //qDebug() << "-[onItemsChanged]" << self << "pos" << position << "removed" << removed << "added" << added << "thread" << QThread::currentThread();
 }
 
 /*! \internal */
