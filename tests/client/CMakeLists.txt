@@ -27,7 +27,7 @@ endmacro(declare_test testname)
 
 macro(declare_simple_test testname)
     add_executable(${testname} ${testname}.cpp)
-    qt5_use_modules(${testname} Core Test Widgets)
+    qt5_use_modules(${testname} Core Test)
     target_link_libraries(${testname}
                           qmenumodel
                           ${GLIB_LDFLAGS}
