@@ -242,19 +242,15 @@ void MenuNode::onItemsChanged(GMenuModel *model, gint position, gint removed, gi
     self->m_currentOpAdded = added;
     self->m_currentOpRemoved = removed;
 
-    if (self->m_listener) {
-        const QMetaObject *mobj = self->m_listener->metaObject();
-        int slotIndex = mobj->indexOfSlot(QMetaObject::normalizedSignature("onItemsChanged(MenuNode*, int, int, int)"));
-        if (slotIndex > -1) {
-            QMetaMethod slot = mobj->method(slotIndex);
-            slot.invoke(self->m_listener,
-                        Q_ARG(MenuNode*, self),
-                        Q_ARG(int, position),
-                        Q_ARG(int, removed),
-                        Q_ARG(int, added));
-        } else {
-            qWarning() << "Slot 'onItemsChanged(MenuNode*, int, int, int)' not found in" << self->m_listener;
-        }
+    const QMetaObject *mobj = self->m_listener->metaObject();
+    if (!mobj->invokeMethod(self->m_listener,
+                           "onItemsChanged(MenuNode*, int, int, int)",
+                           Q_ARG(MenuNode*, self),
+                           Q_ARG(int, position),
+                           Q_ARG(int, removed),
+                           Q_ARG(int, added)))
+    {
+        qWarning() << "Slot 'onItemsChanged(MenuNode*, int, int, int)' not found in" << self->m_listener;
     }
     self->commitOperation();
 }
