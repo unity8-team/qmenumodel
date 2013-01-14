@@ -117,22 +117,9 @@ private Q_SLOTS:
         QCOMPARE(action.type(), QVariant::String);
         QCOMPARE(action.toString(), QString("Menu1Act"));
 
-        // Section (QObject)
-        QVariant vSection = m_model.data(m_model.index(2, 0), QMenuModel::LinkSection);
-        QVERIFY(vSection.isValid());
-        QMenuModel *section = qobject_cast<QMenuModel*>(vSection.value<QObject*>());
-        QVERIFY(section);
-        QCOMPARE(section->rowCount(), 2);
-
-        // SubMenu (QObject)
-        QVariant vSubMenu = m_model.data(m_model.index(3, 0), QMenuModel::LinkSubMenu);
-        QVERIFY(vSubMenu.isValid());
-        QMenuModel *submenu = qobject_cast<QMenuModel*>(vSubMenu.value<QObject*>());
-        QVERIFY(submenu);
-
         // Wait for menu load (submenus are loaded async)
         QTest::qWait(500);
-        QCOMPARE(submenu->rowCount(), 2);
+        QCOMPARE(m_model.rowCount(m_model.index(2, 0)), 2);
     }
 
     /*
@@ -250,43 +237,6 @@ private Q_SLOTS:
         QTest::qWait(500);
 
         delete model;
-    }
-
-    /*
-     * Test get function
-     */
-    void testGetData()
-    {
-        // Make menu available
-        m_script.publishMenu();
-        m_script.run();
-
-        // create a new model
-        QDBusMenuModel *model = new QDBusMenuModel();
-        model->setBusType(DBusEnums::SessionBus);
-        model->setBusName(MENU_SERVICE_NAME);
-        model->setObjectPath(MENU_OBJECT_PATH);
-        model->start();
-
-        // Wait for dbus sync
-        QTest::qWait(500);
-
-        // count
-        QCOMPARE(model->property("count").toInt(), model->rowCount());
-
-        QVariantMap data = model->get(0);
-
-        QVERIFY(data.contains("action"));
-        QVERIFY(data.contains("extra"));
-        QVERIFY(data.contains("label"));
-        QVERIFY(data.contains("linkSection"));
-        QVERIFY(data.contains("linkSubMenu"));
-
-        QCOMPARE(data["action"].toString(), QString("Menu0Act"));
-
-        QVariantMap extra = data["extra"].toMap();
-        QCOMPARE(extra.size(), 13);
-        QCOMPARE(extra["boolean"].toBool(), true);
     }
 };
 

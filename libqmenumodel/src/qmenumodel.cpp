@@ -23,7 +23,10 @@ extern "C" {
 }
 
 #include "qmenumodel.h"
+#include "menunode.h"
 #include "converter.h"
+#include <QCoreApplication>
+#include <QThread>
 
 /*!
     \qmltype QMenuModel
@@ -33,71 +36,24 @@ extern "C" {
 
     This is a abstracted class used by \l QDBusMenuModel.
 */
-
 /*! \internal */
 QMenuModel::QMenuModel(GMenuModel *other, QObject *parent)
-    : QAbstractListModel(parent),
-      m_menuModel(0),
-      m_signalChangedId(0),
-      m_rowCount(0),
-      m_currentOperationPosition(0),
-      m_currentOperationAdded(0),
-      m_currentOperationRemoved(0)
+    : QAbstractItemModel(parent),
+      m_root(0)
 {
-    m_cache = new QHash<int, QMenuModel*>;
     setMenuModel(other);
-
-    connect(this, SIGNAL(rowsInserted(const QModelIndex &, int, int)), SIGNAL(countChanged()));
-    connect(this, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), SIGNAL(countChanged()));
-    connect(this, SIGNAL(modelReset()), SIGNAL(countChanged()));
 }
 
 /*! \internal */
 QMenuModel::~QMenuModel()
 {
-    clearModel(true);
-    delete m_cache;
-}
-
-/*!
-    \qmlmethod QDBusMenuModel::get(int)
-
-    Returns the item at index in the model. This allows the item data to be accessed from JavaScript:
-
-    \b Note: methods should only be called after the Component has completed.
-*/
-
-QVariantMap QMenuModel::get(int row) const
-{
-    QVariantMap result;
-
-    QModelIndex index = this->index(row);
-    if (index.isValid()) {
-        QMap<int, QVariant> data = itemData(index);
-        const QHash<int, QByteArray> roleNames = this->roleNames();
-        Q_FOREACH(int i, roleNames.keys()) {
-            result.insert(roleNames[i], data[i]);
-        }
-    }
-    return result;
-}
-
-/*!
-    \qmlmethod QDBusMenuModel::count()
-
-    The number of data entries in the model.
-
-    \b Note: methods should only be called after the Component has completed.
-*/
-int QMenuModel::count() const
-{
-    return m_rowCount;
+    clearModel();
 }
 
 /*! \internal */
 void QMenuModel::setMenuModel(GMenuModel *other)
 {
-    if (m_menuModel == other) {
+    if ((m_root != 0) && (m_root->model() == other)) {
         return;
     }
 
@@ -105,46 +61,20 @@ void QMenuModel::setMenuModel(GMenuModel *other)
 
     clearModel();
 
-    m_menuModel = other;
-
-    if (m_menuModel) {
-        g_object_ref(m_menuModel);
-        m_rowCount = g_menu_model_get_n_items(m_menuModel);
-        m_signalChangedId = g_signal_connect(m_menuModel,
-                                             "items-changed",
-                                             G_CALLBACK(QMenuModel::onItemsChanged),
-                                             this);
-    } else {
-        m_rowCount = 0;
+    if (other) {
+        m_root = new MenuNode("", other, 0, 0, this);
     }
 
     endResetModel();
 }
 
 /*! \internal */
-GMenuModel *QMenuModel::menuModel() const
+void QMenuModel::clearModel()
 {
-    return m_menuModel;
-}
-
-/*! \internal */
-void QMenuModel::clearModel(bool destructor)
-{
-    if (m_menuModel) {
-        g_signal_handler_disconnect(m_menuModel, m_signalChangedId);
-        m_signalChangedId = 0;
-        g_object_unref(m_menuModel);
-        m_menuModel = NULL;
+    if (m_root) {
+        delete m_root;
+        m_root = NULL;
     }
-
-    Q_FOREACH(QMenuModel* child, *m_cache) {
-        // avoid emit signals during the object destruction this can crash qml
-        if (!destructor) {
-            child->setMenuModel(NULL);
-        }
-        child->deleteLater();
-    }
-    m_cache->clear();
 }
 
 /*! \internal */
@@ -154,91 +84,116 @@ QHash<int, QByteArray> QMenuModel::roleNames() const
     if (roles.isEmpty()) {
         roles[Action] = "action";
         roles[Label] = "label";
-        roles[LinkSection] = "linkSection";
-        roles[LinkSubMenu] = "linkSubMenu";
         roles[Extra] = "extra";
+        roles[Depth] = "depth";
+        roles[hasSection] = "hasSection";
+        roles[hasSubMenu] = "hasSubMenu";
     }
     return roles;
+}
+
+/*! \internal */
+QModelIndex QMenuModel::index(int row, int column, const QModelIndex &parent) const
+{
+    MenuNode *node = nodeFromIndex(parent);
+    if (node == 0) {
+        return QModelIndex();
+    }
+
+    if (parent.isValid()) {
+        MenuNode *child = node->child(parent.row());
+        if (child) {
+            node = child;
+        }
+    }
+    return createIndex(row, column, node);
+}
+
+/*! \internal */
+QModelIndex QMenuModel::parent(const QModelIndex &index) const
+{
+    if (index.isValid() && index.internalPointer()) {
+        MenuNode *node = nodeFromIndex(index);
+        if (node->parent()) {
+            return createIndex(node->position(), 0, node->parent());
+        }
+    }
+
+    return QModelIndex();
 }
 
 /*! \internal */
 QVariant QMenuModel::data(const QModelIndex &index, int role) const
 {
     QVariant attribute;
-
-    // Return a empty variant if the remove operation is in progress
-    if ((m_currentOperationRemoved > 0) &&
-        (index.row() >= m_currentOperationPosition) &&
-        (index.row() < (m_currentOperationPosition + m_currentOperationRemoved))) {
+    if (!index.isValid()) {
         return attribute;
     }
 
-    int rowCountValue = rowCount() + (m_currentOperationAdded - m_currentOperationRemoved);
-    int row = rowIndex(index);
+    MenuNode *node = nodeFromIndex(index);
+    int row = node ? node->realPosition(index.row()) : -1;
 
-    if ((row >= 0) && (row < rowCountValue)) {
-        if (m_menuModel) {
-            switch (role) {
-            case Action:
-                attribute = getStringAttribute(row, G_MENU_ATTRIBUTE_ACTION);
-                break;
-            case Label:
-                attribute = getStringAttribute(row, G_MENU_ATTRIBUTE_LABEL);
-                break;
-            case LinkSection:
-                attribute = getLink(row, G_MENU_LINK_SECTION);
-                break;
-            case LinkSubMenu:
-                attribute = getLink(row, G_MENU_LINK_SUBMENU);
-                break;
-            case Extra:
-                attribute = getExtraProperties(row);
-                break;
-            default:
-                break;
-            }
+    if (row >= 0) {
+        switch (role) {
+        case Action:
+            attribute = getStringAttribute(node, row, G_MENU_ATTRIBUTE_ACTION);
+            break;
+        case Qt::DisplayRole:
+        case Label:
+            attribute = getStringAttribute(node, row, G_MENU_ATTRIBUTE_LABEL);
+            break;
+        case Extra:
+            attribute = getExtraProperties(node, row);
+            break;
+        case hasSection:
+            attribute = QVariant(hasLink(node, row, G_MENU_LINK_SECTION));
+            break;
+        case hasSubMenu:
+            attribute = QVariant(hasLink(node, row, G_MENU_LINK_SUBMENU));
+            break;
+        case Depth:
+            attribute = QVariant(node->depth());
+            break;
+        default:
+            break;
         }
     }
     return attribute;
 }
 
 /*! \internal */
-QModelIndex QMenuModel::parent(const QModelIndex &index) const
+int QMenuModel::rowCount(const QModelIndex &index) const
 {
-    return QModelIndex();
-}
-
-/*! \internal */
-int QMenuModel::rowCount(const QModelIndex &) const
-{
-    return m_rowCount;
-}
-
-/*! \internal */
-int QMenuModel::rowIndex(const QModelIndex &index) const
-{
-    int row = index.row();
-    /*
-    if ((m_currentOperationAdded > 0) && (row >= m_currentOperationPosition)) {
-        row += m_currentOperationAdded;
-    } else if ((m_currentOperationRemoved > 0) && (row >= (row >= m_currentOperationPosition))) {
-
+    if (index.isValid()) {
+        MenuNode *node = nodeFromIndex(index);
+        if (node) {
+            MenuNode *child = node->child(index.row());
+            if (child) {
+                return child->size();
+            }
+        }
+        return 0;
     }
-    */
-    if (row >= m_currentOperationPosition) {
-        row += (m_currentOperationAdded - m_currentOperationRemoved);
+    if (m_root) {
+        return m_root->size();
     }
-    return row;
+    return 0;
 }
 
+/*! \internal */
+int QMenuModel::columnCount(const QModelIndex &) const
+{
+    return 1;
+}
 
 /*! \internal */
-QVariant QMenuModel::getStringAttribute(int row,
+QVariant QMenuModel::getStringAttribute(MenuNode *node,
+                                        int row,
                                         const QString &attribute) const
 {
     QVariant result;
     gchar* value = NULL;
-    g_menu_model_get_item_attribute(m_menuModel,
+    g_menu_model_get_item_attribute(node->model(),
                                     row,
                                     attribute.toUtf8().data(),
                                     "s", &value);
@@ -250,44 +205,9 @@ QVariant QMenuModel::getStringAttribute(int row,
 }
 
 /*! \internal */
-QVariant QMenuModel::getLink(int row,
-                             const QString &linkName) const
+QVariant QMenuModel::getExtraProperties(MenuNode *node, int row) const
 {
-    GMenuModel *link = g_menu_model_get_item_link(m_menuModel,
-                                                  row,
-                                                  linkName.toUtf8().data());
-    if (link) {
-        QMenuModel* child = 0;
-        if (m_cache->contains(row)) {
-            child = m_cache->value(row);
-            if (child->menuModel() != link) {
-                child->setMenuModel(link);
-            }
-        }
-        if (child == 0) {
-            child = new QMenuModel(link);
-            m_cache->insert(row, child);
-        }
-        g_object_unref(link);
-        return QVariant::fromValue<QObject*>(child);
-    }
-    return QVariant();
-}
-
-/*! \internal */
-QString QMenuModel::parseExtraPropertyName(const QString &name) const
-{
-    QString newName(name);
-    if (name.startsWith("x-")) {
-        newName = name.mid(2);
-    }
-    return newName.replace("-", "_");
-}
-
-/*! \internal */
-QVariant QMenuModel::getExtraProperties(int row) const
-{
-    GMenuAttributeIter *iter = g_menu_model_iterate_item_attributes(m_menuModel, row);
+    GMenuAttributeIter *iter = g_menu_model_iterate_item_attributes(node->model(), row);
     if (iter == NULL) {
         return QVariant();
     }
@@ -306,72 +226,66 @@ QVariant QMenuModel::getExtraProperties(int row) const
 }
 
 /*! \internal */
-QHash<int, QMenuModel*> QMenuModel::cache() const
+void QMenuModel::onItemsChanged(MenuNode *node,
+                                int position,
+                                int removed,
+                                int added)
 {
-    return *m_cache;
-}
-
-/*! \internal */
-void QMenuModel::onItemsChanged(GMenuModel *model,
-                                gint position,
-                                gint removed,
-                                gint added,
-                                gpointer data)
-{
-    QMenuModel *self = reinterpret_cast<QMenuModel*>(data);
-    QHash<int, QMenuModel*>* cache = self->m_cache;
-
-    self->m_currentOperationPosition = position;
-    self->m_currentOperationAdded = added;
-    self->m_currentOperationRemoved = removed;
-
-    int prevcount = g_menu_model_get_n_items(model) + removed - added;
+    QModelIndex index = indexFromNode(node);
     if (removed > 0) {
-        // help function to proxy model
-        for(int i=position, iMax=(position + removed - 1); i <= iMax; i++) {
-            if (cache->contains(i)) {
-                Q_EMIT self->aboutToRemoveLink(cache->value(i), i);
-            }
-        }
+        beginRemoveRows(index, position, position + removed - 1);
 
-        // We need clear the removed items before start remove it,
-        // because we do not have information about the previous data, and QML
-        // will try to retrieve it during the signal 'rowsAboutToBeRemoved'
-        QModelIndex start = self->index(position);
-        QModelIndex end = self->index(position + removed -1);
-        Q_EMIT self->dataChanged(start, end);
+        node->commitOperation();
 
-        self->beginRemoveRows(QModelIndex(), position, position + removed - 1);
-        self->m_currentOperationPosition = self->m_currentOperationAdded = self->m_currentOperationRemoved = 0;
-        self->m_rowCount -= removed;
-        // Remove invalidated menus from the cache
-        for (int i = position, iMax = position + removed; i < iMax; ++i) {
-            if (cache->contains(i)) {
-                QMenuModel *cached = cache->take(i);
-                cached->setMenuModel(NULL);
-                cached->deleteLater();
-            }
-        }
-        // Update the indexes of other cached menus to account for the removals
-        for (int i = position + removed; i < prevcount; ++i) {
-            if (cache->contains(i)) {
-                cache->insert(i - removed, cache->take(i));
-            }
-        }
-        self->endRemoveRows();
+        endRemoveRows();
     }
 
     if (added > 0) {
-        self->beginInsertRows(QModelIndex(), position, position + added - 1);
-        self->m_currentOperationPosition = self->m_currentOperationAdded = self->m_currentOperationRemoved = 0;
-        // Update the indexes of cached menus to account for the insertions
-        for (int i = prevcount - removed - 1; i >= position; --i) {
-            if (cache->contains(i)) {
-                cache->insert(i + added, cache->take(i));
-            }
-        }
-        self->m_rowCount += added;
-        self->endInsertRows();
+        beginInsertRows(index, position, position + added - 1);
+
+        node->commitOperation();
+
+        endInsertRows();
     }
 }
 
+/*! \internal */
+QModelIndex QMenuModel::indexFromNode(MenuNode *node) const
+{
+    return createIndex(node->position(), 0, node);
+}
+
+/*! \internal */
+MenuNode *QMenuModel::nodeFromIndex(const QModelIndex &index) const
+{
+    MenuNode *node = 0;
+
+    if (index.isValid()) {
+        node = reinterpret_cast<MenuNode*>(index.internalPointer());
+    } else {
+        node = m_root;
+    }
+
+    return node;
+}
+
+/*! \internal */
+QString QMenuModel::parseExtraPropertyName(const QString &name) const
+{
+    QString newName(name);
+    if (name.startsWith("x-")) {
+        newName = name.mid(2);
+    }
+    return newName.replace("-", "_");
+}
+
+GMenuModel *QMenuModel::menuModel() const
+{
+    return m_root->model();
+}
+
+bool QMenuModel::hasLink(MenuNode *node, int row, const QString &linkType) const
+{
+    MenuNode *child = node->child(row);
+    return (child && (child->linkType() == linkType));
+}

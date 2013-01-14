@@ -17,73 +17,61 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
-#ifndef QMENUMODEL_H
-#define QMENUMODEL_H
+#ifndef QMENUTREEMODEL_H
+#define QMENUTREEMODEL_H
 
-#include <QAbstractListModel>
+#include <QAbstractItemModel>
 
-typedef int gint;
-typedef unsigned int guint;
-typedef void* gpointer;
+class MenuNode;
 typedef struct _GMenuModel GMenuModel;
-typedef struct _GObject GObject;
 
-class QMenuModel : public QAbstractListModel
+class QMenuModel : public QAbstractItemModel
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 public:
     enum MenuRoles {
-        Action = 0,
+        Action  = Qt::DisplayRole + 1,
         Label,
-        LinkSection,
-        LinkSubMenu,
-        Extra
+        Extra,
+        Depth,
+        hasSection,
+        hasSubMenu
     };
 
     ~QMenuModel();
 
-    Q_INVOKABLE QVariantMap get(int row) const;
-
     /* QAbstractItemModel */
-    QHash<int, QByteArray> roleNames() const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QModelIndex parent (const QModelIndex &index) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &index) const;
+    QHash<int, QByteArray> roleNames() const;
 
 Q_SIGNALS:
     void countChanged();
-    void aboutToRemoveLink(QMenuModel *link, int row);
+
+public Q_SLOTS:
+    void onItemsChanged(MenuNode *node, int position, int removed, int added);
 
 protected:
     QMenuModel(GMenuModel *other=0, QObject *parent=0);
     void setMenuModel(GMenuModel *model);
     GMenuModel *menuModel() const;
 
-    // helper getter intended for use in tests only
-    QHash<int, QMenuModel*> cache() const;
-
 private:
-    QHash<int, QMenuModel*>* m_cache;
-    GMenuModel *m_menuModel;
-    guint m_signalChangedId;
-    guint m_rowCount;
+    MenuNode *m_root;
 
-    //control variables
-    int m_currentOperationPosition;
-    int m_currentOperationAdded;
-    int m_currentOperationRemoved;
+    MenuNode* nodeFromIndex(const QModelIndex &index) const;
+    QModelIndex indexFromNode(MenuNode *node) const;
 
-    QVariant getStringAttribute(int row, const QString &attribute) const;
-    QVariant getLink(int row, const QString &linkName) const;
-    QVariant getExtraProperties(int row) const;
+    QVariant getStringAttribute(MenuNode *node, int row, const QString &attribute) const;
+    QVariant getExtraProperties(MenuNode *node, int row) const;
+    bool hasLink(MenuNode *node, int row, const QString &linkType) const;
+
     QString parseExtraPropertyName(const QString &name) const;
-    void clearModel(bool destructor=false);
-    int count() const;
-    int rowIndex(const QModelIndex &index) const;
-
-    static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
+    void clearModel();
 };
 
 #endif
