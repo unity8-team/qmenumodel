@@ -244,7 +244,7 @@ void MenuNode::onItemsChanged(GMenuModel *model, gint position, gint removed, gi
 
     const QMetaObject *mobj = self->m_listener->metaObject();
     if (!mobj->invokeMethod(self->m_listener,
-                           "onItemsChanged(MenuNode*, int, int, int)",
+                           "onItemsChanged",
                            Q_ARG(MenuNode*, self),
                            Q_ARG(int, position),
                            Q_ARG(int, removed),
