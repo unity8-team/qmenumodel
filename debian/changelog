@@ -1,7 +1,6 @@
 qmenumodel (0.2.5) quantal; urgency=low
 
-  * Fixed "invokeMethod" call to use only the method name instead of full
-signature.
+  * Fixed "invokeMethod" call to use only the method name instead of full signature.
 
  -- Renato Araujo Oliveira Filho <renato@canonical.com>  Mon, 14 Jan 2013 21:25:25 -0300
 
