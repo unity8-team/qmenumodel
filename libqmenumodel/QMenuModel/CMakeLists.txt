@@ -26,7 +26,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_S
 
 # Apparently, QT_IMPORTS_DIR didn’t make it to Qt5.
 # In want of a better solution, let’s hardcode it…
-set(QT_IMPORTS_DIR /opt/qt5/imports)
+set(QT_IMPORTS_DIR ${_qt5Qml_install_prefix}/${CMAKE_INSTALL_LIBDIR}/qt5/qml)
 set(QMLPLUGIN_INSTALL_PREFIX "${QT_IMPORTS_DIR}/QMenuModel")
 install(TARGETS qmenumodel-qml DESTINATION ${QMLPLUGIN_INSTALL_PREFIX})
 install(FILES qmldir DESTINATION ${QMLPLUGIN_INSTALL_PREFIX})
