@@ -24,9 +24,11 @@ qt5_use_modules(qmenumodel-qml Qml Widgets)
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/qmldir"
                                                               "${CMAKE_CURRENT_BINARY_DIR}/qmldir")
 
-# Apparently, QT_IMPORTS_DIR didn’t make it to Qt5.
-# In want of a better solution, let’s hardcode it…
-set(QT_IMPORTS_DIR /opt/qt5/imports)
+execute_process(
+    COMMAND qmake -query QT_INSTALL_QML
+    OUTPUT_VARIABLE QT_IMPORTS_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 set(QMLPLUGIN_INSTALL_PREFIX "${QT_IMPORTS_DIR}/QMenuModel")
 install(TARGETS qmenumodel-qml DESTINATION ${QMLPLUGIN_INSTALL_PREFIX})
 install(FILES qmldir DESTINATION ${QMLPLUGIN_INSTALL_PREFIX})

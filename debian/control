@@ -5,8 +5,10 @@ Maintainer: Renato Araujo Oliveira Filho <renato@canonical.com>
 Build-Depends: debhelper (>= 9.0.0),
                cmake (>= 2.8.9),
                libglib2.0-dev,
-               qtbase (>= 5.0),
-               qtdeclarative (>= 5.0),
+               qt5-default,
+               qt5-qmake,
+               qtbase5-dev (>= 5.0),
+               qtdeclarative5-dev (>= 5.0),
                python3,
                python3-dbus,
                python3-gi,
@@ -32,7 +34,6 @@ Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          libqmenumodel0 (= ${binary:Version}),
-         qtbase (>= 5.0),
 Description: Qt binding for GMenuModel - development files
  Qt binding for GMenuModel that allows connecting to a menu model exposed on
  D-Bus and presents it as a list model.
