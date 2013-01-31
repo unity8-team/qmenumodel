@@ -5,6 +5,8 @@ Maintainer: Renato Araujo Oliveira Filho <renato@canonical.com>
 Build-Depends: debhelper (>= 9.0.0),
                cmake (>= 2.8.9),
                libglib2.0-dev,
+               qt5-default,
+               qt5-qmake,
                qtbase5-dev (>= 5.0),
                qtdeclarative5-dev (>= 5.0),
                python3,
