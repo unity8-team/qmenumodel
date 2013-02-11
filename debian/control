@@ -17,6 +17,7 @@ Build-Depends: debhelper (>= 9.0.0),
                libgles2-mesa-dev,
                libgl-dev,
 Standards-Version: 3.9.3
+Vcs-Bzr: lp:qmenumodel
 
 Package: libqmenumodel0
 Section: libs
