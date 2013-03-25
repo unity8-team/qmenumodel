@@ -17,7 +17,11 @@ Build-Depends: debhelper (>= 9.0.0),
                libgles2-mesa-dev,
                libgl-dev,
 Standards-Version: 3.9.3
-Vcs-Bzr: lp:qmenumodel
+# If you aren't a member of ~phablet-team but need to upload
+# packaging changes, just go ahead. ~phablet-team will notice
+# and sync up the code again.
+Vcs-Bzr: https://code.launchpad.net/~phablet-team/qmenumodel/trunk
+Vcs-Browser: https://bazaar.launchpad.net/~phablet-team/qmenumodel/trunk/files
 
 Package: libqmenumodel0
 Section: libs
