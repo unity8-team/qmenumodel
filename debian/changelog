@@ -3,6 +3,7 @@ qmenumodel (0.2.6-0ubuntu1) UNRELEASED; urgency=low
   * debian/control:
     - Add Vcs-Browser, add comment to developers.
     - Update Vcs-Bzr.
+    - Move libgl-dev as an alternate Build-Depends to libgles2-mesa-dev.
   * debian/rules:
     - Override dh_install to use --fail-missing.
   * debian/copyright: should be LGPL-3, not LGPL-3+.
