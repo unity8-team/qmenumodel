@@ -2,13 +2,12 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 
 Files: *
 Copyright: 2013 Canonical Ltd.
-License: LGPL-3+
+License: LGPL-3
 
-License: LGPL-3+
+License: LGPL-3
  This package is free software; you can redistribute it and/or modify
- it under the terms of the GNU Lesser General Public License as
- published by the Free Software Foundation; either version 3 of the
- License, or (at your option) any later version.
+ it under the terms of the GNU Lesser General Public License, version 3
+ as published by the Free Software Foundation.
  .
  This package is distributed in the hope that it will be useful, but
  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,7 +16,6 @@ License: LGPL-3+
  .
  You should have received a copy of the GNU Lesser General Public
  License along with this package.  If not, see
- .
  .
  On Debian systems the full text of the GNU Lesser General Public
  License, version 3 can be found in the file

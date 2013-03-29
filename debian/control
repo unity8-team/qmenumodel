@@ -14,10 +14,14 @@ Build-Depends: debhelper (>= 9.0.0),
                python3-gi,
                gir1.2-glib-2.0,
                dbus-test-runner,
-               libgles2-mesa-dev,
-               libgl-dev,
+               libgles2-mesa-dev | libgl-dev,
 Standards-Version: 3.9.3
-Vcs-Bzr: lp:qmenumodel
+Homepage: https://launchpad.net/qmenumodel
+# If you aren't a member of ~phablet-team but need to upload
+# packaging changes, just go ahead. ~phablet-team will notice
+# and sync up the code again.
+Vcs-Bzr: https://code.launchpad.net/~phablet-team/qmenumodel/trunk
+Vcs-Browser: https://bazaar.launchpad.net/~phablet-team/qmenumodel/trunk/files
 
 Package: libqmenumodel0
 Section: libs
@@ -27,7 +31,11 @@ Depends: ${shlibs:Depends},
 Pre-Depends: ${misc:Pre-Depends}
 Description: Qt binding for GMenuModel - shared library
  Qt binding for GMenuModel that allows connecting to a menu model exposed on
- D-Bus and presents it as a list model.
+ D-Bus and presents it as a list model. It can be used to expose indicator or
+ application menus for applications using the Qt framework.
+ .
+ This package contains the shared library required by applications using
+ QMenuModel.
 
 Package: libqmenumodel-dev
 Section: libdevel
@@ -37,7 +45,8 @@ Depends: ${shlibs:Depends},
          libqmenumodel0 (= ${binary:Version}),
 Description: Qt binding for GMenuModel - development files
  Qt binding for GMenuModel that allows connecting to a menu model exposed on
- D-Bus and presents it as a list model.
+ D-Bus and presents it as a list model. It can be used to expose indicator or
+ application menus for applications using the Qt framework.
  .
  This package contains the development headers for libqmenumodel.
 
@@ -48,6 +57,10 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          libqmenumodel0 (= ${binary:Version}),
 Description: Qt binding for GMenuModel - QML module
- QML module that allows connecting to a menu model exposed on D-Bus and presents
- it as a list model.
+ Qt binding for GMenuModel that allows connecting to a menu model exposed on
+ D-Bus and presents it as a list model. It can be used to expose indicator or
+ application menus for applications using the Qt framework.
+ .
+ This package contains the QML module for building applications using the
+ QMenuModel library.
 
