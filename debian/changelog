@@ -1,6 +1,6 @@
 qmenumodel (0.2.6-0ubuntu1) UNRELEASED; urgency=low
 
-  * Automatic snapshot from revision 1 (bootstrap).
+  * Automatic snapshot from revision 62 (bootstrap).
   * debian/control:
     - Add Vcs-Browser, add comment to developers.
     - Update Vcs-Bzr.
