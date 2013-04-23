@@ -25,7 +25,7 @@ Vcs-Browser: https://bazaar.launchpad.net/~phablet-team/qmenumodel/trunk/files
 
 Package: libqmenumodel0
 Section: libs
-Architecture: any
+Architecture: amd64 armhf i386
 Depends: ${shlibs:Depends},
          ${misc:Depends},
 Pre-Depends: ${misc:Pre-Depends}
@@ -39,7 +39,7 @@ Description: Qt binding for GMenuModel - shared library
 
 Package: libqmenumodel-dev
 Section: libdevel
-Architecture: any
+Architecture: amd64 armhf i386
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          libqmenumodel0 (= ${binary:Version}),
@@ -52,7 +52,7 @@ Description: Qt binding for GMenuModel - development files
 
 Package: qmenumodel-qml
 Section: libs
-Architecture: any
+Architecture: amd64 armhf i386
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          libqmenumodel0 (= ${binary:Version}),
