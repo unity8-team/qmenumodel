@@ -1,5 +1,6 @@
-qmenumodel (0.2.6-0ubuntu1) UNRELEASED; urgency=low
+qmenumodel (0.2.6daily13.05.02-0ubuntu1) saucy; urgency=low
 
+  [ Mathieu Trudel-Lapierre ]
   * Automatic snapshot from revision 62 (bootstrap).
   * debian/control:
     - Add Vcs-Browser, add comment to developers.
@@ -13,7 +14,14 @@ qmenumodel (0.2.6-0ubuntu1) UNRELEASED; urgency=low
     - Override dh_install to use --fail-missing.
   * debian/copyright: should be LGPL-3, not LGPL-3+.
 
- -- Mathieu Trudel-Lapierre <mathieu-tl@ubuntu.com>  Mon, 25 Mar 2013 11:50:07 -0400
+  [ Renato Araujo Oliveira Filho ]
+  * [all] add correct licensing and debian information for release (LP:
+    #1121721)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 66
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 02 May 2013 22:58:50 +0000
 
 qmenumodel (0.2.6) quantal; urgency=low
 
