@@ -252,7 +252,9 @@ void QMenuModel::onItemsChanged(MenuNode *node,
 /*! \internal */
 QModelIndex QMenuModel::indexFromNode(MenuNode *node) const
 {
-    if (node == m_root) return QModelIndex();
+    if (node == m_root) {
+        return QModelIndex();
+    }
     return createIndex(node->position(), 0, node);
 }
 
