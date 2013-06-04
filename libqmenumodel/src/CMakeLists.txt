@@ -36,6 +36,7 @@ set_target_properties(${SHAREDLIBNAME} PROPERTIES
 )
 
 include_directories(
+    /usr/include/qt5/QtQml
     ${GLIB_INCLUDE_DIRS}
     ${GIO_INCLUDE_DIRS}
 )
