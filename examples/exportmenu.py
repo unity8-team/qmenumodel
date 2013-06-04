@@ -54,7 +54,7 @@ if __name__ == '__main__':
                             GLib.Variant.new_string('lorem ipsum'))
     foo.set_attribute_value('x-enabled', GLib.Variant.new_boolean(True))
     menu.append_item(foo)
-    bar = Gio.MenuItem.new('bar', 'app.bar')
+    bar = Gio.MenuItem.new('bar', 'bar')
     bar.set_attribute_value('x-defaultvalue',
                             GLib.Variant.new_string('Hello World!'))
     bar.set_attribute_value('x-canonical-currentvalue',
@@ -73,6 +73,10 @@ if __name__ == '__main__':
     menu.append_submenu('submenu', submenu)
     menu.append('baz', 'app.baz')
     bus.export_menu_model(BUS_OBJECT_PATH, menu)
+
+    actions = Gio.SimpleActionGroup.new()
+    actions.add_action(Gio.SimpleAction.new("bar", None))
+    bus.export_action_group(BUS_OBJECT_PATH, actions)
 
     GLib.MainLoop().run()
 
