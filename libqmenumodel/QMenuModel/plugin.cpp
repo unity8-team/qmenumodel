@@ -22,6 +22,7 @@
 #include "qdbusmenumodel.h"
 #include "qdbusactiongroup.h"
 #include "qstateaction.h"
+#include "unityqmlmenumodel.h"
 
 #include <QtQml>
 
@@ -36,6 +37,5 @@ void QMenuModelQmlPlugin::registerTypes(const char *uri)
 
     qmlRegisterType<QDBusMenuModel>(uri, 0, 1, "QDBusMenuModel");
     qmlRegisterType<QDBusActionGroup>(uri, 0, 1, "QDBusActionGroup");
-
+    qmlRegisterType<UnityQmlMenuModel>(uri, 0, 1, "UnityMenuModel");
 }
-

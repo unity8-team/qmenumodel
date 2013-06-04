@@ -9,6 +9,19 @@ set(QMENUMODEL_SRC
     qdbusmenumodel.cpp
     qdbusactiongroup.cpp
     qstateaction.cpp
+    unitymenumodel.cpp
+    unitymenumodel.h
+    unityqmlmenumodel.cpp
+    gtk/gtkactionmuxer.c
+    gtk/gtkactionmuxer.h
+    gtk/gtkactionobservable.c
+    gtk/gtkactionobservable.h
+    gtk/gtkactionobserver.c
+    gtk/gtkactionobserver.h
+    gtk/gtkmenutracker.c
+    gtk/gtkmenutracker.h
+    gtk/gtkmenutrackeritem.c
+    gtk/gtkmenutrackeritem.h
 )
 
 set(SHAREDLIBNAME qmenumodel)
@@ -43,6 +56,7 @@ set(QMENUMODEL_HEADERS
     qdbusobject.h
     qmenumodel.h
     qstateaction.h
+    unitymenumodel.h
 )
 
 set(INCLUDEDIR qmenumodel)
