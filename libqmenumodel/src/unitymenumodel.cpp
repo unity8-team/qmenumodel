@@ -43,57 +43,62 @@ private:
     GtkActionMuxer *muxer;
     GtkMenuTracker *menutracker;
     GSequence *items;
+    QByteArray actionGroupObjectPath;
+    QByteArray menuObjectPath;
 
+    static void freeMenuItem(gpointer data, gpointer user_data);
+    static void nameAppeared(GDBusConnection *connection, const gchar *name, const gchar *owner, gpointer user_data);
+    static void nameVanished(GDBusConnection *connection, const gchar *name, gpointer user_data);
     static void menuItemInserted(GtkMenuTrackerItem *item, gint position, gpointer user_data);
     static void menuItemRemoved(gint position, gpointer user_data);
     static void menuItemChanged(GObject *object, GParamSpec *pspec, gpointer user_data);
 };
+
+/*
+ * Same as g_sequence_foreach_range, but calls func with the GSequenceIter
+ * instead of the item.
+ */
+static void
+g_sequence_foreach_iter_range (GSequenceIter *begin,
+                               GSequenceIter *end,
+                               GFunc          func,
+                               gpointer       user_data)
+{
+    GSequenceIter *it;
+
+    for (it = begin; it != end; it = g_sequence_iter_next (it))
+        func (it, user_data);
+}
 
 UnityMenuModelPrivate::UnityMenuModelPrivate(UnityMenuModel *model,
                                              const QByteArray &busName,
                                              const QByteArray &actionGroupObjectPath,
                                              const QByteArray &menuObjectPath)
 {
-    GDBusConnection *connection;
-    GDBusActionGroup *actions;
-    GDBusMenuModel *menu;
-
     this->model = model;
-
-    connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
-    actions = g_dbus_action_group_get (connection, busName.constData(), actionGroupObjectPath.constData());
-    menu = g_dbus_menu_model_get (connection, busName.constData(), menuObjectPath.constData());
+    this->actionGroupObjectPath = actionGroupObjectPath;
+    this->menuObjectPath = menuObjectPath;
+    this->menutracker = NULL;
 
     this->muxer = gtk_action_muxer_new ();
     g_object_set_qdata (G_OBJECT (this->muxer), unity_menu_model_quark (), model);
-    gtk_action_muxer_insert (this->muxer, "indicator", G_ACTION_GROUP (actions));
-
-    this->menutracker = gtk_menu_tracker_new (GTK_ACTION_OBSERVABLE (this->muxer),
-                                              G_MENU_MODEL (menu), TRUE, "indicator",
-                                              menuItemInserted, menuItemRemoved, this);
 
     this->items = g_sequence_new (NULL);
 
-    g_object_unref (menu);
-    g_object_unref (actions);
-    g_object_unref (connection);
+    g_bus_watch_name (G_BUS_TYPE_SESSION, busName.constData(), G_BUS_NAME_WATCHER_FLAGS_AUTO_START,
+                      nameAppeared, nameVanished, this, NULL);
 }
 
 UnityMenuModelPrivate::~UnityMenuModelPrivate()
 {
-    GSequenceIter *it;
-
-    it = g_sequence_get_begin_iter (this->items);
-    while (!g_sequence_iter_is_end (it)) {
-        GtkMenuTrackerItem *item = (GtkMenuTrackerItem *) g_sequence_get (it);
-        g_signal_handlers_disconnect_by_func (item, (gpointer) menuItemChanged, it);
-        g_object_unref (item);
-        it = g_sequence_iter_next (it);
-    }
+    g_sequence_foreach_iter_range (g_sequence_get_begin_iter (this->items), g_sequence_get_end_iter (this->items),
+                                   freeMenuItem, NULL);
     g_sequence_free (this->items);
 
+    if (this->menutracker)
+        gtk_menu_tracker_free (this->menutracker);
+
     g_object_unref (this->muxer);
-    gtk_menu_tracker_free (this->menutracker);
 }
 
 int UnityMenuModelPrivate::nrItems()
@@ -119,6 +124,57 @@ QVariant UnityMenuModelPrivate::data(int position, int role)
     }
 }
 
+void UnityMenuModelPrivate::freeMenuItem (gpointer data, gpointer user_data)
+{
+    GSequenceIter *it = (GSequenceIter *) data;
+    GtkMenuTrackerItem *item;
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (it);
+    g_signal_handlers_disconnect_by_func (item, (gpointer) menuItemChanged, it);
+    g_object_unref (item);
+}
+
+void UnityMenuModelPrivate::nameAppeared(GDBusConnection *connection, const gchar *name, const gchar *owner, gpointer user_data)
+{
+    UnityMenuModelPrivate *priv = (UnityMenuModelPrivate *)user_data;
+    GDBusActionGroup *actions;
+    GDBusMenuModel *menu;
+
+    priv->model->beginResetModel();
+
+    actions = g_dbus_action_group_get (connection, owner, priv->actionGroupObjectPath.constData());
+    menu = g_dbus_menu_model_get (connection, owner, priv->menuObjectPath.constData());
+
+    gtk_action_muxer_insert (priv->muxer, "indicator", G_ACTION_GROUP (actions));
+    priv->menutracker = gtk_menu_tracker_new (GTK_ACTION_OBSERVABLE (priv->muxer),
+                                              G_MENU_MODEL (menu), TRUE, "indicator",
+                                              menuItemInserted, menuItemRemoved, priv);
+
+    priv->model->endResetModel();
+
+    g_object_unref (menu);
+    g_object_unref (actions);
+}
+
+void UnityMenuModelPrivate::nameVanished(GDBusConnection *connection, const gchar *name, gpointer user_data)
+{
+    UnityMenuModelPrivate *priv = (UnityMenuModelPrivate *)user_data;
+    GSequenceIter *begin;
+    GSequenceIter *end;
+
+    priv->model->beginResetModel();
+
+    begin = g_sequence_get_begin_iter (priv->items);
+    end = g_sequence_get_end_iter (priv->items);
+    g_sequence_foreach_iter_range (begin, end, freeMenuItem, NULL);
+    g_sequence_remove_range (begin, end);
+
+    gtk_action_muxer_remove (priv->muxer, "indicator");
+    g_clear_pointer (&priv->menutracker, gtk_menu_tracker_free);
+
+    priv->model->endResetModel();
+}
+
 void UnityMenuModelPrivate::menuItemInserted(GtkMenuTrackerItem *item, gint position, gpointer user_data)
 {
     UnityMenuModelPrivate *priv = (UnityMenuModelPrivate *)user_data;
@@ -137,14 +193,11 @@ void UnityMenuModelPrivate::menuItemRemoved(gint position, gpointer user_data)
 {
     UnityMenuModelPrivate *priv = (UnityMenuModelPrivate *)user_data;
     GSequenceIter *it;
-    GtkMenuTrackerItem *item;
 
     priv->model->beginRemoveRows(QModelIndex(), position, position);
 
     it = g_sequence_get_iter_at_pos (priv->items, position);
-    item = (GtkMenuTrackerItem *) g_sequence_get (it);
-    g_signal_handlers_disconnect_by_func (item, (gpointer) menuItemChanged, it);
-    g_object_unref (item);
+    freeMenuItem ((gpointer) it, NULL);
     g_sequence_remove (it);
 
     priv->model->endRemoveRows();
