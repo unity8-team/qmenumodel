@@ -45,6 +45,8 @@ public:
     QModelIndex parent(const QModelIndex &index) const;
     QHash<int, QByteArray> roleNames() const;
 
+    Q_INVOKABLE QObject * submenu(int position);
+
 public Q_SLOTS:
     void activate(int index);
 

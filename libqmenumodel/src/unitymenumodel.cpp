@@ -24,22 +24,24 @@ extern "C" {
 }
 
 G_DEFINE_QUARK (UNITY_MENU_MODEL, unity_menu_model)
+G_DEFINE_QUARK (UNITY_SUBMENU_MODEL, unity_submenu_model)
 
 class UnityMenuModelPrivate
 {
 public:
-    UnityMenuModelPrivate(UnityMenuModel *model,
-                          const QByteArray &busName,
-                          const QByteArray &actionGroupObjectPath,
-                          const QByteArray &menuObjectPath);
+    static UnityMenuModelPrivate * forBusMenu(UnityMenuModel *model, const QByteArray &busName,
+                                              const QByteArray &actionGroupObjectPath, const QByteArray &menuObjectPath);
+    static UnityMenuModelPrivate * forSubMenu(UnityMenuModel *model, GtkMenuTrackerItem *item);
 
     ~UnityMenuModelPrivate();
-
     int nrItems();
     QVariant data(int position, int role);
     void activate(int position);
+    UnityMenuModel * submenu(int position);
 
 private:
+    UnityMenuModelPrivate(UnityMenuModel *model);
+
     UnityMenuModel *model;
     GtkActionMuxer *muxer;
     GtkMenuTracker *menutracker;
@@ -71,35 +73,53 @@ g_sequence_foreach_iter_range (GSequenceIter *begin,
         func (it, user_data);
 }
 
-UnityMenuModelPrivate::UnityMenuModelPrivate(UnityMenuModel *model,
-                                             const QByteArray &busName,
-                                             const QByteArray &actionGroupObjectPath,
-                                             const QByteArray &menuObjectPath)
+UnityMenuModelPrivate::UnityMenuModelPrivate(UnityMenuModel *model)
 {
     this->model = model;
-    this->actionGroupObjectPath = actionGroupObjectPath;
-    this->menuObjectPath = menuObjectPath;
     this->menutracker = NULL;
 
     this->muxer = gtk_action_muxer_new ();
     g_object_set_qdata (G_OBJECT (this->muxer), unity_menu_model_quark (), model);
 
     this->items = g_sequence_new (NULL);
+}
+
+UnityMenuModelPrivate * UnityMenuModelPrivate::forBusMenu(UnityMenuModel *model, const QByteArray &busName,
+                                                          const QByteArray &actionGroupObjectPath, const QByteArray &menuObjectPath)
+{
+    UnityMenuModelPrivate *priv = new UnityMenuModelPrivate(model);
+
+    priv->actionGroupObjectPath = actionGroupObjectPath;
+    priv->menuObjectPath = menuObjectPath;
 
     g_bus_watch_name (G_BUS_TYPE_SESSION, busName.constData(), G_BUS_NAME_WATCHER_FLAGS_AUTO_START,
-                      nameAppeared, nameVanished, this, NULL);
+                      nameAppeared, nameVanished, priv, NULL);
+
+    return priv;
+}
+
+UnityMenuModelPrivate * UnityMenuModelPrivate::forSubMenu(UnityMenuModel *model, GtkMenuTrackerItem *item)
+{
+    UnityMenuModelPrivate *priv = new UnityMenuModelPrivate(model);
+
+    priv->menutracker = gtk_menu_tracker_new_for_item_submenu (item, menuItemInserted, menuItemRemoved, priv);
+
+    return priv;
 }
 
 UnityMenuModelPrivate::~UnityMenuModelPrivate()
 {
-    g_sequence_foreach_iter_range (g_sequence_get_begin_iter (this->items), g_sequence_get_end_iter (this->items),
-                                   freeMenuItem, NULL);
-    g_sequence_free (this->items);
+    if (this->items) {
+        g_sequence_foreach_iter_range (g_sequence_get_begin_iter (this->items), g_sequence_get_end_iter (this->items),
+                                       freeMenuItem, NULL);
+        g_sequence_free (this->items);
+    }
 
     if (this->menutracker)
         gtk_menu_tracker_free (this->menutracker);
 
-    g_object_unref (this->muxer);
+    if (this->muxer)
+        g_object_unref (this->muxer);
 }
 
 int UnityMenuModelPrivate::nrItems()
@@ -134,6 +154,30 @@ void UnityMenuModelPrivate::activate(int position)
 
     item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (this->items, position));
     gtk_menu_tracker_item_activated (item);
+}
+
+UnityMenuModel * UnityMenuModelPrivate::submenu(int position)
+{
+    GSequenceIter *it;
+    GtkMenuTrackerItem *item;
+    UnityMenuModel *model;
+
+    it = g_sequence_get_iter_at_pos (this->items, position);
+    if (g_sequence_iter_is_end (it))
+        return NULL;
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (it);
+    if (!gtk_menu_tracker_item_get_has_submenu (item))
+        return NULL;
+
+    model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (item), unity_submenu_model_quark ());
+    if (model == NULL) {
+        model = new UnityMenuModel(this->model);
+        model->priv = UnityMenuModelPrivate::forSubMenu(model, item);
+        g_object_set_qdata (G_OBJECT (item), unity_submenu_model_quark (), model);
+    }
+
+    return model;
 }
 
 void UnityMenuModelPrivate::freeMenuItem (gpointer data, gpointer user_data)
@@ -247,7 +291,7 @@ UnityMenuModel::UnityMenuModel(const QByteArray &busName,
 
 void UnityMenuModel::init(const QByteArray &busName, const QByteArray &actionGroupObjectPath, const QByteArray &menuObjectPath)
 {
-    priv = new UnityMenuModelPrivate (this, busName, actionGroupObjectPath, menuObjectPath);
+    priv = UnityMenuModelPrivate::forBusMenu(this, busName, actionGroupObjectPath, menuObjectPath);
 }
 
 UnityMenuModel::~UnityMenuModel()
@@ -292,7 +336,10 @@ QHash<int, QByteArray> UnityMenuModel::roleNames() const
     return names;
 }
 
-#include <QDebug>
+QObject * UnityMenuModel::submenu(int position)
+{
+    return priv ? priv->submenu(position) : NULL;
+}
 
 void UnityMenuModel::activate(int index)
 {
