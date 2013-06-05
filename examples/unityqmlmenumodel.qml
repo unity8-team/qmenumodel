@@ -14,6 +14,7 @@ Item {
     }
 
     ListView {
+        id: listview
         anchors.fill: parent
         anchors.margins: 10
         spacing: 3
@@ -25,7 +26,7 @@ Item {
             Component {
                 id: separator
                 Rectangle {
-                    width: parent.width
+                    width: listview.width
                     height: 4
                     color: "blue"
                 }
@@ -34,7 +35,7 @@ Item {
             Component {
                 id: menuitem
                 Rectangle {
-                    width: parent.width
+                    width: listview.width
                     height: 40
                     color: "#ddd"
                     Text {
@@ -43,6 +44,10 @@ Item {
                         verticalAlignment: Text.AlignVCenter
                         color: sensitive ? "black" : "#aaa";
                         text: label
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: listview.model.activate(index);
                     }
                 }
             }

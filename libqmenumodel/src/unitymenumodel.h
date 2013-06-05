@@ -45,6 +45,9 @@ public:
     QModelIndex parent(const QModelIndex &index) const;
     QHash<int, QByteArray> roleNames() const;
 
+public Q_SLOTS:
+    void activate(int index);
+
 protected:
     UnityMenuModel(QObject *parent = NULL);
     void init(const QByteArray &busName, const QByteArray &actionGroupObjectPath, const QByteArray &menuObjectPath);

@@ -37,6 +37,7 @@ public:
 
     int nrItems();
     QVariant data(int position, int role);
+    void activate(int position);
 
 private:
     UnityMenuModel *model;
@@ -125,6 +126,14 @@ QVariant UnityMenuModelPrivate::data(int position, int role)
         default:
             return QVariant();
     }
+}
+
+void UnityMenuModelPrivate::activate(int position)
+{
+    GtkMenuTrackerItem *item;
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (this->items, position));
+    gtk_menu_tracker_item_activated (item);
 }
 
 void UnityMenuModelPrivate::freeMenuItem (gpointer data, gpointer user_data)
@@ -281,4 +290,12 @@ QHash<int, QByteArray> UnityMenuModel::roleNames() const
     names[IsSeparatorRole] = "isSeparator";
 
     return names;
+}
+
+#include <QDebug>
+
+void UnityMenuModel::activate(int index)
+{
+    if (priv)
+        priv->activate(index);
 }
