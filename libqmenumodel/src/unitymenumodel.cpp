@@ -287,6 +287,7 @@ UnityMenuModel::UnityMenuModel(const QByteArray &busName,
     QAbstractListModel(parent),
     priv(NULL)
 {
+    init(busName, actionGroupObjectPath, menuObjectPath);
 }
 
 void UnityMenuModel::init(const QByteArray &busName, const QByteArray &actionGroupObjectPath, const QByteArray &menuObjectPath)
