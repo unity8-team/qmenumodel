@@ -36,7 +36,6 @@ set_target_properties(${SHAREDLIBNAME} PROPERTIES
 )
 
 include_directories(
-    /usr/include/qt5/QtQml
     ${GLIB_INCLUDE_DIRS}
     ${GIO_INCLUDE_DIRS}
 )
@@ -46,7 +45,7 @@ target_link_libraries(${SHAREDLIBNAME}
     ${GIO_LDFLAGS}
 )
 
-qt5_use_modules(${SHAREDLIBNAME} Core)
+qt5_use_modules(${SHAREDLIBNAME} Core Qml)
 
 install(TARGETS ${SHAREDLIBNAME} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
