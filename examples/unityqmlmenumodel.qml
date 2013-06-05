@@ -18,16 +18,33 @@ Item {
         anchors.margins: 10
         spacing: 3
         model: menu
-        delegate: Rectangle {
-            width: parent.width
-            height: 40
-            color: "#ddd"
-            Text {
-                anchors.fill: parent
-                anchors.margins: 5
-                verticalAlignment: Text.AlignVCenter
-                color: sensitive ? "black" : "#aaa";
-                text: label
+
+        delegate: Loader {
+            sourceComponent: isSeparator ? separator : menuitem;
+
+            Component {
+                id: separator
+                Rectangle {
+                    width: parent.width
+                    height: 4
+                    color: "blue"
+                }
+            }
+
+            Component {
+                id: menuitem
+                Rectangle {
+                    width: parent.width
+                    height: 40
+                    color: "#ddd"
+                    Text {
+                        anchors.fill: parent
+                        anchors.margins: 5
+                        verticalAlignment: Text.AlignVCenter
+                        color: sensitive ? "black" : "#aaa";
+                        text: label
+                    }
+                }
             }
         }
     }

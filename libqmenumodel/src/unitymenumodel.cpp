@@ -119,6 +119,9 @@ QVariant UnityMenuModelPrivate::data(int position, int role)
         case UnityMenuModel::SensitiveRole:
             return gtk_menu_tracker_item_get_sensitive (item);
 
+        case UnityMenuModel::IsSeparatorRole:
+            return gtk_menu_tracker_item_get_is_separator (item);
+
         default:
             return QVariant();
     }
@@ -275,6 +278,7 @@ QHash<int, QByteArray> UnityMenuModel::roleNames() const
     names[LabelRole] = "label";
     names[ActionRole] = "action";
     names[SensitiveRole] = "sensitive";
+    names[IsSeparatorRole] = "isSeparator";
 
     return names;
 }

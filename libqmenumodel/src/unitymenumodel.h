@@ -29,7 +29,8 @@ public:
     enum MenuRoles {
         ActionRole  = Qt::DisplayRole + 1,
         LabelRole,
-        SensitiveRole
+        SensitiveRole,
+        IsSeparatorRole
     };
 
 public:
