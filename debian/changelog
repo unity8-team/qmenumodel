@@ -1,3 +1,14 @@
+qmenumodel (0.2.6daily13.06.07-0ubuntu1) saucy; urgency=low
+
+  [ Alberto Mardegan ]
+  * Use invalid index as root index When emitting the rowsInserted
+    signal for top-level items, use an invalid QModelIndex as parent.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 68
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 07 Jun 2013 02:02:05 +0000
+
 qmenumodel (0.2.6daily13.05.02-0ubuntu1) saucy; urgency=low
 
   [ Mathieu Trudel-Lapierre ]
