@@ -24,6 +24,9 @@
 class UnityMenuModel: public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(QByteArray busName READ busName WRITE setBusName NOTIFY busNameChanged)
+    Q_PROPERTY(QByteArray actionObjectPath READ actionObjectPath WRITE setActionObjectPath NOTIFY actionObjectPathChanged)
+    Q_PROPERTY(QByteArray menuObjectPath READ menuObjectPath WRITE setMenuObjectPath NOTIFY menuObjectPathChanged)
 
 public:
     enum MenuRoles {
@@ -34,9 +37,17 @@ public:
     };
 
 public:
-    UnityMenuModel(const QByteArray &busName, const QByteArray &actionGroupObjectPath,
-                   const QByteArray &menuObjectPath, QObject *parent = NULL);
+    UnityMenuModel(QObject *parent = NULL);
     virtual ~UnityMenuModel();
+
+    QByteArray busName() const;
+    void setBusName(const QByteArray &name);
+
+    QByteArray actionObjectPath() const;
+    void setActionObjectPath(const QByteArray &path);
+
+    QByteArray menuObjectPath() const;
+    void setMenuObjectPath(const QByteArray &path);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -47,12 +58,13 @@ public:
 
     Q_INVOKABLE QObject * submenu(int position);
 
+Q_SIGNALS:
+    void busNameChanged(const QByteArray &name);
+    void actionObjectPathChanged(const QByteArray &path);
+    void menuObjectPathChanged(const QByteArray &path);
+
 public Q_SLOTS:
     void activate(int index);
-
-protected:
-    UnityMenuModel(QObject *parent = NULL);
-    void init(const QByteArray &busName, const QByteArray &actionGroupObjectPath, const QByteArray &menuObjectPath);
 
 private:
     class UnityMenuModelPrivate *priv;

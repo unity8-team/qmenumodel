@@ -29,8 +29,8 @@ G_DEFINE_QUARK (UNITY_SUBMENU_MODEL, unity_submenu_model)
 class UnityMenuModelPrivate
 {
 public:
-    static UnityMenuModelPrivate * forBusMenu(UnityMenuModel *model, const QByteArray &busName,
-                                              const QByteArray &actionGroupObjectPath, const QByteArray &menuObjectPath);
+    UnityMenuModelPrivate(UnityMenuModel *model);
+
     static UnityMenuModelPrivate * forSubMenu(UnityMenuModel *model, GtkMenuTrackerItem *item);
 
     ~UnityMenuModelPrivate();
@@ -39,14 +39,20 @@ public:
     void activate(int position);
     UnityMenuModel * submenu(int position);
 
-private:
-    UnityMenuModelPrivate(UnityMenuModel *model);
+    void clearItems(bool resetModel=true);
+    void clearName();
+    void updateActions();
+    void updateMenuModel();
 
     UnityMenuModel *model;
     GtkActionMuxer *muxer;
     GtkMenuTracker *menutracker;
     GSequence *items;
-    QByteArray actionGroupObjectPath;
+    GDBusConnection *connection;
+    QByteArray busName;
+    QByteArray nameOwner;
+    guint nameWatchId;
+    QByteArray actionObjectPath;
     QByteArray menuObjectPath;
 
     static void freeMenuItem(gpointer data, gpointer user_data);
@@ -77,25 +83,12 @@ UnityMenuModelPrivate::UnityMenuModelPrivate(UnityMenuModel *model)
 {
     this->model = model;
     this->menutracker = NULL;
+    this->nameWatchId = 0;
 
     this->muxer = gtk_action_muxer_new ();
     g_object_set_qdata (G_OBJECT (this->muxer), unity_menu_model_quark (), model);
 
     this->items = g_sequence_new (NULL);
-}
-
-UnityMenuModelPrivate * UnityMenuModelPrivate::forBusMenu(UnityMenuModel *model, const QByteArray &busName,
-                                                          const QByteArray &actionGroupObjectPath, const QByteArray &menuObjectPath)
-{
-    UnityMenuModelPrivate *priv = new UnityMenuModelPrivate(model);
-
-    priv->actionGroupObjectPath = actionGroupObjectPath;
-    priv->menuObjectPath = menuObjectPath;
-
-    g_bus_watch_name (G_BUS_TYPE_SESSION, busName.constData(), G_BUS_NAME_WATCHER_FLAGS_AUTO_START,
-                      nameAppeared, nameVanished, priv, NULL);
-
-    return priv;
 }
 
 UnityMenuModelPrivate * UnityMenuModelPrivate::forSubMenu(UnityMenuModel *model, GtkMenuTrackerItem *item)
@@ -109,17 +102,18 @@ UnityMenuModelPrivate * UnityMenuModelPrivate::forSubMenu(UnityMenuModel *model,
 
 UnityMenuModelPrivate::~UnityMenuModelPrivate()
 {
-    if (this->items) {
-        g_sequence_foreach_iter_range (g_sequence_get_begin_iter (this->items), g_sequence_get_end_iter (this->items),
-                                       freeMenuItem, NULL);
-        g_sequence_free (this->items);
-    }
+    this->clearItems(false);
 
     if (this->menutracker)
         gtk_menu_tracker_free (this->menutracker);
 
     if (this->muxer)
         g_object_unref (this->muxer);
+
+    g_clear_object (&this->connection);
+
+    if (this->nameWatchId)
+        g_bus_unwatch_name (this->nameWatchId);
 }
 
 int UnityMenuModelPrivate::nrItems()
@@ -190,45 +184,81 @@ void UnityMenuModelPrivate::freeMenuItem (gpointer data, gpointer user_data)
     g_object_unref (item);
 }
 
+void UnityMenuModelPrivate::clearItems(bool resetModel)
+{
+    GSequenceIter *begin;
+    GSequenceIter *end;
+
+    if (resetModel)
+        model->beginResetModel();
+
+    begin = g_sequence_get_begin_iter (this->items);
+    end = g_sequence_get_end_iter (this->items);
+    g_sequence_foreach_iter_range (begin, end, freeMenuItem, NULL);
+    g_sequence_remove_range (begin, end);
+
+    if (resetModel)
+        model->endResetModel();
+}
+
+void UnityMenuModelPrivate::clearName()
+{
+    this->clearItems();
+
+    this->nameOwner = QByteArray();
+
+    this->updateActions();
+    this->updateMenuModel();
+}
+
+void UnityMenuModelPrivate::updateActions()
+{
+    if (!this->nameOwner.isEmpty()) {
+        GDBusActionGroup *actions;
+
+        actions = g_dbus_action_group_get (this->connection, this->nameOwner, this->actionObjectPath.constData());
+        gtk_action_muxer_insert (this->muxer, "indicator", G_ACTION_GROUP (actions));
+
+        g_object_unref (actions);
+    }
+    else {
+        gtk_action_muxer_remove (this->muxer, "indicator");
+    }
+}
+
+void UnityMenuModelPrivate::updateMenuModel()
+{
+    this->clearItems();
+    g_clear_pointer (&this->menutracker, gtk_menu_tracker_free);
+
+    if (!this->nameOwner.isEmpty()) {
+        GDBusMenuModel *menu;
+
+        menu = g_dbus_menu_model_get (this->connection, this->nameOwner, this->menuObjectPath.constData());
+        this->menutracker = gtk_menu_tracker_new (GTK_ACTION_OBSERVABLE (this->muxer),
+                                                  G_MENU_MODEL (menu), TRUE, "indicator",
+                                                  menuItemInserted, menuItemRemoved, this);
+
+        g_object_unref (menu);
+    }
+}
+
 void UnityMenuModelPrivate::nameAppeared(GDBusConnection *connection, const gchar *name, const gchar *owner, gpointer user_data)
 {
     UnityMenuModelPrivate *priv = (UnityMenuModelPrivate *)user_data;
-    GDBusActionGroup *actions;
-    GDBusMenuModel *menu;
 
-    priv->model->beginResetModel();
+    priv->connection = (GDBusConnection *) g_object_ref (connection);
+    priv->nameOwner = owner;
 
-    actions = g_dbus_action_group_get (connection, owner, priv->actionGroupObjectPath.constData());
-    menu = g_dbus_menu_model_get (connection, owner, priv->menuObjectPath.constData());
-
-    gtk_action_muxer_insert (priv->muxer, "indicator", G_ACTION_GROUP (actions));
-    priv->menutracker = gtk_menu_tracker_new (GTK_ACTION_OBSERVABLE (priv->muxer),
-                                              G_MENU_MODEL (menu), TRUE, "indicator",
-                                              menuItemInserted, menuItemRemoved, priv);
-
-    priv->model->endResetModel();
-
-    g_object_unref (menu);
-    g_object_unref (actions);
+    priv->updateActions();
+    priv->updateMenuModel();
 }
 
 void UnityMenuModelPrivate::nameVanished(GDBusConnection *connection, const gchar *name, gpointer user_data)
 {
     UnityMenuModelPrivate *priv = (UnityMenuModelPrivate *)user_data;
-    GSequenceIter *begin;
-    GSequenceIter *end;
 
-    priv->model->beginResetModel();
-
-    begin = g_sequence_get_begin_iter (priv->items);
-    end = g_sequence_get_end_iter (priv->items);
-    g_sequence_foreach_iter_range (begin, end, freeMenuItem, NULL);
-    g_sequence_remove_range (begin, end);
-
-    gtk_action_muxer_remove (priv->muxer, "indicator");
-    g_clear_pointer (&priv->menutracker, gtk_menu_tracker_free);
-
-    priv->model->endResetModel();
+    priv->clearName();
 }
 
 void UnityMenuModelPrivate::menuItemInserted(GtkMenuTrackerItem *item, gint position, gpointer user_data)
@@ -278,26 +308,51 @@ void UnityMenuModelPrivate::menuItemChanged(GObject *object, GParamSpec *pspec, 
 UnityMenuModel::UnityMenuModel(QObject *parent):
     QAbstractListModel(parent)
 {
-}
-
-UnityMenuModel::UnityMenuModel(const QByteArray &busName,
-                               const QByteArray &actionGroupObjectPath,
-                               const QByteArray &menuObjectPath,
-                               QObject *parent):
-    QAbstractListModel(parent),
-    priv(NULL)
-{
-    init(busName, actionGroupObjectPath, menuObjectPath);
-}
-
-void UnityMenuModel::init(const QByteArray &busName, const QByteArray &actionGroupObjectPath, const QByteArray &menuObjectPath)
-{
-    priv = UnityMenuModelPrivate::forBusMenu(this, busName, actionGroupObjectPath, menuObjectPath);
+    priv = new UnityMenuModelPrivate(this);
 }
 
 UnityMenuModel::~UnityMenuModel()
 {
     delete priv;
+}
+
+QByteArray UnityMenuModel::busName() const
+{
+    return priv->busName;
+}
+
+void UnityMenuModel::setBusName(const QByteArray &name)
+{
+    priv->clearName();
+
+    if (priv->nameWatchId)
+        g_bus_unwatch_name (priv->nameWatchId);
+
+    priv->nameWatchId = g_bus_watch_name (G_BUS_TYPE_SESSION, name.constData(), G_BUS_NAME_WATCHER_FLAGS_AUTO_START,
+                                          UnityMenuModelPrivate::nameAppeared, UnityMenuModelPrivate::nameVanished,
+                                          priv, NULL);
+}
+
+QByteArray UnityMenuModel::actionObjectPath() const
+{
+    return priv->actionObjectPath;
+}
+
+void UnityMenuModel::setActionObjectPath(const QByteArray &path)
+{
+    priv->actionObjectPath = path;
+    priv->updateActions();
+}
+
+QByteArray UnityMenuModel::menuObjectPath() const
+{
+    return priv->menuObjectPath;
+}
+
+void UnityMenuModel::setMenuObjectPath(const QByteArray &path)
+{
+    priv->menuObjectPath = path;
+    priv->updateMenuModel();
 }
 
 int UnityMenuModel::rowCount(const QModelIndex &parent) const

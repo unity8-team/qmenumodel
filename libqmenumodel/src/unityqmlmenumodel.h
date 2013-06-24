@@ -27,9 +27,6 @@ class UnityQmlMenuModel: public UnityMenuModel, public QQmlParserStatus
 {
     Q_OBJECT
     Q_INTERFACES(QQmlParserStatus)
-    Q_PROPERTY(QByteArray busName READ busName WRITE setBusName NOTIFY busNameChanged)
-    Q_PROPERTY(QByteArray actionObjectPath READ actionObjectPath WRITE setActionObjectPath NOTIFY actionObjectPathChanged)
-    Q_PROPERTY(QByteArray menuObjectPath READ menuObjectPath WRITE setMenuObjectPath NOTIFY menuObjectPathChanged)
 
 public:
     UnityQmlMenuModel(QObject *parent = NULL);
@@ -37,20 +34,6 @@ public:
 
     void classBegin();
     void componentComplete();
-
-    QByteArray busName() const;
-    void setBusName(const QByteArray &name);
-
-    QByteArray actionObjectPath() const;
-    void setActionObjectPath(const QByteArray &path);
-
-    QByteArray menuObjectPath() const;
-    void setMenuObjectPath(const QByteArray &path);
-
-Q_SIGNALS:
-    void busNameChanged(const QByteArray &name);
-    void actionObjectPathChanged(const QByteArray &path);
-    void menuObjectPathChanged(const QByteArray &path);
 
 private:
     struct UnityQmlMenuModelPrivate *priv;
