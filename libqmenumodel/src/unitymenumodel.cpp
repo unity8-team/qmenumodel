@@ -34,10 +34,6 @@ public:
     static UnityMenuModelPrivate * forSubMenu(UnityMenuModel *model, GtkMenuTrackerItem *item);
 
     ~UnityMenuModelPrivate();
-    int nrItems();
-    QVariant data(int position, int role);
-    void activate(int position);
-    UnityMenuModel * submenu(int position);
 
     void clearItems(bool resetModel=true);
     void clearName();
@@ -114,64 +110,6 @@ UnityMenuModelPrivate::~UnityMenuModelPrivate()
 
     if (this->nameWatchId)
         g_bus_unwatch_name (this->nameWatchId);
-}
-
-int UnityMenuModelPrivate::nrItems()
-{
-    return g_sequence_get_length (this->items);
-}
-
-QVariant UnityMenuModelPrivate::data(int position, int role)
-{
-    GtkMenuTrackerItem *item;
-
-    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (this->items, position));
-
-    switch (role) {
-        case UnityMenuModel::LabelRole:
-            return gtk_menu_tracker_item_get_label (item);
-
-        case UnityMenuModel::SensitiveRole:
-            return gtk_menu_tracker_item_get_sensitive (item);
-
-        case UnityMenuModel::IsSeparatorRole:
-            return gtk_menu_tracker_item_get_is_separator (item);
-
-        default:
-            return QVariant();
-    }
-}
-
-void UnityMenuModelPrivate::activate(int position)
-{
-    GtkMenuTrackerItem *item;
-
-    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (this->items, position));
-    gtk_menu_tracker_item_activated (item);
-}
-
-UnityMenuModel * UnityMenuModelPrivate::submenu(int position)
-{
-    GSequenceIter *it;
-    GtkMenuTrackerItem *item;
-    UnityMenuModel *model;
-
-    it = g_sequence_get_iter_at_pos (this->items, position);
-    if (g_sequence_iter_is_end (it))
-        return NULL;
-
-    item = (GtkMenuTrackerItem *) g_sequence_get (it);
-    if (!gtk_menu_tracker_item_get_has_submenu (item))
-        return NULL;
-
-    model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (item), unity_submenu_model_quark ());
-    if (model == NULL) {
-        model = new UnityMenuModel(this->model);
-        model->priv = UnityMenuModelPrivate::forSubMenu(model, item);
-        g_object_set_qdata (G_OBJECT (item), unity_submenu_model_quark (), model);
-    }
-
-    return model;
 }
 
 void UnityMenuModelPrivate::freeMenuItem (gpointer data, gpointer user_data)
@@ -357,7 +295,7 @@ void UnityMenuModel::setMenuObjectPath(const QByteArray &path)
 
 int UnityMenuModel::rowCount(const QModelIndex &parent) const
 {
-    return priv && !parent.isValid() ? priv->nrItems() : 0;
+    return !parent.isValid() ? g_sequence_get_length (priv->items) : 0;
 }
 
 int UnityMenuModel::columnCount(const QModelIndex &parent) const
@@ -367,7 +305,23 @@ int UnityMenuModel::columnCount(const QModelIndex &parent) const
 
 QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
 {
-    return priv ? priv->data(index.row(), role) : QVariant();
+    GtkMenuTrackerItem *item;
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index.row()));
+
+    switch (role) {
+        case UnityMenuModel::LabelRole:
+            return gtk_menu_tracker_item_get_label (item);
+
+        case UnityMenuModel::SensitiveRole:
+            return gtk_menu_tracker_item_get_sensitive (item);
+
+        case UnityMenuModel::IsSeparatorRole:
+            return gtk_menu_tracker_item_get_is_separator (item);
+
+        default:
+            return QVariant();
+    }
 }
 
 QModelIndex UnityMenuModel::index(int row, int column, const QModelIndex &parent) const
@@ -394,11 +348,32 @@ QHash<int, QByteArray> UnityMenuModel::roleNames() const
 
 QObject * UnityMenuModel::submenu(int position)
 {
-    return priv ? priv->submenu(position) : NULL;
+    GSequenceIter *it;
+    GtkMenuTrackerItem *item;
+    UnityMenuModel *model;
+
+    it = g_sequence_get_iter_at_pos (priv->items, position);
+    if (g_sequence_iter_is_end (it))
+        return NULL;
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (it);
+    if (!gtk_menu_tracker_item_get_has_submenu (item))
+        return NULL;
+
+    model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (item), unity_submenu_model_quark ());
+    if (model == NULL) {
+        model = new UnityMenuModel(this);
+        model->priv = UnityMenuModelPrivate::forSubMenu(model, item);
+        g_object_set_qdata (G_OBJECT (item), unity_submenu_model_quark (), model);
+    }
+
+    return model;
 }
 
 void UnityMenuModel::activate(int index)
 {
-    if (priv)
-        priv->activate(index);
+    GtkMenuTrackerItem *item;
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index));
+    gtk_menu_tracker_item_activated (item);
 }
