@@ -29,14 +29,6 @@ class UnityMenuModel: public QAbstractListModel
     Q_PROPERTY(QByteArray menuObjectPath READ menuObjectPath WRITE setMenuObjectPath NOTIFY menuObjectPathChanged)
 
 public:
-    enum MenuRoles {
-        ActionRole  = Qt::DisplayRole + 1,
-        LabelRole,
-        SensitiveRole,
-        IsSeparatorRole
-    };
-
-public:
     UnityMenuModel(QObject *parent = NULL);
     virtual ~UnityMenuModel();
 

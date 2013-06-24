@@ -26,6 +26,13 @@ extern "C" {
 G_DEFINE_QUARK (UNITY_MENU_MODEL, unity_menu_model)
 G_DEFINE_QUARK (UNITY_SUBMENU_MODEL, unity_submenu_model)
 
+enum MenuRoles {
+    ActionRole  = Qt::DisplayRole + 1,
+    LabelRole,
+    SensitiveRole,
+    IsSeparatorRole
+};
+
 class UnityMenuModelPrivate
 {
 public:
@@ -310,13 +317,13 @@ QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
     item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index.row()));
 
     switch (role) {
-        case UnityMenuModel::LabelRole:
+        case LabelRole:
             return gtk_menu_tracker_item_get_label (item);
 
-        case UnityMenuModel::SensitiveRole:
+        case SensitiveRole:
             return gtk_menu_tracker_item_get_sensitive (item);
 
-        case UnityMenuModel::IsSeparatorRole:
+        case IsSeparatorRole:
             return gtk_menu_tracker_item_get_is_separator (item);
 
         default:
