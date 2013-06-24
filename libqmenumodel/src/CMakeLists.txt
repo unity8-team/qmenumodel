@@ -11,7 +11,6 @@ set(QMENUMODEL_SRC
     qstateaction.cpp
     unitymenumodel.cpp
     unitymenumodel.h
-    unityqmlmenumodel.cpp
     gtk/gtkactionmuxer.c
     gtk/gtkactionmuxer.h
     gtk/gtkactionobservable.c
