@@ -37,9 +37,6 @@ class UnityMenuModelPrivate
 {
 public:
     UnityMenuModelPrivate(UnityMenuModel *model);
-
-    static UnityMenuModelPrivate * forSubMenu(UnityMenuModel *model, GtkMenuTrackerItem *item);
-
     ~UnityMenuModelPrivate();
 
     void clearItems(bool resetModel=true);
@@ -86,21 +83,13 @@ UnityMenuModelPrivate::UnityMenuModelPrivate(UnityMenuModel *model)
 {
     this->model = model;
     this->menutracker = NULL;
+    this->connection = NULL;
     this->nameWatchId = 0;
 
     this->muxer = gtk_action_muxer_new ();
     g_object_set_qdata (G_OBJECT (this->muxer), unity_menu_model_quark (), model);
 
     this->items = g_sequence_new (NULL);
-}
-
-UnityMenuModelPrivate * UnityMenuModelPrivate::forSubMenu(UnityMenuModel *model, GtkMenuTrackerItem *item)
-{
-    UnityMenuModelPrivate *priv = new UnityMenuModelPrivate(model);
-
-    priv->menutracker = gtk_menu_tracker_new_for_item_submenu (item, menuItemInserted, menuItemRemoved, priv);
-
-    return priv;
 }
 
 UnityMenuModelPrivate::~UnityMenuModelPrivate()
@@ -370,7 +359,11 @@ QObject * UnityMenuModel::submenu(int position)
     model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (item), unity_submenu_model_quark ());
     if (model == NULL) {
         model = new UnityMenuModel(this);
-        model->priv = UnityMenuModelPrivate::forSubMenu(model, item);
+        model->priv = new UnityMenuModelPrivate(model);
+        model->priv->menutracker = gtk_menu_tracker_new_for_item_submenu (item,
+                                                                          UnityMenuModelPrivate::menuItemInserted,
+                                                                          UnityMenuModelPrivate::menuItemRemoved,
+                                                                          model->priv);
         g_object_set_qdata (G_OBJECT (item), unity_submenu_model_quark (), model);
     }
 
