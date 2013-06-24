@@ -96,12 +96,8 @@ UnityMenuModelPrivate::~UnityMenuModelPrivate()
 {
     this->clearItems(false);
 
-    if (this->menutracker)
-        gtk_menu_tracker_free (this->menutracker);
-
-    if (this->muxer)
-        g_object_unref (this->muxer);
-
+    g_clear_pointer (&this->menutracker, gtk_menu_tracker_free);
+    g_clear_object (&this->muxer);
     g_clear_object (&this->connection);
 
     if (this->nameWatchId)
