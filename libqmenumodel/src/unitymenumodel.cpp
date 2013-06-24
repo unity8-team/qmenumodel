@@ -53,7 +53,7 @@ public:
     QByteArray busName;
     QByteArray nameOwner;
     guint nameWatchId;
-    QByteArray actionObjectPath;
+    QVariantMap actions;
     QByteArray menuObjectPath;
 
     static void nameAppeared(GDBusConnection *connection, const gchar *name, const gchar *owner, gpointer user_data);
@@ -124,16 +124,19 @@ void UnityMenuModelPrivate::clearName()
 
 void UnityMenuModelPrivate::updateActions()
 {
-    if (!this->nameOwner.isEmpty()) {
+    Q_FOREACH (QString prefix, this->actions.keys())
+        gtk_action_muxer_remove (this->muxer, prefix.toUtf8());
+
+    if (this->nameOwner.isEmpty())
+      return;
+
+    for (QVariantMap::const_iterator it = this->actions.constBegin(); it != this->actions.constEnd(); ++it) {
         GDBusActionGroup *actions;
 
-        actions = g_dbus_action_group_get (this->connection, this->nameOwner, this->actionObjectPath.constData());
-        gtk_action_muxer_insert (this->muxer, "indicator", G_ACTION_GROUP (actions));
+        actions = g_dbus_action_group_get (this->connection, this->nameOwner, it.value().toByteArray());
+        gtk_action_muxer_insert (this->muxer, it.key().toUtf8(), G_ACTION_GROUP (actions));
 
         g_object_unref (actions);
-    }
-    else {
-        gtk_action_muxer_remove (this->muxer, "indicator");
     }
 }
 
@@ -147,7 +150,7 @@ void UnityMenuModelPrivate::updateMenuModel()
 
         menu = g_dbus_menu_model_get (this->connection, this->nameOwner, this->menuObjectPath.constData());
         this->menutracker = gtk_menu_tracker_new (GTK_ACTION_OBSERVABLE (this->muxer),
-                                                  G_MENU_MODEL (menu), TRUE, "indicator",
+                                                  G_MENU_MODEL (menu), TRUE, NULL,
                                                   menuItemInserted, menuItemRemoved, this);
 
         g_object_unref (menu);
@@ -244,14 +247,14 @@ void UnityMenuModel::setBusName(const QByteArray &name)
                                           priv, NULL);
 }
 
-QByteArray UnityMenuModel::actionObjectPath() const
+QVariantMap UnityMenuModel::actions() const
 {
-    return priv->actionObjectPath;
+    return priv->actions;
 }
 
-void UnityMenuModel::setActionObjectPath(const QByteArray &path)
+void UnityMenuModel::setActions(const QVariantMap &actions)
 {
-    priv->actionObjectPath = path;
+    priv->actions = actions;
     priv->updateActions();
 }
 

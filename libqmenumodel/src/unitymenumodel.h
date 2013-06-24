@@ -25,7 +25,7 @@ class UnityMenuModel: public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(QByteArray busName READ busName WRITE setBusName NOTIFY busNameChanged)
-    Q_PROPERTY(QByteArray actionObjectPath READ actionObjectPath WRITE setActionObjectPath NOTIFY actionObjectPathChanged)
+    Q_PROPERTY(QVariantMap actions READ actions WRITE setActions NOTIFY actionsChanged)
     Q_PROPERTY(QByteArray menuObjectPath READ menuObjectPath WRITE setMenuObjectPath NOTIFY menuObjectPathChanged)
 
 public:
@@ -35,8 +35,8 @@ public:
     QByteArray busName() const;
     void setBusName(const QByteArray &name);
 
-    QByteArray actionObjectPath() const;
-    void setActionObjectPath(const QByteArray &path);
+    QVariantMap actions() const;
+    void setActions(const QVariantMap &actions);
 
     QByteArray menuObjectPath() const;
     void setMenuObjectPath(const QByteArray &path);
@@ -52,7 +52,7 @@ public:
 
 Q_SIGNALS:
     void busNameChanged(const QByteArray &name);
-    void actionObjectPathChanged(const QByteArray &path);
+    void actionsChanged(const QByteArray &path);
     void menuObjectPathChanged(const QByteArray &path);
 
 public Q_SLOTS:
