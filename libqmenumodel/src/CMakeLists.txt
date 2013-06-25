@@ -10,7 +10,7 @@ set(QMENUMODEL_SRC
     qdbusactiongroup.cpp
     qstateaction.cpp
     unitymenumodel.cpp
-    unitymenumodel.h
+    unitythemediconprovider.cpp
     gtk/gtkactionmuxer.c
     gtk/gtkactionmuxer.h
     gtk/gtkactionobservable.c
@@ -44,7 +44,7 @@ target_link_libraries(${SHAREDLIBNAME}
     ${GIO_LDFLAGS}
 )
 
-qt5_use_modules(${SHAREDLIBNAME} Core Qml)
+qt5_use_modules(${SHAREDLIBNAME} Core Qml Quick)
 
 install(TARGETS ${SHAREDLIBNAME} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
@@ -56,6 +56,7 @@ set(QMENUMODEL_HEADERS
     qmenumodel.h
     qstateaction.h
     unitymenumodel.h
+    unitythemediconprovider.h
 )
 
 set(INCLUDEDIR qmenumodel)

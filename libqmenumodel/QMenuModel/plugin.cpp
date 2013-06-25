@@ -23,8 +23,14 @@
 #include "qdbusactiongroup.h"
 #include "qstateaction.h"
 #include "unitymenumodel.h"
+#include "unitythemediconprovider.h"
 
 #include <QtQml>
+
+void QMenuModelQmlPlugin::initializeEngine(QQmlEngine *engine, const char *uri)
+{
+    engine->addImageProvider("theme", new UnityThemedIconProvider);
+}
 
 void QMenuModelQmlPlugin::registerTypes(const char *uri)
 {

@@ -31,7 +31,8 @@ enum MenuRoles {
     ActionRole  = Qt::DisplayRole + 1,
     LabelRole,
     SensitiveRole,
-    IsSeparatorRole
+    IsSeparatorRole,
+    IconRole
 };
 
 class UnityMenuModelPrivate
@@ -279,6 +280,47 @@ int UnityMenuModel::columnCount(const QModelIndex &parent) const
     return 1;
 }
 
+static QString iconUri(GIcon *icon)
+{
+    QString uri;
+
+    if (G_IS_THEMED_ICON (icon)) {
+        const gchar * const *names;
+
+        names = g_themed_icon_get_names (G_THEMED_ICON (icon));
+        if (names && names[0] && *names[0])
+            uri = QString("image://theme/") + names[0];
+    }
+    else if (G_IS_FILE_ICON (icon)) {
+        GFile *file;
+
+        file = g_file_icon_get_file (G_FILE_ICON (icon));
+        if (g_file_is_native (file)) {
+            gchar *fileuri;
+
+            fileuri = g_file_get_path (file);
+            uri = QString(fileuri);
+
+            g_free (fileuri);
+        }
+    }
+    else if (G_IS_BYTES_ICON (icon)) {
+        gsize size;
+        gconstpointer data;
+        gchar *base64;
+
+        data = g_bytes_get_data (g_bytes_icon_get_bytes (G_BYTES_ICON (icon)), &size);
+        base64 = g_base64_encode ((const guchar *) data, size);
+
+        uri = QString("data://");
+        uri.append (base64);
+
+        g_free (base64);
+    }
+
+    return uri;
+}
+
 QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
 {
     GtkMenuTrackerItem *item;
@@ -294,6 +336,17 @@ QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
 
         case IsSeparatorRole:
             return gtk_menu_tracker_item_get_is_separator (item);
+
+        case IconRole: {
+            GIcon *icon = gtk_menu_tracker_item_get_icon (item);
+            if (icon) {
+                QString uri = iconUri(icon);
+                g_object_unref (icon);
+                return uri;
+            }
+            else
+                return QString();
+        }
 
         default:
             return QVariant();
@@ -318,6 +371,7 @@ QHash<int, QByteArray> UnityMenuModel::roleNames() const
     names[ActionRole] = "action";
     names[SensitiveRole] = "sensitive";
     names[IsSeparatorRole] = "isSeparator";
+    names[IconRole] = "icon";
 
     return names;
 }
