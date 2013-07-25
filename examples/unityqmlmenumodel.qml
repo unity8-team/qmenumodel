@@ -8,9 +8,9 @@ Item {
 
     UnityMenuModel {
         id: menu
-        busName: "com.canonical.testmenu"
-        actionObjectPath: "/com/canonical/testmenu"
-        menuObjectPath: "/com/canonical/testmenu"
+        busName: "com.canonical.indicator.sound"
+        actions: { "indicator": "/com/canonical/indicator/sound" }
+        menuObjectPath: "/com/canonical/indicator/sound/desktop"
     }
 
     ListView {
@@ -21,7 +21,19 @@ Item {
         model: menu
 
         delegate: Loader {
-            sourceComponent: isSeparator ? separator : menuitem;
+            sourceComponent: {
+                if (isSeparator) {
+                    return separator;
+                }
+                else if (type == "com.canonical.unity.slider") {
+                    listview.model.loadExtendedAttributes(index, {'min-icon': 'icon',
+                                                                  'max-icon': 'icon'});
+                    return slider;
+                }
+                else {
+                    return menuitem;
+                }
+            }
 
             Component {
                 id: separator
@@ -33,21 +45,46 @@ Item {
             }
 
             Component {
+                id: slider
+                Row {
+                    anchors.fill: parent
+                    Image {
+                        source: ext.minIcon
+                    }
+                    Image {
+                        source: ext.maxIcon
+                    }
+                }
+            }
+
+            Component {
                 id: menuitem
                 Rectangle {
                     width: listview.width
                     height: 40
                     color: "#ddd"
-                    Text {
+                    Row {
                         anchors.fill: parent
                         anchors.margins: 5
-                        verticalAlignment: Text.AlignVCenter
-                        color: sensitive ? "black" : "#aaa";
-                        text: label
+                        Image {
+                            source: icon
+                        }
+                        Text {
+                            height: parent.height
+                            verticalAlignment: Text.AlignVCenter
+                            color: sensitive ? "black" : "#aaa";
+                            text: label
+                        }
                     }
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: listview.model.activate(index);
+                        onClicked: {
+                            var submenu = listview.model.submenu(index);
+                            if (submenu)
+                                listview.model = submenu;
+                            else
+                                listview.model.activate(index);
+                        }
                     }
                 }
             }
