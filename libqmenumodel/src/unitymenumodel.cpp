@@ -187,9 +187,9 @@ void UnityMenuModelPrivate::menuItemInserted(GtkMenuTrackerItem *item, gint posi
     priv->model->beginInsertRows(QModelIndex(), position, position);
 
     it = g_sequence_get_iter_at_pos (priv->items, position);
+    it = g_sequence_insert_before (it, g_object_ref (item));
     g_object_set_qdata (G_OBJECT (item), unity_menu_item_iterator_quark (), it);
     g_signal_connect (item, "notify", G_CALLBACK (menuItemChanged), it);
-    g_sequence_insert_before (it, g_object_ref (item));
 
     priv->model->endInsertRows();
 }
