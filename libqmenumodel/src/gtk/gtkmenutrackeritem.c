@@ -786,3 +786,44 @@ gtk_menu_tracker_item_request_submenu_shown (GtkMenuTrackerItem *self,
   else
     gtk_menu_tracker_item_set_submenu_shown (self, shown);
 }
+
+gboolean
+gtk_menu_tracker_item_get_attribute (GtkMenuTrackerItem *self,
+                                     const gchar        *attribute,
+                                     const gchar        *format,
+                                     ...)
+{
+  gboolean success = FALSE;
+  GVariant *value;
+
+  g_return_val_if_fail (GTK_IS_MENU_TRACKER_ITEM (self), FALSE);
+  g_return_val_if_fail (attribute != NULL, FALSE);
+  g_return_val_if_fail (format != NULL, FALSE);
+
+  value = g_menu_item_get_attribute_value (self->item, attribute, NULL);
+  if (value)
+    {
+      if (g_variant_check_format_string (value, format, TRUE))
+        {
+          va_list args;
+
+          va_start (args, format);
+          g_variant_get_va (value, format, NULL, &args);
+          va_end (args);
+
+          success = TRUE;
+        }
+
+      g_variant_unref (value);
+    }
+
+  return success;
+}
+
+GVariant *
+gtk_menu_tracker_item_get_attribute_value (GtkMenuTrackerItem *self,
+                                           const gchar        *attribute,
+                                           const GVariantType *expected_type)
+{
+  return g_menu_item_get_attribute_value (self->item, attribute, expected_type);
+}

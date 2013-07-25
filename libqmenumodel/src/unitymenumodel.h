@@ -49,6 +49,7 @@ public:
     QHash<int, QByteArray> roleNames() const;
 
     Q_INVOKABLE QObject * submenu(int position);
+    Q_INVOKABLE bool loadExtendedAttributes(int position, const QVariantMap &schema);
 
 Q_SIGNALS:
     void busNameChanged(const QByteArray &name);

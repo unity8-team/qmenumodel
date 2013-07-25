@@ -26,13 +26,16 @@ extern "C" {
 G_DEFINE_QUARK (UNITY_MENU_MODEL, unity_menu_model)
 G_DEFINE_QUARK (UNITY_SUBMENU_MODEL, unity_submenu_model)
 G_DEFINE_QUARK (UNITY_MENU_ITEM_ITERATOR, unity_menu_item_iterator)
+G_DEFINE_QUARK (UNITY_MENU_ITEM_EXTENDED_ATTRIBUTES, unity_menu_item_extended_attributes)
 
 enum MenuRoles {
     ActionRole  = Qt::DisplayRole + 1,
     LabelRole,
     SensitiveRole,
     IsSeparatorRole,
-    IconRole
+    IconRole,
+    TypeRole,
+    ExtendedAttributesRole,
 };
 
 class UnityMenuModelPrivate
@@ -348,6 +351,22 @@ QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
                 return QString();
         }
 
+        case TypeRole: {
+            gchar *type;
+            if (gtk_menu_tracker_item_get_attribute (item, "x-canonical-type", "s", &type)) {
+                QVariant v(type);
+                g_free (type);
+                return v;
+            }
+            else
+                return QVariant();
+        }
+
+        case ExtendedAttributesRole: {
+            QVariantMap *map = (QVariantMap *) g_object_get_qdata (G_OBJECT (item), unity_menu_item_extended_attributes_quark ());
+            return map ? *map : QVariant();
+        }
+
         default:
             return QVariant();
     }
@@ -372,6 +391,8 @@ QHash<int, QByteArray> UnityMenuModel::roleNames() const
     names[SensitiveRole] = "sensitive";
     names[IsSeparatorRole] = "isSeparator";
     names[IconRole] = "icon";
+    names[TypeRole] = "type";
+    names[ExtendedAttributesRole] = "ext";
 
     return names;
 }
@@ -410,4 +431,95 @@ void UnityMenuModel::activate(int index)
 
     item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index));
     gtk_menu_tracker_item_activated (item);
+}
+
+static void freeExtendedAttrs(gpointer data)
+{
+    QVariantMap *extendedAttrs = (QVariantMap *) data;
+    delete extendedAttrs;
+}
+
+static QVariant attributeToQVariant(GVariant *value, const QString &type)
+{
+    QVariant result;
+
+    if (type == "int") {
+        if (g_variant_is_of_type (value, G_VARIANT_TYPE_INT32))
+            result =  QVariant(g_variant_get_int32(value));
+    }
+    if (type == "bool") {
+        if (g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN))
+            result = QVariant(g_variant_get_int32(value));
+    }
+    else if (type == "string") {
+        if (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING))
+            result = QVariant(g_variant_get_string(value, NULL));
+    }
+    else if (type == "icon") {
+        GIcon *icon = g_icon_deserialize (value);
+        if (icon) {
+            result = iconUri(icon);
+            g_object_unref (icon);
+        }
+        else {
+            result = QVariant("");
+        }
+    }
+
+    return result;
+}
+
+/* convert 'some-key' to 'someKey' or 'SomeKey'. (from dconf-qt) */
+static QString qtify_name(const char *name)
+{
+    bool next_cap = false;
+    QString result;
+
+    while (*name) {
+        if (*name == '-') {
+            next_cap = true;
+        } else if (next_cap) {
+            result.append(toupper(*name));
+            next_cap = false;
+        } else {
+            result.append(*name);
+        }
+
+        name++;
+    }
+
+    return result;
+}
+
+bool UnityMenuModel::loadExtendedAttributes(int position, const QVariantMap &schema)
+{
+    GtkMenuTrackerItem *item;
+    QVariantMap *extendedAttrs;
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, position));
+
+    extendedAttrs = new QVariantMap;
+
+    for (QVariantMap::const_iterator it = schema.constBegin(); it != schema.constEnd(); ++it) {
+        QString name = it.key();
+        QString type = it.value().toString();
+
+        GVariant *value = gtk_menu_tracker_item_get_attribute_value (item, name.toUtf8(), NULL);
+        if (value == NULL) {
+            qWarning("loadExtendedAttributes: menu item does not contain '%s'", it.key().toUtf8().constData());
+            continue;
+        }
+
+        QVariant qvalue = attributeToQVariant(value, type);
+        if (qvalue.isValid())
+            extendedAttrs->insert(qtify_name (name.toUtf8()), qvalue);
+        else
+            qWarning("loadExtendedAttributes: key '%s' is of type '%s' (expected '%s')",
+                     name.toUtf8().constData(), g_variant_get_type_string(value), type.constData());
+
+        g_variant_unref (value);
+    }
+
+    g_object_set_qdata_full (G_OBJECT (item), unity_menu_item_extended_attributes_quark (),
+                             extendedAttrs, freeExtendedAttrs);
 }
