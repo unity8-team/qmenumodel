@@ -50,6 +50,7 @@ public:
 
     Q_INVOKABLE QObject * submenu(int position);
     Q_INVOKABLE bool loadExtendedAttributes(int position, const QVariantMap &schema);
+    Q_INVOKABLE QVariant get(int row, const QByteArray &role);
 
 Q_SIGNALS:
     void busNameChanged(const QByteArray &name);

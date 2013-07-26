@@ -61,6 +61,7 @@ public:
     guint nameWatchId;
     QVariantMap actions;
     QByteArray menuObjectPath;
+    QHash<QByteArray, int> roles;
 
     static void nameAppeared(GDBusConnection *connection, const gchar *name, const gchar *owner, gpointer user_data);
     static void nameVanished(GDBusConnection *connection, const gchar *name, gpointer user_data);
@@ -541,4 +542,15 @@ bool UnityMenuModel::loadExtendedAttributes(int position, const QVariantMap &sch
 
     g_object_set_qdata_full (G_OBJECT (item), unity_menu_item_extended_attributes_quark (),
                              extendedAttrs, freeExtendedAttrs);
+}
+
+QVariant UnityMenuModel::get(int row, const QByteArray &role)
+{
+    if (priv->roles.isEmpty()) {
+        QHash<int, QByteArray> names = roleNames();
+        Q_FOREACH (int role, names.keys())
+            priv->roles.insert(names[role], role);
+    }
+
+    return this->data(this->index(row, 0), priv->roles[role]);
 }
