@@ -17,6 +17,7 @@
  */
 
 #include "unitymenumodel.h"
+#include "converter.h"
 
 extern "C" {
   #include "gtk/gtkactionmuxer.h"
@@ -29,13 +30,13 @@ G_DEFINE_QUARK (UNITY_MENU_ITEM_ITERATOR, unity_menu_item_iterator)
 G_DEFINE_QUARK (UNITY_MENU_ITEM_EXTENDED_ATTRIBUTES, unity_menu_item_extended_attributes)
 
 enum MenuRoles {
-    ActionRole  = Qt::DisplayRole + 1,
-    LabelRole,
+    LabelRole  = Qt::DisplayRole + 1,
     SensitiveRole,
     IsSeparatorRole,
     IconRole,
     TypeRole,
     ExtendedAttributesRole,
+    ActionStateRole
 };
 
 class UnityMenuModelPrivate
@@ -48,6 +49,7 @@ public:
     void clearName();
     void updateActions();
     void updateMenuModel();
+    QVariant itemState(GtkMenuTrackerItem *item);
 
     UnityMenuModel *model;
     GtkActionMuxer *muxer;
@@ -159,6 +161,19 @@ void UnityMenuModelPrivate::updateMenuModel()
 
         g_object_unref (menu);
     }
+}
+
+QVariant UnityMenuModelPrivate::itemState(GtkMenuTrackerItem *item)
+{
+    QVariant result;
+
+    GVariant *state = gtk_menu_tracker_item_get_action_state (item);
+    if (state != NULL) {
+        result = Converter::toQVariant(state);
+        g_variant_unref (state);
+    }
+
+    return result;
 }
 
 void UnityMenuModelPrivate::nameAppeared(GDBusConnection *connection, const gchar *name, const gchar *owner, gpointer user_data)
@@ -367,6 +382,9 @@ QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
             return map ? *map : QVariant();
         }
 
+        case ActionStateRole:
+            return priv->itemState(item);
+
         default:
             return QVariant();
     }
@@ -382,17 +400,18 @@ QModelIndex UnityMenuModel::parent(const QModelIndex &index) const
     return QModelIndex();
 }
 
+#include <QtDebug>
 QHash<int, QByteArray> UnityMenuModel::roleNames() const
 {
     QHash<int, QByteArray> names;
 
     names[LabelRole] = "label";
-    names[ActionRole] = "action";
     names[SensitiveRole] = "sensitive";
     names[IsSeparatorRole] = "isSeparator";
     names[IconRole] = "icon";
     names[TypeRole] = "type";
     names[ExtendedAttributesRole] = "ext";
+    names[ActionStateRole] = "actionState";
 
     return names;
 }

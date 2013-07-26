@@ -63,13 +63,21 @@ Item {
 
             Component {
                 id: slider
-                Row {
-                    anchors.fill: parent
-                    Image {
-                        source: ext.minIcon
-                    }
-                    Image {
-                        source: ext.maxIcon
+                Rectangle {
+                    width: listview.width
+                    color: "#ddd"
+                    height: 40
+                    Row {
+                        anchors.fill: parent
+                        Image {
+                            source: ext.minIcon
+                        }
+                        Text {
+                            text: model.actionState
+                        }
+                        Image {
+                            source: ext.maxIcon
+                        }
                     }
                 }
             }
