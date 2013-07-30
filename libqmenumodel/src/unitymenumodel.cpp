@@ -32,7 +32,6 @@ extern "C" {
 
 G_DEFINE_QUARK (UNITY_MENU_MODEL, unity_menu_model)
 G_DEFINE_QUARK (UNITY_SUBMENU_MODEL, unity_submenu_model)
-G_DEFINE_QUARK (UNITY_MENU_ITEM_ITERATOR, unity_menu_item_iterator)
 G_DEFINE_QUARK (UNITY_MENU_ITEM_EXTENDED_ATTRIBUTES, unity_menu_item_extended_attributes)
 
 enum MenuRoles {
@@ -94,7 +93,6 @@ UnityMenuModelPrivate::UnityMenuModelPrivate(UnityMenuModel *model)
     this->actionStateParser = new ActionStateParser(model);
 
     this->muxer = gtk_action_muxer_new ();
-    g_object_set_qdata (G_OBJECT (this->muxer), unity_menu_model_quark (), model);
 
     this->items = g_sequence_new (menu_item_free);
 }
@@ -214,7 +212,7 @@ void UnityMenuModelPrivate::menuItemInserted(GtkMenuTrackerItem *item, gint posi
 
     it = g_sequence_get_iter_at_pos (priv->items, position);
     it = g_sequence_insert_before (it, g_object_ref (item));
-    g_object_set_qdata (G_OBJECT (item), unity_menu_item_iterator_quark (), it);
+    g_object_set_qdata (G_OBJECT (item), unity_menu_model_quark (), priv->model);
     g_signal_connect (item, "notify", G_CALLBACK (menuItemChanged), it);
 
     priv->model->endInsertRows();
@@ -234,16 +232,15 @@ void UnityMenuModelPrivate::menuItemRemoved(gint position, gpointer user_data)
 
 void UnityMenuModelPrivate::menuItemChanged(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
-    GSequenceIter *it;
+    GSequenceIter *it = (GSequenceIter *) user_data;
     GtkMenuTrackerItem *item;
     GtkActionObservable *muxer;
     UnityMenuModel *model;
     gint position;
 
-    it = (GSequenceIter *) g_object_get_qdata (object, unity_menu_item_iterator_quark ());
     item = (GtkMenuTrackerItem *) g_sequence_get (it);
     muxer = _gtk_menu_tracker_item_get_observable (item);
-    model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (muxer), unity_menu_model_quark ());
+    model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (item), unity_menu_model_quark ());
     position = g_sequence_iter_get_position (it);
 
     Q_EMIT model->dataChanged(model->index(position, 0), model->index(position, 0));
@@ -465,7 +462,6 @@ QObject * UnityMenuModel::submenu(int position, QQmlComponent* actionStateParser
     model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (item), unity_submenu_model_quark ());
     if (model == NULL) {
         model = new UnityMenuModel(this);
-        model->priv = new UnityMenuModelPrivate(model);
 
         if (actionStateParser) {
             ActionStateParser* parser = qobject_cast<ActionStateParser*>(actionStateParser->create());
