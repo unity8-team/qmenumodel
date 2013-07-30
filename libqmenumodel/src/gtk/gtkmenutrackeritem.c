@@ -106,6 +106,7 @@ enum {
   PROP_TOGGLED,
   PROP_ACCEL,
   PROP_SUBMENU_SHOWN,
+  PROP_ACTION_NAME,
   PROP_ACTION_STATE,
   N_PROPS
 };
@@ -179,6 +180,8 @@ gtk_menu_tracker_item_get_property (GObject    *object,
     case PROP_SUBMENU_SHOWN:
       g_value_set_boolean (value, gtk_menu_tracker_item_get_submenu_shown (self));
       break;
+    case PROP_ACTION_NAME:
+      g_value_set_string (value, gtk_menu_tracker_item_get_action_name (self));
     case PROP_ACTION_STATE:
       g_value_set_variant (value, self->action_state);
       break;
@@ -239,11 +242,15 @@ gtk_menu_tracker_item_class_init (GtkMenuTrackerItemClass *class)
     g_param_spec_string ("accel", "", "", NULL, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE);
   gtk_menu_tracker_item_pspecs[PROP_SUBMENU_SHOWN] =
     g_param_spec_boolean ("submenu-shown", "", "", FALSE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE);
+  gtk_menu_tracker_item_pspecs[PROP_ACTION_NAME] =
+    g_param_spec_boolean ("action-name", "", "", FALSE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE);
   gtk_menu_tracker_item_pspecs[PROP_ACTION_STATE] =
     g_param_spec_boolean ("action-state", "", "", FALSE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE);
 
   g_object_class_install_properties (class, N_PROPS, gtk_menu_tracker_item_pspecs);
 }
+
+#include <stdio.h>
 
 static void
 gtk_menu_tracker_item_action_added (GtkActionObserver   *observer,
@@ -268,6 +275,7 @@ gtk_menu_tracker_item_action_added (GtkActionObserver   *observer,
         g_variant_unref (action_target);
       return;
     }
+      printf("INDICATORS: activateable %p\n", action_target);
 
   self->sensitive = enabled;
 
@@ -610,6 +618,22 @@ gboolean
 gtk_menu_tracker_item_get_submenu_shown (GtkMenuTrackerItem *self)
 {
   return self->submenu_shown;
+}
+
+/**
+ * gtk_menu_tracker_item_get_action_name:
+ * @self: A #GtkMenuTrackerItem instance
+ *
+ * Returns the action name
+ */
+const gchar *
+gtk_menu_tracker_item_get_action_name (GtkMenuTrackerItem *self)
+{
+  const gchar *action_name = NULL;
+
+  g_menu_item_get_attribute (self->item, G_MENU_ATTRIBUTE_ACTION, "&s", &action_name);
+
+  return action_name;
 }
 
 GVariant *

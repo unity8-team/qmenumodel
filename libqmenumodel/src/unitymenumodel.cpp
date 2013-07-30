@@ -86,6 +86,14 @@ public:
         setIndex(index);
     }
 
+    virtual QString name() const {
+        GtkMenuTrackerItem* item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
+        if (!item) {
+            return "";
+        }
+        return gtk_menu_tracker_item_get_action_name(item);
+    }
+
     virtual QVariant state() const {
         GtkMenuTrackerItem* item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
         if (!item) {
@@ -533,6 +541,10 @@ static QVariant attributeToQVariant(GVariant *value, const QString &type)
     else if (type == "string") {
         if (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING))
             result = QVariant(g_variant_get_string(value, NULL));
+    }
+    if (type == "double") {
+        if (g_variant_is_of_type (value, G_VARIANT_TYPE_DOUBLE))
+            result = QVariant(g_variant_get_double(value));
     }
     else if (type == "icon") {
         GIcon *icon = g_icon_deserialize (value);
