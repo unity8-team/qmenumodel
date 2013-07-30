@@ -45,7 +45,10 @@ public:
     virtual QString name() const = 0;
 
     virtual QVariant state() const = 0;
-    Q_INVOKABLE virtual void updateState(const QVariant& = QVariant()) = 0;
+
+    Q_INVOKABLE virtual void activate() = 0;
+
+    Q_INVOKABLE virtual void updateState(const QVariant& vvalue) = 0;
 
 Q_SIGNALS:
     void nameChanged();

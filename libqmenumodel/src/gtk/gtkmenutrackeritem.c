@@ -685,6 +685,27 @@ gtk_menu_tracker_item_activated (GtkMenuTrackerItem *self)
     g_variant_unref (action_target);
 }
 
+void
+gtk_menu_tracker_item_update_state (GtkMenuTrackerItem *self, GVariant *value)
+{
+  const gchar *action_name;
+
+  g_return_if_fail (GTK_IS_MENU_TRACKER_ITEM (self));
+
+  g_menu_item_get_attribute (self->item, G_MENU_ATTRIBUTE_ACTION, "&s", &action_name);
+
+  if (self->action_namespace)
+    {
+      gchar *full_action;
+
+      full_action = g_strjoin (".", self->action_namespace, action_name, NULL);
+      g_action_group_change_action_state (G_ACTION_GROUP (self->observable), full_action, g_variant_ref(value));
+      g_free (full_action);
+    }
+  else
+    g_action_group_change_action_state (G_ACTION_GROUP (self->observable), action_name, g_variant_ref(value));
+}
+
 typedef struct
 {
   GtkMenuTrackerItem *item;

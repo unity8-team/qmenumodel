@@ -64,9 +64,6 @@ Q_SIGNALS:
     void menuObjectPathChanged(const QByteArray &path);
     void actionStateParserChanged(ActionStateParser* parser);
 
-public Q_SLOTS:
-    void activate(int index);
-
 private:
     class UnityMenuModelPrivate *priv;
     friend class UnityMenuModelPrivate;

@@ -76,6 +76,12 @@ gboolean                gtk_menu_tracker_item_get_should_request_show   (GtkMenu
 
 void                    gtk_menu_tracker_item_activated                 (GtkMenuTrackerItem *self);
 
+void                    gtk_menu_tracker_item_update_state              (GtkMenuTrackerItem *self,
+                                                                         GVariant           *value);
+
+
+
+
 void                    gtk_menu_tracker_item_request_submenu_shown     (GtkMenuTrackerItem *self,
                                                                          gboolean            shown);
 

@@ -87,22 +87,44 @@ public:
     }
 
     virtual QString name() const {
-        GtkMenuTrackerItem* item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
-        if (!item) {
-            return "";
-        }
+        GtkMenuTrackerItem* item;
+
+        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
+        if (!item) return QString();
+
         return gtk_menu_tracker_item_get_action_name(item);
     }
 
     virtual QVariant state() const {
-        GtkMenuTrackerItem* item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
-        if (!item) {
-            return QVariant();
-        }
+        GtkMenuTrackerItem* item;
+
+        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
+        if (!item) return QVariant();
+
         return d->itemState(item);
     }
 
-    virtual void updateState(const QVariant& param = QVariant()) { }
+    virtual void activate()
+    {
+        GtkMenuTrackerItem* item;
+
+        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
+        if (!item) return;
+
+        gtk_menu_tracker_item_activated (item);
+    }
+
+    virtual void updateState(const QVariant& vvalue)
+    {
+        GtkMenuTrackerItem* item;
+
+        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
+        if (!item) return;
+
+        GVariant* data = Converter::toGVariant(vvalue);
+        gtk_menu_tracker_item_update_state (item, data);
+        g_variant_unref(data);
+    }
 
 private:
     UnityMenuModelPrivate* d;
@@ -510,14 +532,6 @@ QObject * UnityMenuModel::submenu(int position, QQmlComponent* actionStateParser
     }
 
     return model;
-}
-
-void UnityMenuModel::activate(int index)
-{
-    GtkMenuTrackerItem *item;
-
-    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index));
-    gtk_menu_tracker_item_activated (item);
 }
 
 static void freeExtendedAttrs(gpointer data)
