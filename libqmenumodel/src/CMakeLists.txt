@@ -1,6 +1,7 @@
 project(src)
 
 set(QMENUMODEL_SRC
+    actionstateparser.cpp
     converter.cpp
     dbus-enums.h
     menunode.cpp
@@ -49,6 +50,7 @@ qt5_use_modules(${SHAREDLIBNAME} Core Qml Quick)
 install(TARGETS ${SHAREDLIBNAME} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 set(QMENUMODEL_HEADERS
+    actionstateparser.h
     dbus-enums.h
     qdbusactiongroup.h
     qdbusmenumodel.h

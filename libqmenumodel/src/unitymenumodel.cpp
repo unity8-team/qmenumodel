@@ -18,6 +18,12 @@
 
 #include "unitymenumodel.h"
 #include "converter.h"
+#include "actionstateparser.h"
+
+#include <QIcon>
+#include <QQmlComponent>
+
+#include <QIcon>
 
 extern "C" {
   #include "gtk/gtkactionmuxer.h"
@@ -26,7 +32,6 @@ extern "C" {
 
 G_DEFINE_QUARK (UNITY_MENU_MODEL, unity_menu_model)
 G_DEFINE_QUARK (UNITY_SUBMENU_MODEL, unity_submenu_model)
-G_DEFINE_QUARK (UNITY_MENU_ITEM_ITERATOR, unity_menu_item_iterator)
 G_DEFINE_QUARK (UNITY_MENU_ITEM_EXTENDED_ATTRIBUTES, unity_menu_item_extended_attributes)
 
 enum MenuRoles {
@@ -62,6 +67,7 @@ public:
     QVariantMap actions;
     QByteArray menuObjectPath;
     QHash<QByteArray, int> roles;
+    ActionStateParser* actionStateParser;
 
     static void nameAppeared(GDBusConnection *connection, const gchar *name, const gchar *owner, gpointer user_data);
     static void nameVanished(GDBusConnection *connection, const gchar *name, gpointer user_data);
@@ -84,9 +90,9 @@ UnityMenuModelPrivate::UnityMenuModelPrivate(UnityMenuModel *model)
     this->menutracker = NULL;
     this->connection = NULL;
     this->nameWatchId = 0;
+    this->actionStateParser = new ActionStateParser(model);
 
     this->muxer = gtk_action_muxer_new ();
-    g_object_set_qdata (G_OBJECT (this->muxer), unity_menu_model_quark (), model);
 
     this->items = g_sequence_new (menu_item_free);
 }
@@ -170,7 +176,9 @@ QVariant UnityMenuModelPrivate::itemState(GtkMenuTrackerItem *item)
 
     GVariant *state = gtk_menu_tracker_item_get_action_state (item);
     if (state != NULL) {
-        result = Converter::toQVariant(state);
+        if (actionStateParser != NULL) {
+            result = actionStateParser->toQVariant(state);
+        }
         g_variant_unref (state);
     }
 
@@ -204,7 +212,7 @@ void UnityMenuModelPrivate::menuItemInserted(GtkMenuTrackerItem *item, gint posi
 
     it = g_sequence_get_iter_at_pos (priv->items, position);
     it = g_sequence_insert_before (it, g_object_ref (item));
-    g_object_set_qdata (G_OBJECT (item), unity_menu_item_iterator_quark (), it);
+    g_object_set_qdata (G_OBJECT (item), unity_menu_model_quark (), priv->model);
     g_signal_connect (item, "notify", G_CALLBACK (menuItemChanged), it);
 
     priv->model->endInsertRows();
@@ -224,16 +232,15 @@ void UnityMenuModelPrivate::menuItemRemoved(gint position, gpointer user_data)
 
 void UnityMenuModelPrivate::menuItemChanged(GObject *object, GParamSpec *pspec, gpointer user_data)
 {
-    GSequenceIter *it;
+    GSequenceIter *it = (GSequenceIter *) user_data;
     GtkMenuTrackerItem *item;
     GtkActionObservable *muxer;
     UnityMenuModel *model;
     gint position;
 
-    it = (GSequenceIter *) g_object_get_qdata (object, unity_menu_item_iterator_quark ());
     item = (GtkMenuTrackerItem *) g_sequence_get (it);
     muxer = _gtk_menu_tracker_item_get_observable (item);
-    model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (muxer), unity_menu_model_quark ());
+    model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (item), unity_menu_model_quark ());
     position = g_sequence_iter_get_position (it);
 
     Q_EMIT model->dataChanged(model->index(position, 0), model->index(position, 0));
@@ -265,6 +272,7 @@ void UnityMenuModel::setBusName(const QByteArray &name)
     priv->nameWatchId = g_bus_watch_name (G_BUS_TYPE_SESSION, name.constData(), G_BUS_NAME_WATCHER_FLAGS_AUTO_START,
                                           UnityMenuModelPrivate::nameAppeared, UnityMenuModelPrivate::nameVanished,
                                           priv, NULL);
+    priv->busName = name;
 }
 
 QVariantMap UnityMenuModel::actions() const
@@ -289,6 +297,22 @@ void UnityMenuModel::setMenuObjectPath(const QByteArray &path)
     priv->updateMenuModel();
 }
 
+ActionStateParser* UnityMenuModel::actionStateParser() const
+{
+    return priv->actionStateParser;
+}
+
+void UnityMenuModel::setActionStateParser(ActionStateParser* actionStateParser)
+{
+    if (priv->actionStateParser != actionStateParser) {
+        if (priv->actionStateParser && priv->actionStateParser->parent() == this) {
+            delete priv->actionStateParser;
+        }
+        priv->actionStateParser = actionStateParser;
+        Q_EMIT actionStateParserChanged(actionStateParser);
+    }
+}
+
 int UnityMenuModel::rowCount(const QModelIndex &parent) const
 {
     return !parent.isValid() ? g_sequence_get_length (priv->items) : 0;
@@ -304,11 +328,15 @@ static QString iconUri(GIcon *icon)
     QString uri;
 
     if (G_IS_THEMED_ICON (icon)) {
-        const gchar * const *names;
-
-        names = g_themed_icon_get_names (G_THEMED_ICON (icon));
-        if (names && names[0] && *names[0])
-            uri = QString("image://theme/") + names[0];
+        const gchar* const* iconNames = g_themed_icon_get_names (G_THEMED_ICON (icon));
+        guint index = 0;
+        while(iconNames[index] != NULL) {
+            if (QIcon::hasThemeIcon(iconNames[index])) {
+                uri = QString("image://theme/") + iconNames[index];
+                break;
+            }
+            index++;
+        }
     }
     else if (G_IS_FILE_ICON (icon)) {
         GFile *file;
@@ -417,7 +445,7 @@ QHash<int, QByteArray> UnityMenuModel::roleNames() const
     return names;
 }
 
-QObject * UnityMenuModel::submenu(int position)
+QObject * UnityMenuModel::submenu(int position, QQmlComponent* actionStateParser)
 {
     GSequenceIter *it;
     GtkMenuTrackerItem *item;
@@ -434,7 +462,14 @@ QObject * UnityMenuModel::submenu(int position)
     model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (item), unity_submenu_model_quark ());
     if (model == NULL) {
         model = new UnityMenuModel(this);
-        model->priv = new UnityMenuModelPrivate(model);
+
+        if (actionStateParser) {
+            ActionStateParser* parser = qobject_cast<ActionStateParser*>(actionStateParser->create());
+            if (parser) {
+                model->setActionStateParser(parser);
+            }
+        }
+
         model->priv->menutracker = gtk_menu_tracker_new_for_item_submenu (item,
                                                                           UnityMenuModelPrivate::menuItemInserted,
                                                                           UnityMenuModelPrivate::menuItemRemoved,

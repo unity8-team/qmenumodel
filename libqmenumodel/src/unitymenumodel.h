@@ -20,6 +20,8 @@
 #define UNITYMENUMODEL_H
 
 #include <QAbstractListModel>
+class ActionStateParser;
+class QQmlComponent;
 
 class UnityMenuModel: public QAbstractListModel
 {
@@ -27,6 +29,7 @@ class UnityMenuModel: public QAbstractListModel
     Q_PROPERTY(QByteArray busName READ busName WRITE setBusName NOTIFY busNameChanged)
     Q_PROPERTY(QVariantMap actions READ actions WRITE setActions NOTIFY actionsChanged)
     Q_PROPERTY(QByteArray menuObjectPath READ menuObjectPath WRITE setMenuObjectPath NOTIFY menuObjectPathChanged)
+    Q_PROPERTY(ActionStateParser* actionStateParser READ actionStateParser WRITE setActionStateParser NOTIFY actionStateParserChanged)
 
 public:
     UnityMenuModel(QObject *parent = NULL);
@@ -41,6 +44,9 @@ public:
     QByteArray menuObjectPath() const;
     void setMenuObjectPath(const QByteArray &path);
 
+    ActionStateParser* actionStateParser() const;
+    void setActionStateParser(ActionStateParser* actionStateParser);
+
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -48,7 +54,7 @@ public:
     QModelIndex parent(const QModelIndex &index) const;
     QHash<int, QByteArray> roleNames() const;
 
-    Q_INVOKABLE QObject * submenu(int position);
+    Q_INVOKABLE QObject * submenu(int position, QQmlComponent* actionStateParser = NULL);
     Q_INVOKABLE bool loadExtendedAttributes(int position, const QVariantMap &schema);
     Q_INVOKABLE QVariant get(int row, const QByteArray &role);
 
@@ -56,6 +62,7 @@ Q_SIGNALS:
     void busNameChanged(const QByteArray &name);
     void actionsChanged(const QByteArray &path);
     void menuObjectPathChanged(const QByteArray &path);
+    void actionStateParserChanged(ActionStateParser* parser);
 
 public Q_SLOTS:
     void activate(int index);
