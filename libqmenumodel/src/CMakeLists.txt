@@ -10,6 +10,7 @@ set(QMENUMODEL_SRC
     qdbusmenumodel.cpp
     qdbusactiongroup.cpp
     qstateaction.cpp
+    unitymenuaction.cpp
     unitymenumodel.cpp
     unitythemediconprovider.cpp
     gtk/gtkactionmuxer.c
@@ -57,6 +58,7 @@ set(QMENUMODEL_HEADERS
     qdbusobject.h
     qmenumodel.h
     qstateaction.h
+    unitymenuaction.h
     unitymenumodel.h
     unitythemediconprovider.h
 )

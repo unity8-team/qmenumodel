@@ -19,11 +19,10 @@
 #include "unitymenumodel.h"
 #include "converter.h"
 #include "actionstateparser.h"
+#include "unitymenuaction.h"
 
 #include <QIcon>
 #include <QQmlComponent>
-
-#include <QIcon>
 
 extern "C" {
   #include "gtk/gtkactionmuxer.h"
@@ -41,7 +40,7 @@ enum MenuRoles {
     IconRole,
     TypeRole,
     ExtendedAttributesRole,
-    ActionStateRole
+    ActionRole
 };
 
 class UnityMenuModelPrivate
@@ -74,6 +73,31 @@ public:
     static void menuItemInserted(GtkMenuTrackerItem *item, gint position, gpointer user_data);
     static void menuItemRemoved(gint position, gpointer user_data);
     static void menuItemChanged(GObject *object, GParamSpec *pspec, gpointer user_data);
+};
+
+class UnityGtkMenuTrackerItemAction : public UnityMenuAction
+{
+public:
+    UnityGtkMenuTrackerItemAction(int index, UnityMenuModelPrivate* priv)
+        : UnityMenuAction(priv->model),
+          d(priv)
+    {
+        setModel(priv->model);
+        setIndex(index);
+    }
+
+    virtual QVariant state() const {
+        GtkMenuTrackerItem* item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
+        if (!item) {
+            return QVariant();
+        }
+        return d->itemState(item);
+    }
+
+    virtual void updateState(const QVariant& param = QVariant()) { }
+
+private:
+    UnityMenuModelPrivate* d;
 };
 
 void menu_item_free (gpointer data)
@@ -411,8 +435,8 @@ QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
             return map ? *map : QVariant();
         }
 
-        case ActionStateRole:
-            return priv->itemState(item);
+        case ActionRole:
+            return QVariant::fromValue(new UnityGtkMenuTrackerItemAction(index.row(), priv));
 
         default:
             return QVariant();
@@ -440,7 +464,7 @@ QHash<int, QByteArray> UnityMenuModel::roleNames() const
     names[IconRole] = "icon";
     names[TypeRole] = "type";
     names[ExtendedAttributesRole] = "ext";
-    names[ActionStateRole] = "actionState";
+    names[ActionRole] = "action";
 
     return names;
 }
