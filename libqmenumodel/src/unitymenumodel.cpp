@@ -19,6 +19,8 @@
 #include "unitymenumodel.h"
 #include "converter.h"
 
+#include <QIcon>
+
 extern "C" {
   #include "gtk/gtkactionmuxer.h"
   #include "gtk/gtkmenutracker.h"
@@ -304,11 +306,15 @@ static QString iconUri(GIcon *icon)
     QString uri;
 
     if (G_IS_THEMED_ICON (icon)) {
-        const gchar * const *names;
-
-        names = g_themed_icon_get_names (G_THEMED_ICON (icon));
-        if (names && names[0] && *names[0])
-            uri = QString("image://theme/") + names[0];
+        const gchar* const* iconNames = g_themed_icon_get_names (G_THEMED_ICON (icon));
+        guint index = 0;
+        while(iconNames[index] != NULL) {
+            if (QIcon::hasThemeIcon(iconNames[index])) {
+                uri = QString("image://theme/") + iconNames[index];
+                break;
+            }
+            index++;
+        }
     }
     else if (G_IS_FILE_ICON (icon)) {
         GFile *file;
