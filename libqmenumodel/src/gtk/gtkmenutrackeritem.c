@@ -250,8 +250,6 @@ gtk_menu_tracker_item_class_init (GtkMenuTrackerItemClass *class)
   g_object_class_install_properties (class, N_PROPS, gtk_menu_tracker_item_pspecs);
 }
 
-#include <stdio.h>
-
 static void
 gtk_menu_tracker_item_action_added (GtkActionObserver   *observer,
                                     GtkActionObservable *observable,
@@ -275,7 +273,6 @@ gtk_menu_tracker_item_action_added (GtkActionObserver   *observer,
         g_variant_unref (action_target);
       return;
     }
-      printf("INDICATORS: activateable %p\n", action_target);
 
   self->sensitive = enabled;
 
