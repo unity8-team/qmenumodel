@@ -550,7 +550,7 @@ static QVariant attributeToQVariant(GVariant *value, const QString &type)
     }
     if (type == "bool") {
         if (g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN))
-            result = QVariant(g_variant_get_int32(value));
+            result = QVariant(g_variant_get_boolean(value));
     }
     else if (type == "string") {
         if (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING))
