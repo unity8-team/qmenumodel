@@ -29,7 +29,8 @@ class UnityMenuModel;
 class UnityMenuAction : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant state READ state WRITE updateState NOTIFY stateChanged)
+    Q_PROPERTY(QVariant name READ name NOTIFY nameChanged)
+    Q_PROPERTY(QVariant state READ state WRITE changeState NOTIFY stateChanged)
     Q_PROPERTY(int index READ index WRITE setIndex NOTIFY indexChanged)
     Q_PROPERTY(UnityMenuModel* model READ model WRITE setModel NOTIFY modelChanged)
 public:
@@ -41,10 +42,16 @@ public:
     UnityMenuModel* model() const;
     void setModel(UnityMenuModel* model);
 
+    virtual QString name() const = 0;
+
     virtual QVariant state() const = 0;
-    Q_INVOKABLE virtual void updateState(const QVariant& = QVariant()) = 0;
+
+    Q_INVOKABLE virtual void activate() = 0;
+
+    Q_INVOKABLE virtual void changeState(const QVariant& vvalue) = 0;
 
 Q_SIGNALS:
+    void nameChanged();
     void stateChanged();
     void indexChanged(int index);
     void modelChanged(UnityMenuModel* model);

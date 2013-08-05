@@ -86,15 +86,45 @@ public:
         setIndex(index);
     }
 
+    virtual QString name() const {
+        GtkMenuTrackerItem* item;
+
+        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
+        if (!item) return QString();
+
+        return gtk_menu_tracker_item_get_action_name(item);
+    }
+
     virtual QVariant state() const {
-        GtkMenuTrackerItem* item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
-        if (!item) {
-            return QVariant();
-        }
+        GtkMenuTrackerItem* item;
+
+        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
+        if (!item) return QVariant();
+
         return d->itemState(item);
     }
 
-    virtual void updateState(const QVariant& param = QVariant()) { }
+    virtual void activate()
+    {
+        GtkMenuTrackerItem* item;
+
+        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
+        if (!item) return;
+
+        gtk_menu_tracker_item_activated (item);
+    }
+
+    virtual void changeState(const QVariant& vvalue)
+    {
+        GtkMenuTrackerItem* item;
+
+        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
+        if (!item) return;
+
+        GVariant* data = Converter::toGVariant(vvalue);
+        gtk_menu_tracker_item_change_state (item, data);
+        g_variant_unref(data);
+    }
 
 private:
     UnityMenuModelPrivate* d;
@@ -504,14 +534,6 @@ QObject * UnityMenuModel::submenu(int position, QQmlComponent* actionStateParser
     return model;
 }
 
-void UnityMenuModel::activate(int index)
-{
-    GtkMenuTrackerItem *item;
-
-    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index));
-    gtk_menu_tracker_item_activated (item);
-}
-
 static void freeExtendedAttrs(gpointer data)
 {
     QVariantMap *extendedAttrs = (QVariantMap *) data;
@@ -533,6 +555,10 @@ static QVariant attributeToQVariant(GVariant *value, const QString &type)
     else if (type == "string") {
         if (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING))
             result = QVariant(g_variant_get_string(value, NULL));
+    }
+    if (type == "double") {
+        if (g_variant_is_of_type (value, G_VARIANT_TYPE_DOUBLE))
+            result = QVariant(g_variant_get_double(value));
     }
     else if (type == "icon") {
         GIcon *icon = g_icon_deserialize (value);
