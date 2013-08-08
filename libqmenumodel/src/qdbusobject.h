@@ -21,6 +21,7 @@
 #define QDBUSOBJECT_H
 
 #include <QString>
+#include <QEvent>
 
 #include "dbus-enums.h"
 
@@ -32,7 +33,7 @@ typedef struct _GDBusConnection GDBusConnection;
 class QDBusObject
 {
 public:
-    QDBusObject();
+    QDBusObject(QObject* listener);
     ~QDBusObject();
 
     DBusEnums::BusType busType() const;
@@ -59,7 +60,10 @@ protected:
     virtual void objectPathChanged(const QString &objectPath) = 0;
     virtual void statusChanged(DBusEnums::ConnectionStatus status) = 0;
 
+    virtual bool event(QEvent* e);
+
 private:
+    QObject* m_listener;
     guint m_watchId;
     DBusEnums::BusType m_busType;
     QString m_busName;
@@ -71,6 +75,17 @@ private:
     // glib slots
     static void onServiceAppeared(GDBusConnection *connection, const gchar *name, const gchar *name_owner, gpointer data);
     static void onServiceVanished(GDBusConnection *connection, const gchar *name, gpointer data);
+};
+
+class DbusObjectServiceEvent : public QEvent
+{
+public:
+    static const QEvent::Type eventType;
+    DbusObjectServiceEvent(GDBusConnection* connection, bool visible);
+    ~DbusObjectServiceEvent();
+
+    GDBusConnection* connection;
+    bool visible;
 };
 
 #endif

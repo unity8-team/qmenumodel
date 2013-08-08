@@ -21,6 +21,9 @@
 
 #include <QMetaMethod>
 #include <QDebug>
+#include <QCoreApplication>
+
+const QEvent::Type MenuNodeItemChangeEvent::eventType = static_cast<QEvent::Type>(QEvent::registerEventType());
 
 MenuNode::MenuNode(const QString &linkType, GMenuModel *model, MenuNode *parent, int pos, QObject *listener)
     : m_model(model),
@@ -242,15 +245,16 @@ void MenuNode::onItemsChanged(GMenuModel *model, gint position, gint removed, gi
     self->m_currentOpAdded = added;
     self->m_currentOpRemoved = removed;
 
-    const QMetaObject *mobj = self->m_listener->metaObject();
-    if (!mobj->invokeMethod(self->m_listener,
-                           "onItemsChanged",
-                           Q_ARG(MenuNode*, self),
-                           Q_ARG(int, position),
-                           Q_ARG(int, removed),
-                           Q_ARG(int, added)))
-    {
-        qWarning() << "Slot 'onItemsChanged(MenuNode*, int, int, int)' not found in" << self->m_listener;
-    }
+    MenuNodeItemChangeEvent mnice(self, position, added, removed);
+    QCoreApplication::sendEvent(self->m_listener, &mnice);
+
     self->commitOperation();
 }
+
+MenuNodeItemChangeEvent::MenuNodeItemChangeEvent(MenuNode* _node, int _position, int _removed, int _added)
+    : QEvent(MenuNodeItemChangeEvent::eventType),
+      node(_node),
+      position(_position),
+      removed(_removed),
+      added(_added)
+{}
