@@ -23,11 +23,10 @@ extern "C" {
 }
 
 #include "qdbusobject.h"
+#include "qmenumodelevents.h"
 
 #include <QDebug>
 #include <QCoreApplication>
-
-const QEvent::Type DbusObjectServiceEvent::eventType = static_cast<QEvent::Type>(QEvent::registerEventType());
 
 /*!
     \qmltype QDBusObject
@@ -215,21 +214,4 @@ bool QDBusObject::event(QEvent* e)
         return true;
     }
     return false;
-}
-
-DbusObjectServiceEvent::DbusObjectServiceEvent(GDBusConnection* _connection, bool _visible)
-    : QEvent(DbusObjectServiceEvent::eventType),
-      connection(_connection),
-      visible(_visible)
-{
-    if (connection) {
-        g_object_ref(connection);
-    }
-}
-
-DbusObjectServiceEvent::~DbusObjectServiceEvent()
-{
-    if (connection) {
-        g_object_unref(connection);
-    }
 }

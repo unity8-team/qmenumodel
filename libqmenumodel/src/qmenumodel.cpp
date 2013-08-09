@@ -25,10 +25,10 @@ extern "C" {
 #include "qmenumodel.h"
 #include "menunode.h"
 #include "converter.h"
+#include "qmenumodelevents.h"
+
 #include <QCoreApplication>
 #include <QThread>
-
-const QEvent::Type MenuModelEvent::eventType = static_cast<QEvent::Type>(QEvent::registerEventType());
 
 /*!
     \qmltype QMenuModel
@@ -302,20 +302,4 @@ bool QMenuModel::hasLink(MenuNode *node, int row, const QString &linkType) const
 {
     MenuNode *child = node->child(row);
     return (child && (child->linkType() == linkType));
-}
-
-MenuModelEvent::MenuModelEvent(GMenuModel* _model)
-    : QEvent(MenuModelEvent::eventType),
-      model(_model)
-{
-    if (model) {
-        g_object_ref(model);
-    }
-}
-
-MenuModelEvent::~MenuModelEvent()
-{
-    if (model) {
-        g_object_unref(model);
-    }
 }

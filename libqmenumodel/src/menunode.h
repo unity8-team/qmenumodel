@@ -24,7 +24,6 @@
 #include <QPointer>
 #include <QMap>
 #include <QVariant>
-#include <QEvent>
 
 extern "C" {
 #include <gio/gio.h>
@@ -72,19 +71,6 @@ private:
     int m_currentOpRemoved;
 
     static void onItemsChanged(GMenuModel *model, gint position, gint removed, gint added, gpointer data);
-};
-
-class MenuNodeItemChangeEvent : public QEvent
-{
-public:
-    static const QEvent::Type eventType;
-
-    MenuNodeItemChangeEvent(MenuNode* node, int position, int removed, int added);
-
-    MenuNode* node;
-    int position;
-    int removed;
-    int added;
 };
 
 #endif

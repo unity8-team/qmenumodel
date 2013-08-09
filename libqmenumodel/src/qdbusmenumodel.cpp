@@ -22,6 +22,7 @@ extern "C" {
 }
 
 #include "qdbusmenumodel.h"
+#include "qmenumodelevents.h"
 
 #include <QCoreApplication>
 

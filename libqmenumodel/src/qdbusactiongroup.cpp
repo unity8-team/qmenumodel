@@ -20,6 +20,7 @@
 #include "qdbusactiongroup.h"
 #include "qstateaction.h"
 #include "converter.h"
+#include "qmenumodelevents.h"
 
 // Qt
 #include <QCoreApplication>
@@ -28,9 +29,6 @@ extern "C" {
 #include <glib.h>
 #include <gio/gio.h>
 }
-
-const QEvent::Type DBusActionStateEvent::eventType = static_cast<QEvent::Type>(QEvent::registerEventType());
-const QEvent::Type DBusActionVisiblityEvent::eventType = static_cast<QEvent::Type>(QEvent::registerEventType());
 
 /*!
     \qmltype QDBusActionGroup
@@ -271,22 +269,4 @@ void QDBusActionGroup::onActionStateChanged(GDBusActionGroup *, gchar *name, GVa
 
     DBusActionStateEvent dase(name, Converter::toQVariant(value));
     QCoreApplication::sendEvent(self, &dase);
-}
-
-DBusActionEvent::DBusActionEvent(const QString& _name, QEvent::Type type)
-    : QEvent(type),
-      name(_name)
-{
-}
-
-DBusActionVisiblityEvent::DBusActionVisiblityEvent(const QString& _name, bool _visible)
-    : DBusActionEvent(_name, DBusActionVisiblityEvent::eventType),
-      visible(_visible)
-{
-}
-
-DBusActionStateEvent::DBusActionStateEvent(const QString& _name, const QVariant& _state)
-    : DBusActionEvent(_name, DBusActionStateEvent::eventType),
-      state(_state)
-{
 }

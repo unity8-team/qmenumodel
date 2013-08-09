@@ -21,7 +21,6 @@
 #define QDBUSOBJECT_H
 
 #include <QString>
-#include <QEvent>
 
 #include "dbus-enums.h"
 
@@ -76,17 +75,6 @@ private:
     // glib slots
     static void onServiceAppeared(GDBusConnection *connection, const gchar *name, const gchar *name_owner, gpointer data);
     static void onServiceVanished(GDBusConnection *connection, const gchar *name, gpointer data);
-};
-
-class DbusObjectServiceEvent : public QEvent
-{
-public:
-    static const QEvent::Type eventType;
-    DbusObjectServiceEvent(GDBusConnection* connection, bool visible);
-    ~DbusObjectServiceEvent();
-
-    GDBusConnection* connection;
-    bool visible;
 };
 
 #endif

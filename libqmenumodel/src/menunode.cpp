@@ -18,12 +18,11 @@
  */
 
 #include "menunode.h"
+#include "qmenumodelevents.h"
 
 #include <QMetaMethod>
 #include <QDebug>
 #include <QCoreApplication>
-
-const QEvent::Type MenuNodeItemChangeEvent::eventType = static_cast<QEvent::Type>(QEvent::registerEventType());
 
 MenuNode::MenuNode(const QString &linkType, GMenuModel *model, MenuNode *parent, int pos, QObject *listener)
     : m_model(model),
@@ -250,11 +249,3 @@ void MenuNode::onItemsChanged(GMenuModel *model, gint position, gint removed, gi
 
     self->commitOperation();
 }
-
-MenuNodeItemChangeEvent::MenuNodeItemChangeEvent(MenuNode* _node, int _position, int _removed, int _added)
-    : QEvent(MenuNodeItemChangeEvent::eventType),
-      node(_node),
-      position(_position),
-      removed(_removed),
-      added(_added)
-{}

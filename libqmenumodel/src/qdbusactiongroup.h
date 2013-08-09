@@ -24,7 +24,6 @@
 
 #include <QObject>
 #include <QVariant>
-#include <QEvent>
 
 class QStateAction;
 
@@ -90,35 +89,6 @@ private:
     static void onActionAdded(GDBusActionGroup *ag, gchar *name, gpointer data);
     static void onActionRemoved(GDBusActionGroup *ag, gchar *name, gpointer data);
     static void onActionStateChanged(GDBusActionGroup *ag, gchar *name, GVariant *value, gpointer data);
-};
-
-class DBusActionEvent : public QEvent
-{
-public:
-    QString name;
-
-protected:
-    DBusActionEvent(const QString& name, QEvent::Type type);
-};
-
-class DBusActionVisiblityEvent : public DBusActionEvent
-{
-public:
-    static const QEvent::Type eventType;
-    DBusActionVisiblityEvent(const QString& name, bool visible);
-
-    bool visible;
-};
-
-
-class DBusActionStateEvent : public DBusActionEvent
-{
-public:
-    static const QEvent::Type eventType;
-
-    DBusActionStateEvent(const QString& name, const QVariant& state);
-
-    QVariant state;
 };
 
 #endif // QDBUSACTIONGROUP_H

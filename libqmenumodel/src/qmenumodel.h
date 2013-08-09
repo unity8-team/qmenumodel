@@ -21,7 +21,6 @@
 #define QMENUTREEMODEL_H
 
 #include <QAbstractItemModel>
-#include <QEvent>
 
 class MenuNode;
 typedef struct _GMenuModel GMenuModel;
@@ -29,6 +28,7 @@ typedef struct _GMenuModel GMenuModel;
 class QMenuModel : public QAbstractItemModel
 {
     Q_OBJECT
+
 public:
     enum MenuRoles {
         Action  = Qt::DisplayRole + 1,
@@ -71,17 +71,6 @@ private:
 
     QString parseExtraPropertyName(const QString &name) const;
     void clearModel();
-};
-
-class MenuModelEvent : public QEvent
-{
-public:
-    static const QEvent::Type eventType;
-
-    MenuModelEvent(GMenuModel *model);
-    ~MenuModelEvent();
-
-    GMenuModel *model;
 };
 
 #endif
