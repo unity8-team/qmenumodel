@@ -60,6 +60,7 @@ protected:
     virtual void objectPathChanged(const QString &objectPath) = 0;
     virtual void statusChanged(DBusEnums::ConnectionStatus status) = 0;
 
+    // This is not a Qbject, but we are passed events from superclass qobjects.
     virtual bool event(QEvent* e);
 
 private:

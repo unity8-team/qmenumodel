@@ -24,7 +24,6 @@ extern "C" {
 #include "qdbusmenumodel.h"
 
 #include <QCoreApplication>
-#include <QDebug>
 
 /*!
     \qmltype QDBusMenuModel
@@ -116,7 +115,7 @@ void QDBusMenuModel::serviceAppear(GDBusConnection *connection)
 
     MenuModelEvent mme(model);
     QCoreApplication::sendEvent(this, &mme);
-    //setModel take care of the ref
+    //event handling takes care of the ref
     g_object_unref(model);
 }
 

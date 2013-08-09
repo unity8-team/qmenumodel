@@ -22,7 +22,6 @@
 #include "converter.h"
 
 // Qt
-#include <QDebug>
 #include <QCoreApplication>
 
 extern "C" {
@@ -231,7 +230,6 @@ bool QDBusActionGroup::event(QEvent* e)
 {
     if (QDBusObject::event(e)) {
         return true;
-
     } else if (e->type() == DBusActionVisiblityEvent::eventType) {
         DBusActionVisiblityEvent *dave = static_cast<DBusActionVisiblityEvent*>(e);
 
