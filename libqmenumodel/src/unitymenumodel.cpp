@@ -104,14 +104,18 @@ public:
         return d->itemState(item);
     }
 
-    virtual void activate()
+    virtual void activate(const QVariant &parameter)
     {
         GtkMenuTrackerItem* item;
+        gchar *action;
 
         item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
         if (!item) return;
 
-        gtk_menu_tracker_item_activated (item);
+        gtk_menu_tracker_item_get_attribute (item, "action", "s", &action);
+        g_action_group_activate_action (G_ACTION_GROUP (d->muxer), action, Converter::toGVariant(parameter));
+
+        g_free (action);
     }
 
     virtual void changeState(const QVariant& vvalue)

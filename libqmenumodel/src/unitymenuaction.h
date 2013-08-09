@@ -46,7 +46,7 @@ public:
 
     virtual QVariant state() const = 0;
 
-    Q_INVOKABLE virtual void activate() = 0;
+    Q_INVOKABLE virtual void activate(const QVariant &parameter) = 0;
 
     Q_INVOKABLE virtual void changeState(const QVariant& vvalue) = 0;
 
