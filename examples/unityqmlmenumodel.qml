@@ -108,7 +108,7 @@ Item {
                             if (submenu)
                                 listview.model = submenu;
                             else
-                                listview.model.activate(index);
+                                action.activate();
                         }
                     }
                 }
