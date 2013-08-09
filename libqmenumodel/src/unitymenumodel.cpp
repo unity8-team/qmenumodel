@@ -639,3 +639,11 @@ QVariant UnityMenuModel::get(int row, const QByteArray &role)
 
     return this->data(this->index(row, 0), priv->roles[role]);
 }
+
+void UnityMenuModel::activate(int index)
+{
+    GtkMenuTrackerItem *item;
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index));
+    gtk_menu_tracker_item_activated (item);
+}
