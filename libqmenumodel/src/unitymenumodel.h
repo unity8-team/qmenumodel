@@ -65,6 +65,9 @@ Q_SIGNALS:
     void menuObjectPathChanged(const QByteArray &path);
     void actionStateParserChanged(ActionStateParser* parser);
 
+protected:
+    virtual bool event(QEvent* e);
+
 private:
     class UnityMenuModelPrivate *priv;
     friend class UnityMenuModelPrivate;

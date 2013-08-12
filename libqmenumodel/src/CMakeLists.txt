@@ -12,6 +12,7 @@ set(QMENUMODEL_SRC
     qstateaction.cpp
     unitymenuaction.cpp
     unitymenumodel.cpp
+    unitymenumodelevents.cpp
     unitythemediconprovider.cpp
     gtk/gtkactionmuxer.c
     gtk/gtkactionmuxer.h
