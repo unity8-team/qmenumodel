@@ -439,10 +439,10 @@ QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
             return gtk_menu_tracker_item_get_label (item);
 
         case SensitiveRole:
-            return gtk_menu_tracker_item_get_sensitive (item);
+            return gtk_menu_tracker_item_get_sensitive (item) == TRUE ? true : false;
 
         case IsSeparatorRole:
-            return gtk_menu_tracker_item_get_is_separator (item);
+            return gtk_menu_tracker_item_get_is_separator (item) == TRUE ? true : false;
 
         case IconRole: {
             GIcon *icon = gtk_menu_tracker_item_get_icon (item);
