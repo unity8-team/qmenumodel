@@ -44,7 +44,8 @@ enum MenuRoles {
     ExtendedAttributesRole,
     ActionRole,
     IsCheckRole,
-    IsRadioRole
+    IsRadioRole,
+    IsToggledRole
 };
 
 class UnityMenuModelPrivate
@@ -462,6 +463,9 @@ QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
         case IsRadioRole:
             return gtk_menu_tracker_item_get_role (item) == GTK_MENU_TRACKER_ITEM_ROLE_RADIO;
 
+        case IsToggledRole:
+            return gtk_menu_tracker_item_get_toggled (item) == TRUE ? true : false;
+
         default:
             return QVariant();
     }
@@ -491,6 +495,7 @@ QHash<int, QByteArray> UnityMenuModel::roleNames() const
     names[ActionRole] = "action";
     names[IsCheckRole] = "isCheck";
     names[IsRadioRole] = "isRadio";
+    names[IsToggledRole] = "isToggled";
 
     return names;
 }
