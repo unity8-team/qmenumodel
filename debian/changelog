@@ -1,3 +1,19 @@
+qmenumodel (0.2.6+13.10.20130812-0ubuntu1) saucy; urgency=low
+
+  [ Nick Dedekind ]
+  * Added UnityMenuModel.
+
+  [ Mirco Müller ]
+  * Added UnityMenuModel.
+
+  [ Lars Uebernickel ]
+  * Added UnityMenuModel.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 70
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 12 Aug 2013 18:38:17 +0000
+
 qmenumodel (0.2.6daily13.06.07-0ubuntu1) saucy; urgency=low
 
   [ Alberto Mardegan ]
