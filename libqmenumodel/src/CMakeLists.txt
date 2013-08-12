@@ -1,6 +1,7 @@
 project(src)
 
 set(QMENUMODEL_SRC
+    actionstateparser.cpp
     converter.cpp
     dbus-enums.h
     menunode.cpp
@@ -9,6 +10,20 @@ set(QMENUMODEL_SRC
     qdbusmenumodel.cpp
     qdbusactiongroup.cpp
     qstateaction.cpp
+    unitymenuaction.cpp
+    unitymenumodel.cpp
+    unitymenumodelevents.cpp
+    unitythemediconprovider.cpp
+    gtk/gtkactionmuxer.c
+    gtk/gtkactionmuxer.h
+    gtk/gtkactionobservable.c
+    gtk/gtkactionobservable.h
+    gtk/gtkactionobserver.c
+    gtk/gtkactionobserver.h
+    gtk/gtkmenutracker.c
+    gtk/gtkmenutracker.h
+    gtk/gtkmenutrackeritem.c
+    gtk/gtkmenutrackeritem.h
 )
 
 set(SHAREDLIBNAME qmenumodel)
@@ -32,17 +47,21 @@ target_link_libraries(${SHAREDLIBNAME}
     ${GIO_LDFLAGS}
 )
 
-qt5_use_modules(${SHAREDLIBNAME} Core)
+qt5_use_modules(${SHAREDLIBNAME} Core Qml Quick)
 
 install(TARGETS ${SHAREDLIBNAME} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 set(QMENUMODEL_HEADERS
+    actionstateparser.h
     dbus-enums.h
     qdbusactiongroup.h
     qdbusmenumodel.h
     qdbusobject.h
     qmenumodel.h
     qstateaction.h
+    unitymenuaction.h
+    unitymenumodel.h
+    unitythemediconprovider.h
 )
 
 set(INCLUDEDIR qmenumodel)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Canonical Ltd.
+ * Copyright 2013 Canonical Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -14,23 +14,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authors:
- *      Renato Araujo Oliveira Filho <renato@canonical.com>
+ *      Nick Dedekind <nick.dedekind@canonical.com>
  */
 
-#ifndef QMENUMODELQMLPLUGIN_H
-#define QMENUMODELQMLPLUGIN_H
+#include "actionstateparser.h"
+#include "converter.h"
 
-#include <QQmlExtensionPlugin>
-
-class QMenuModelQmlPlugin : public QQmlExtensionPlugin
+ActionStateParser::ActionStateParser(QObject* parent)
+    : QObject(parent)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "com.canonical.qmenumodel")
+}
 
-public:
-    void initializeEngine(QQmlEngine *engine, const char *uri);
-    void registerTypes(const char *uri);
-};
-
-#endif
-
+QVariant ActionStateParser::toQVariant(GVariant* state) const
+{
+    if (state) {
+        return Converter::toQVariant(state);
+    }
+    return QVariant();
+}

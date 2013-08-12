@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 2.8.9)
 include(GNUInstallDirs)
 
 find_package(Qt5Core REQUIRED)
+find_package(Qt5Qml REQUIRED)
+find_package(Qt5Gui REQUIRED)
 include(FindPkgConfig)
 pkg_check_modules(GLIB REQUIRED glib-2.0>=2.32)
 pkg_check_modules(GIO REQUIRED gio-2.0>=2.32)

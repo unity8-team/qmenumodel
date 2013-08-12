@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Canonical Ltd.
+ * Copyright 2013 Canonical Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -13,24 +13,19 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Authors:
- *      Renato Araujo Oliveira Filho <renato@canonical.com>
+ * Authors: Lars Uebernickel <lars.uebernickel@canonical.com>
  */
 
-#ifndef QMENUMODELQMLPLUGIN_H
-#define QMENUMODELQMLPLUGIN_H
+#ifndef UNITY_THEMED_ICON_PROVIDER_H
+#define UNITY_THEMED_ICON_PROVIDER_H
 
-#include <QQmlExtensionPlugin>
+#include <QQuickImageProvider>
 
-class QMenuModelQmlPlugin : public QQmlExtensionPlugin
+class UnityThemedIconProvider: public QQuickImageProvider
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "com.canonical.qmenumodel")
-
 public:
-    void initializeEngine(QQmlEngine *engine, const char *uri);
-    void registerTypes(const char *uri);
+  UnityThemedIconProvider();
+  QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize);
 };
 
 #endif
-

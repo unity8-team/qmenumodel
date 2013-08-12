@@ -19,7 +19,7 @@ target_link_libraries(qmenumodel-qml
     ${GIO_LDFLAGS}
 )
 
-qt5_use_modules(qmenumodel-qml Qml Widgets)
+qt5_use_modules(qmenumodel-qml Qml Quick)
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/qmldir"
                                                               "${CMAKE_CURRENT_BINARY_DIR}/qmldir")

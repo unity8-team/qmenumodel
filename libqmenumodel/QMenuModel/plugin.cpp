@@ -22,8 +22,16 @@
 #include "qdbusmenumodel.h"
 #include "qdbusactiongroup.h"
 #include "qstateaction.h"
+#include "unitymenuaction.h"
+#include "unitymenumodel.h"
+#include "unitythemediconprovider.h"
 
 #include <QtQml>
+
+void QMenuModelQmlPlugin::initializeEngine(QQmlEngine *engine, const char *uri)
+{
+    engine->addImageProvider("theme", new UnityThemedIconProvider);
+}
 
 void QMenuModelQmlPlugin::registerTypes(const char *uri)
 {
@@ -33,9 +41,10 @@ void QMenuModelQmlPlugin::registerTypes(const char *uri)
                                              "QStateAction must be created by QDBusActionGroup::action");
     qmlRegisterUncreatableType<DBusEnums>(uri, 0, 1, "DBus",
                                           "DBus is only a namespace");
+    qmlRegisterUncreatableType<UnityMenuAction>(uri, 0, 1, "UnityMenuAction",
+                                          "UnityMenuAction must be created by UnityMenuModel");
 
     qmlRegisterType<QDBusMenuModel>(uri, 0, 1, "QDBusMenuModel");
     qmlRegisterType<QDBusActionGroup>(uri, 0, 1, "QDBusActionGroup");
-
+    qmlRegisterType<UnityMenuModel>(uri, 0, 1, "UnityMenuModel");
 }
-

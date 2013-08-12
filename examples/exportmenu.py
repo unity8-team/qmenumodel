@@ -32,29 +32,14 @@ from gi.repository import GLib
 BUS_NAME = 'com.canonical.testmenu'
 BUS_OBJECT_PATH = '/com/canonical/testmenu'
 
-
-if __name__ == '__main__':
-    bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
-    # Claim well-known bus name and ensure only one instance of self is running
-    # at any given time.
-    # http://dbus.freedesktop.org/doc/dbus-specification.html#message-bus-names
-    proxy = Gio.DBusProxy.new_sync(bus, 0, None,
-                                   'org.freedesktop.DBus',
-                                   '/org/freedesktop/DBus',
-                                   'org.freedesktop.DBus', None)
-    result = proxy.RequestName('(su)', BUS_NAME, 0x4)
-    if result != 1 :
-        print >> sys.stderr, ("Name '%s' is already owned on the session bus."
-                              "Aborting.") % BUS_NAME
-        sys.exit(1)
-
+def bus_acquired(bus, name):
     menu = Gio.Menu()
     foo = Gio.MenuItem.new('foo', 'app.foo')
     foo.set_attribute_value('x-additionaltext',
                             GLib.Variant.new_string('lorem ipsum'))
     foo.set_attribute_value('x-enabled', GLib.Variant.new_boolean(True))
     menu.append_item(foo)
-    bar = Gio.MenuItem.new('bar', 'app.bar')
+    bar = Gio.MenuItem.new('bar', 'bar')
     bar.set_attribute_value('x-defaultvalue',
                             GLib.Variant.new_string('Hello World!'))
     bar.set_attribute_value('x-canonical-currentvalue',
@@ -74,5 +59,10 @@ if __name__ == '__main__':
     menu.append('baz', 'app.baz')
     bus.export_menu_model(BUS_OBJECT_PATH, menu)
 
-    GLib.MainLoop().run()
+    actions = Gio.SimpleActionGroup.new()
+    actions.add_action(Gio.SimpleAction.new("bar", None))
+    bus.export_action_group(BUS_OBJECT_PATH, actions)
 
+if __name__ == '__main__':
+    Gio.bus_own_name(Gio.BusType.SESSION,  BUS_NAME, 0, bus_acquired, None, None)
+    GLib.MainLoop().run()
