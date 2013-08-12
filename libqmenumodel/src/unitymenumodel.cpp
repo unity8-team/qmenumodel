@@ -19,7 +19,6 @@
 #include "unitymenumodel.h"
 #include "converter.h"
 #include "actionstateparser.h"
-#include "unitymenuaction.h"
 #include "unitymenumodelevents.h"
 
 #include <QIcon>
@@ -43,6 +42,7 @@ enum MenuRoles {
     TypeRole,
     ExtendedAttributesRole,
     ActionRole,
+    ActionStateRole,
     IsCheckRole,
     IsRadioRole,
     IsToggledRole
@@ -78,65 +78,6 @@ public:
     static void menuItemInserted(GtkMenuTrackerItem *item, gint position, gpointer user_data);
     static void menuItemRemoved(gint position, gpointer user_data);
     static void menuItemChanged(GObject *object, GParamSpec *pspec, gpointer user_data);
-};
-
-class UnityGtkMenuTrackerItemAction : public UnityMenuAction
-{
-public:
-    UnityGtkMenuTrackerItemAction(int index, UnityMenuModelPrivate* priv)
-        : UnityMenuAction(priv->model),
-          d(priv)
-    {
-        setModel(priv->model);
-        setIndex(index);
-    }
-
-    virtual QString name() const {
-        GtkMenuTrackerItem* item;
-
-        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
-        if (!item) return QString();
-
-        return gtk_menu_tracker_item_get_action_name(item);
-    }
-
-    virtual QVariant state() const {
-        GtkMenuTrackerItem* item;
-
-        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
-        if (!item) return QVariant();
-
-        return d->itemState(item);
-    }
-
-    virtual void activate(const QVariant &parameter)
-    {
-        GtkMenuTrackerItem* item;
-        gchar *action;
-
-        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
-        if (!item) return;
-
-        gtk_menu_tracker_item_get_attribute (item, "action", "s", &action);
-        g_action_group_activate_action (G_ACTION_GROUP (d->muxer), action, Converter::toGVariant(parameter));
-
-        g_free (action);
-    }
-
-    virtual void changeState(const QVariant& vvalue)
-    {
-        GtkMenuTrackerItem* item;
-
-        item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (d->items, index()));
-        if (!item) return;
-
-        GVariant* data = Converter::toGVariant(vvalue);
-        gtk_menu_tracker_item_change_state (item, data);
-        g_variant_unref(data);
-    }
-
-private:
-    UnityMenuModelPrivate* d;
 };
 
 void menu_item_free (gpointer data)
@@ -455,7 +396,10 @@ QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
         }
 
         case ActionRole:
-            return QVariant::fromValue(new UnityGtkMenuTrackerItemAction(index.row(), priv));
+            return gtk_menu_tracker_item_get_action_name (item);
+
+        case ActionStateRole:
+            return priv->itemState(item);
 
         case IsCheckRole:
             return gtk_menu_tracker_item_get_role (item) == GTK_MENU_TRACKER_ITEM_ROLE_CHECK;
@@ -493,6 +437,7 @@ QHash<int, QByteArray> UnityMenuModel::roleNames() const
     names[TypeRole] = "type";
     names[ExtendedAttributesRole] = "ext";
     names[ActionRole] = "action";
+    names[ActionStateRole] = "actionState";
     names[IsCheckRole] = "isCheck";
     names[IsRadioRole] = "isRadio";
     names[IsToggledRole] = "isToggled";
@@ -641,13 +586,36 @@ QVariant UnityMenuModel::get(int row, const QByteArray &role)
     return this->data(this->index(row, 0), priv->roles[role]);
 }
 
-void UnityMenuModel::activate(int index)
+void UnityMenuModel::activate(int index, const QVariant& parameter)
 {
     GtkMenuTrackerItem *item;
 
     item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index));
-    gtk_menu_tracker_item_activated (item);
+
+    if (parameter.isValid()) {
+        gchar *action;
+
+        gtk_menu_tracker_item_get_attribute (item, "action", "s", &action);
+        g_action_group_activate_action (G_ACTION_GROUP (priv->muxer), action, Converter::toGVariant(parameter));
+
+        g_free (action);
+    } else {
+        gtk_menu_tracker_item_activated (item);
+    }
 }
+
+void UnityMenuModel::changeState(int index, const QVariant& parameter)
+{
+    GtkMenuTrackerItem* item;
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index));
+    if (!item) return;
+
+    GVariant* data = Converter::toGVariant(parameter);
+    gtk_menu_tracker_item_change_state (item, data);
+    g_variant_unref(data);
+}
+
 
 bool UnityMenuModel::event(QEvent* e)
 {
