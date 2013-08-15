@@ -28,6 +28,10 @@ class Converter
 public:
     static QVariant toQVariant(GVariant *value);
     static GVariant* toGVariant(const QVariant &value);
+
+    // This converts a QVariant to a GVariant using a provided gvariant schema as
+    // a conversion base (it will attempt to convert to this format).
+    static GVariant* toGVariantWithSchema(const QVariant &value, const char* schema);
 };
 
 #endif // CONVERTER_H

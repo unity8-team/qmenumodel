@@ -607,13 +607,25 @@ void UnityMenuModel::activate(int index, const QVariant& parameter)
 void UnityMenuModel::changeState(int index, const QVariant& parameter)
 {
     GtkMenuTrackerItem* item;
+    GVariant* data;
+    GVariant* current_state;
 
     item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index));
     if (!item) return;
 
-    GVariant* data = Converter::toGVariant(parameter);
+    current_state = gtk_menu_tracker_item_get_action_state (item);
+    if (current_state) {
+        // Attempt to convert the parameter to the expected type
+        data = Converter::toGVariantWithSchema(parameter, g_variant_get_type_string(current_state));
+        g_variant_unref (current_state);
+    } else {
+        data = Converter::toGVariant(parameter);
+    }
+
     gtk_menu_tracker_item_change_state (item, data);
-    g_variant_unref(data);
+    if (data) {
+        g_variant_unref(data);
+    }
 }
 
 
