@@ -10,6 +10,7 @@ set(QMENUMODEL_SRC
     qdbusmenumodel.cpp
     qdbusactiongroup.cpp
     qstateaction.cpp
+    unitymenuaction.cpp
     unitymenumodel.cpp
     unitymenumodelevents.cpp
     unitythemediconprovider.cpp
@@ -19,6 +20,8 @@ set(QMENUMODEL_SRC
     gtk/gtkactionobservable.h
     gtk/gtkactionobserver.c
     gtk/gtkactionobserver.h
+    gtk/gtkactionobserveritem.c
+    gtk/gtkactionobserveritem.h
     gtk/gtkmenutracker.c
     gtk/gtkmenutracker.h
     gtk/gtkmenutrackeritem.c
@@ -58,6 +61,7 @@ set(QMENUMODEL_HEADERS
     qdbusobject.h
     qmenumodel.h
     qstateaction.h
+    unitymenuaction.h
     unitymenumodel.h
     unitythemediconprovider.h
 )
