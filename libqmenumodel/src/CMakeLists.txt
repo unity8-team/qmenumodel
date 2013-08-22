@@ -12,7 +12,6 @@ set(QMENUMODEL_SRC
     qstateaction.cpp
     unitymenumodel.cpp
     unitymenumodelevents.cpp
-    unitythemediconprovider.cpp
     gtk/gtkactionmuxer.c
     gtk/gtkactionmuxer.h
     gtk/gtkactionobservable.c
@@ -59,7 +58,6 @@ set(QMENUMODEL_HEADERS
     qmenumodel.h
     qstateaction.h
     unitymenumodel.h
-    unitythemediconprovider.h
 )
 
 set(INCLUDEDIR qmenumodel)
