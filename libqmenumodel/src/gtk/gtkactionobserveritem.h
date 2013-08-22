@@ -1,5 +1,5 @@
 /*
- * Copyright © 2011 Canonical Limited
+ * Copyright © 2013 Canonical Limited
  *
  * This library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
