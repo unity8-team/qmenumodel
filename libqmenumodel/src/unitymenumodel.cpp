@@ -21,6 +21,7 @@
 #include "actionstateparser.h"
 #include "unitymenumodelevents.h"
 #include "unitymenuaction.h"
+#include "unitymenuactionevents.h"
 
 #include <QIcon>
 #include <QQmlComponent>
@@ -765,7 +766,9 @@ void UnityMenuModel::onRegisteredActionNameChanged(const QString& name)
     if (g_action_group_query_action (G_ACTION_GROUP (priv->muxer), action_name,
                                      &enabled, &parameter_type, NULL, NULL, &state))
     {
-        action->onAdded(enabled, Converter::toQVariant(state));
+        UnityMenuActionAddEvent umaae(enabled, Converter::toQVariant(state));
+        QCoreApplication::sendEvent(action, &umaae);
+
         if (state) {
             g_variant_unref (state);
         }
@@ -805,7 +808,8 @@ void UnityMenuModelPrivate::registeredActionAdded(GtkActionObserverItem    *obse
     action = (UnityMenuAction *) g_object_get_qdata (G_OBJECT (observer_item), unity_menu_action_quark ());
     // FIXME - needs to go through event loop
     if (action) {
-        action->onAdded(enabled, Converter::toQVariant(state));
+        UnityMenuActionAddEvent umaae(enabled, Converter::toQVariant(state));
+        QCoreApplication::sendEvent(action, &umaae);
     }
 }
 
@@ -813,9 +817,10 @@ void UnityMenuModelPrivate::registeredActionEnabledChanged(GtkActionObserverItem
 {
     UnityMenuAction *action;
     action = (UnityMenuAction *) g_object_get_qdata (G_OBJECT (observer_item), unity_menu_action_quark ());
-    // FIXME - needs to go through event loop
+
     if (action) {
-        action->onEnabledChanged(enabled);
+        UnityMenuActionEnabledChangedEvent umaece(enabled);
+        QCoreApplication::sendEvent(action, &umaece);
     }
 }
 
@@ -823,9 +828,10 @@ void UnityMenuModelPrivate::registeredActionStateChanged(GtkActionObserverItem *
 {
     UnityMenuAction *action;
     action = (UnityMenuAction *) g_object_get_qdata (G_OBJECT (observer_item), unity_menu_action_quark ());
-    // FIXME - needs to go through event loop
+
     if (action) {
-        action->onStateChanged(Converter::toQVariant(state));
+        UnityMenuActionStateChangeEvent umasce(Converter::toQVariant(state));
+        QCoreApplication::sendEvent(action, &umasce);
     }
 }
 
@@ -833,8 +839,9 @@ void UnityMenuModelPrivate::registeredActionRemoved(GtkActionObserverItem *obser
 {
     UnityMenuAction *action;
     action = (UnityMenuAction *) g_object_get_qdata (G_OBJECT (observer_item), unity_menu_action_quark ());
-    // FIXME - needs to go through event loop
+
     if (action) {
-        action->onRemoved();
+        UnityMenuActionRemoveEvent umare;
+        QCoreApplication::sendEvent(action, &umare);
     }
 }

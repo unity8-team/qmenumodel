@@ -46,12 +46,6 @@ public:
     bool isEnabled() const;
     bool isValid() const;
 
-public Q_SLOTS:
-    void onAdded(bool enabled, const QVariant &state);
-    void onRemoved();
-    void onEnabledChanged(bool enabled);
-    void onStateChanged(const QVariant &state);
-
 Q_SIGNALS:
     Q_INVOKABLE void activate(const QVariant& parameter = QVariant());
     Q_INVOKABLE void changeState(const QVariant& parameter);
@@ -61,6 +55,13 @@ Q_SIGNALS:
     void stateChanged(const QVariant& name);
     void enabledChanged(bool enabled);
     void validChanged(bool valid);
+
+protected:
+    virtual bool event(QEvent* e);
+
+    void setState(const QVariant& state);
+    void setEnabled(bool enabled);
+    void setValid(bool valid);
 
 private:
     void unregisterAction();

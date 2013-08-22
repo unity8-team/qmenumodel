@@ -18,6 +18,7 @@
 
 #include "unitymenuaction.h"
 #include "unitymenumodel.h"
+#include "unitymenuactionevents.h"
 
 #include <QDebug>
 
@@ -71,9 +72,25 @@ QVariant UnityMenuAction::state() const
     return m_state;
 }
 
+void UnityMenuAction::setState(const QVariant& state)
+{
+    if (m_state != state) {
+        m_state = state;
+        Q_EMIT stateChanged(m_state);
+    }
+}
+
 bool UnityMenuAction::isEnabled() const
 {
     return m_enabled;
+}
+
+void UnityMenuAction::setEnabled(bool enabled)
+{
+    if (m_enabled != enabled) {
+        m_enabled = enabled;
+        Q_EMIT enabledChanged(m_enabled);
+    }
 }
 
 bool UnityMenuAction::isValid() const
@@ -81,43 +98,11 @@ bool UnityMenuAction::isValid() const
     return m_valid;
 }
 
-void UnityMenuAction::onAdded(bool enabled, const QVariant &state)
+void UnityMenuAction::setValid(bool valid)
 {
-    if (m_enabled != enabled) {
-        m_enabled = enabled;
-        Q_EMIT enabledChanged(m_enabled);
-    }
-    if (m_state != state) {
-        m_state = state;
-        Q_EMIT stateChanged(m_state);
-    }
-    if (m_valid != true) {
-        m_valid = true;
+    if (m_valid != valid) {
+        m_valid = valid;
         Q_EMIT validChanged(m_valid);
-    }
-}
-
-void UnityMenuAction::onRemoved()
-{
-    if (m_valid != false) {
-        m_valid = false;
-        Q_EMIT validChanged(m_valid);
-    }
-}
-
-void UnityMenuAction::onEnabledChanged(bool enabled)
-{
-    if (m_enabled != enabled) {
-        m_enabled = enabled;
-        Q_EMIT enabledChanged(m_enabled);
-    }
-}
-
-void UnityMenuAction::onStateChanged(const QVariant &state)
-{
-    if (m_state != state) {
-        m_state = state;
-        Q_EMIT stateChanged(m_state);
     }
 }
 
@@ -133,4 +118,32 @@ void UnityMenuAction::unregisterAction()
     if (m_model) {
         m_model->unregisterAction(this);
     }
+}
+
+bool UnityMenuAction::event(QEvent* e)
+{
+    if (e->type() == UnityMenuActionAddEvent::eventType) {
+        UnityMenuActionAddEvent *umaae = static_cast<UnityMenuActionAddEvent*>(e);
+
+        setEnabled(umaae->enabled);
+        setState(umaae->state);
+        setValid(true);
+        return true;
+    } else if (e->type() == UnityMenuActionEnabledChangedEvent::eventType) {
+        UnityMenuActionEnabledChangedEvent *umaece = static_cast<UnityMenuActionEnabledChangedEvent*>(e);
+
+        setEnabled(umaece->enabled);
+        return true;
+    } else if (e->type() == UnityMenuActionStateChangeEvent::eventType) {
+        UnityMenuActionStateChangeEvent *umasce = static_cast<UnityMenuActionStateChangeEvent*>(e);
+
+        setState(umasce->state);
+        return true;
+    } else if (e->type() == UnityMenuActionRemoveEvent::eventType) {
+        UnityMenuActionRemoveEvent *umare = static_cast<UnityMenuActionRemoveEvent*>(e);
+
+        setValid(false);
+        return true;
+    }
+    return QObject::event(e);
 }

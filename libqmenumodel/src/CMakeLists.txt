@@ -11,6 +11,7 @@ set(QMENUMODEL_SRC
     qdbusactiongroup.cpp
     qstateaction.cpp
     unitymenuaction.cpp
+    unitymenuactionevents.cpp
     unitymenumodel.cpp
     unitymenumodelevents.cpp
     unitythemediconprovider.cpp
