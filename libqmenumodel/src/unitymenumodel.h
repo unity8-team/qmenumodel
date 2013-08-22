@@ -77,7 +77,6 @@ protected Q_SLOTS:
     void onRegisteredActionStateChanged(const QVariant& parameter);
 
 protected:
-
     virtual bool event(QEvent* e);
 
 private:
