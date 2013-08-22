@@ -727,6 +727,8 @@ void UnityMenuModel::registerAction(UnityMenuAction* action)
         priv->registeredActions[action] = observer_item;
 
         connect(action, SIGNAL(nameChanged(const QString&)), SLOT(onRegisteredActionNameChanged(const QString&)));
+        connect(action, SIGNAL(activate(const QVariant&)), SLOT(onRegisteredActionActivated(const QVariant&)));
+        connect(action, SIGNAL(changeState(const QVariant&)), SLOT(onRegisteredActionStateChanged(const QVariant&)));
     }
 }
 
@@ -768,6 +770,30 @@ void UnityMenuModel::onRegisteredActionNameChanged(const QString& name)
             g_variant_unref (state);
         }
     }
+}
+
+void UnityMenuModel::onRegisteredActionActivated(const QVariant& parameter)
+{
+    UnityMenuAction* action = qobject_cast<UnityMenuAction*>(sender());
+    if (!action || action->name().isEmpty())
+        return;
+
+    QByteArray nameArray = action->name().toUtf8();
+    const gchar* action_name = nameArray.constData();
+
+    g_action_group_activate_action (G_ACTION_GROUP (priv->muxer), action_name, Converter::toGVariant(parameter));
+}
+
+void UnityMenuModel::onRegisteredActionStateChanged(const QVariant& parameter)
+{
+    UnityMenuAction* action = qobject_cast<UnityMenuAction*>(sender());
+    if (!action || action->name().isEmpty())
+        return;
+
+    QByteArray nameArray = action->name().toUtf8();
+    const gchar* action_name = nameArray.constData();
+
+    g_action_group_change_action_state (G_ACTION_GROUP (priv->muxer), action_name, Converter::toGVariant(parameter));
 }
 
 void UnityMenuModelPrivate::registeredActionAdded(GtkActionObserverItem    *observer_item,

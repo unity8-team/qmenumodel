@@ -53,6 +53,9 @@ public Q_SLOTS:
     void onStateChanged(const QVariant &state);
 
 Q_SIGNALS:
+    Q_INVOKABLE void activate(const QVariant& parameter = QVariant());
+    Q_INVOKABLE void changeState(const QVariant& parameter);
+
     void nameChanged(const QString& name);
     void modelChanged(UnityMenuModel* model);
     void stateChanged(const QVariant& name);
