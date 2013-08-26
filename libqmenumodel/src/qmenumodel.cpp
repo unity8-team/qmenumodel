@@ -25,6 +25,8 @@ extern "C" {
 #include "qmenumodel.h"
 #include "menunode.h"
 #include "converter.h"
+#include "qmenumodelevents.h"
+
 #include <QCoreApplication>
 #include <QThread>
 
@@ -225,28 +227,37 @@ QVariant QMenuModel::getExtraProperties(MenuNode *node, int row) const
     return extra;
 }
 
-/*! \internal */
-void QMenuModel::onItemsChanged(MenuNode *node,
-                                int position,
-                                int removed,
-                                int added)
+bool QMenuModel::event(QEvent* e)
 {
-    QModelIndex index = indexFromNode(node);
-    if (removed > 0) {
-        beginRemoveRows(index, position, position + removed - 1);
+    if (e->type() == MenuNodeItemChangeEvent::eventType) {
+        MenuNodeItemChangeEvent *mnice = static_cast<MenuNodeItemChangeEvent*>(e);
 
-        node->commitOperation();
+        QModelIndex index = indexFromNode(mnice->node);
+        if (mnice->removed > 0) {
+            beginRemoveRows(index, mnice->position, mnice->position + mnice->removed - 1);
 
-        endRemoveRows();
+            mnice->node->commitOperation();
+
+            endRemoveRows();
+        }
+
+        if (mnice->added > 0) {
+            beginInsertRows(index, mnice->position, mnice->position + mnice->added - 1);
+
+            mnice->node->commitOperation();
+
+            endInsertRows();
+        }
+        return true;
+
+    } else if (e->type() == MenuModelEvent::eventType) {
+
+        MenuModelEvent *mme = static_cast<MenuModelEvent*>(e);
+
+        setMenuModel(mme->model);
+        return true;
     }
-
-    if (added > 0) {
-        beginInsertRows(index, position, position + added - 1);
-
-        node->commitOperation();
-
-        endInsertRows();
-    }
+    return QAbstractItemModel::event(e);
 }
 
 /*! \internal */

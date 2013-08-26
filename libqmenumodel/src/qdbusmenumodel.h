@@ -49,6 +49,8 @@ protected:
     virtual void serviceAppear(GDBusConnection *connection);
     virtual void serviceVanish(GDBusConnection *connection);
 
+    virtual bool event(QEvent* e);
+
 private:
     // workaround to support int as busType
     void setIntBusType(int busType);

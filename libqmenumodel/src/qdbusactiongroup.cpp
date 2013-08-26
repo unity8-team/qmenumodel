@@ -20,6 +20,10 @@
 #include "qdbusactiongroup.h"
 #include "qstateaction.h"
 #include "converter.h"
+#include "qmenumodelevents.h"
+
+// Qt
+#include <QCoreApplication>
 
 extern "C" {
 #include <glib.h>
@@ -53,7 +57,8 @@ extern "C" {
 /*! \internal */
 QDBusActionGroup::QDBusActionGroup(QObject *parent)
     :QObject(parent),
-      m_actionGroup(NULL)
+     QDBusObject(this),
+     m_actionGroup(NULL)
 {
 }
 
@@ -184,7 +189,8 @@ void QDBusActionGroup::setActionGroup(GDBusActionGroup *ag)
 
         gchar **actions = g_action_group_list_actions(m_actionGroup);
         for(guint i=0; i < g_strv_length(actions); i++) {
-            Q_EMIT actionAppear(actions[i]);
+            DBusActionVisiblityEvent dave(actions[i], true);
+            QCoreApplication::sendEvent(this, &dave);
         }
         g_strfreev(actions);
     }
@@ -218,23 +224,49 @@ void QDBusActionGroup::activateAction(const QString &name, const QVariant &param
     }
 }
 
+bool QDBusActionGroup::event(QEvent* e)
+{
+    if (QDBusObject::event(e)) {
+        return true;
+    } else if (e->type() == DBusActionVisiblityEvent::eventType) {
+        DBusActionVisiblityEvent *dave = static_cast<DBusActionVisiblityEvent*>(e);
+
+        if (dave->visible) {
+            Q_EMIT actionAppear(dave->name);
+        } else {
+            Q_EMIT actionVanish(dave->name);
+        }
+    } else if (e->type() == DBusActionStateEvent::eventType) {
+        DBusActionStateEvent *dase = static_cast<DBusActionStateEvent*>(e);
+
+        Q_EMIT actionStateChanged(dase->name, dase->state);
+    }
+    return QObject::event(e);
+}
+
 /*! \internal */
 void QDBusActionGroup::onActionAdded(GDBusActionGroup *, gchar *name, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
-    Q_EMIT self->actionAppear(name);
+
+    DBusActionVisiblityEvent dave(name, true);
+    QCoreApplication::sendEvent(self, &dave);
 }
 
 /*! \internal */
 void QDBusActionGroup::onActionRemoved(GDBusActionGroup *, gchar *name, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
-    Q_EMIT self->actionVanish(name);
+
+    DBusActionVisiblityEvent dave(name, false);
+    QCoreApplication::sendEvent(self, &dave);
 }
 
 /*! \internal */
 void QDBusActionGroup::onActionStateChanged(GDBusActionGroup *, gchar *name, GVariant *value, gpointer data)
 {
     QDBusActionGroup *self = reinterpret_cast<QDBusActionGroup*>(data);
-    Q_EMIT self->actionStateChanged(name, Converter::toQVariant(value));
+
+    DBusActionStateEvent dase(name, Converter::toQVariant(value));
+    QCoreApplication::sendEvent(self, &dase);
 }

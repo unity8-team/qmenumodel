@@ -9,6 +9,7 @@ set(QMENUMODEL_SRC
     qdbusobject.cpp
     qdbusmenumodel.cpp
     qdbusactiongroup.cpp
+    qmenumodelevents.cpp
     qstateaction.cpp
     unitymenumodel.cpp
     unitymenumodelevents.cpp
