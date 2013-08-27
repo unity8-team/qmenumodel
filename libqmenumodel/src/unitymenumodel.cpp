@@ -531,20 +531,34 @@ static QVariant attributeToQVariant(GVariant *value, const QString &type)
     QVariant result;
 
     if (type == "int") {
-        if (g_variant_is_of_type (value, G_VARIANT_TYPE_INT32))
+        if (g_variant_is_of_type (value, G_VARIANT_TYPE_INT32)) {
             result =  QVariant(g_variant_get_int32(value));
+        }
     }
-    if (type == "bool") {
-        if (g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN))
+    else if (type == "int64") {
+        if (g_variant_is_of_type (value, G_VARIANT_TYPE_INT64)) {
+            result =  QVariant((qlonglong)g_variant_get_int64(value));
+        }
+    }
+    else if (type == "bool") {
+        if (g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN)) {
             result = QVariant(g_variant_get_boolean(value));
+        }
     }
     else if (type == "string") {
-        if (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING))
+        if (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING)) {
             result = QVariant(g_variant_get_string(value, NULL));
+        }
     }
-    if (type == "double") {
-        if (g_variant_is_of_type (value, G_VARIANT_TYPE_DOUBLE))
+    else if (type == "double") {
+        if (g_variant_is_of_type (value, G_VARIANT_TYPE_DOUBLE)) {
             result = QVariant(g_variant_get_double(value));
+        }
+    }
+    else if (type == "variant") {
+        if (g_variant_is_of_type (value, G_VARIANT_TYPE_VARIANT)) {
+            result = Converter::toQVariant(value);
+        }
     }
     else if (type == "icon") {
         GIcon *icon = g_icon_deserialize (value);
@@ -647,13 +661,25 @@ void UnityMenuModel::activate(int index, const QVariant& parameter)
 void UnityMenuModel::changeState(int index, const QVariant& parameter)
 {
     GtkMenuTrackerItem* item;
+    GVariant* data;
+    GVariant* current_state;
 
     item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index));
     if (!item) return;
 
-    GVariant* data = Converter::toGVariant(parameter);
+    current_state = gtk_menu_tracker_item_get_action_state (item);
+    if (current_state) {
+        // Attempt to convert the parameter to the expected type
+        data = Converter::toGVariantWithSchema(parameter, g_variant_get_type_string(current_state));
+        g_variant_unref (current_state);
+    } else {
+        data = Converter::toGVariant(parameter);
+    }
+
     gtk_menu_tracker_item_change_state (item, data);
-    g_variant_unref(data);
+    if (data) {
+        g_variant_unref(data);
+    }
 }
 
 

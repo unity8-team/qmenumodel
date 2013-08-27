@@ -22,6 +22,9 @@ extern "C" {
 }
 
 #include "qdbusmenumodel.h"
+#include "qmenumodelevents.h"
+
+#include <QCoreApplication>
 
 /*!
     \qmltype QDBusMenuModel
@@ -49,7 +52,8 @@ extern "C" {
     \endcode
 */
 QDBusMenuModel::QDBusMenuModel(QObject *parent)
-    : QMenuModel(0, parent)
+    : QMenuModel(0, parent),
+      QDBusObject(this)
 {
 }
 
@@ -83,13 +87,24 @@ void QDBusMenuModel::start()
 void QDBusMenuModel::stop()
 {
     QDBusObject::disconnect();
-    setMenuModel(NULL);
+
+    MenuModelEvent mme(NULL);
+    QCoreApplication::sendEvent(this, &mme);
+}
+
+bool QDBusMenuModel::event(QEvent* e)
+{
+    if (QDBusObject::event(e)) {
+        return true;
+    }
+    return QMenuModel::event(e);
 }
 
 /*! \internal */
 void QDBusMenuModel::serviceVanish(GDBusConnection *)
 {
-    setMenuModel(NULL);
+    MenuModelEvent mme(NULL);
+    QCoreApplication::sendEvent(this, &mme);
 }
 
 /*! \internal */
@@ -98,8 +113,10 @@ void QDBusMenuModel::serviceAppear(GDBusConnection *connection)
     GMenuModel *model = G_MENU_MODEL(g_dbus_menu_model_get(connection,
                                                            busName().toUtf8().data(),
                                                            objectPath().toUtf8().data()));
-    setMenuModel(model);
-    //setModel take care of the ref
+
+    MenuModelEvent mme(model);
+    QCoreApplication::sendEvent(this, &mme);
+    //event handling takes care of the ref
     g_object_unref(model);
 }
 

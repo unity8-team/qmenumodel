@@ -195,3 +195,135 @@ GVariant* Converter::toGVariant(const QVariant &value)
     return result;
 }
 
+GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* schema)
+{
+    if (!g_variant_type_string_is_valid(schema)) {
+        return Converter::toGVariant(value);
+    }
+
+    GVariant* result = NULL;
+    const GVariantType* schema_type;
+    schema_type = g_variant_type_new(schema);
+
+    if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_BOOLEAN)) {
+        if (value.canConvert<bool>()) {
+            result = g_variant_new_boolean (value.value<bool>());
+        }
+    } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_BYTE)) {
+        if (value.canConvert<uchar>()) {
+            result = g_variant_new_byte (value.value<uchar>());
+        }
+    } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_INT16)) {
+        if (value.canConvert<qint16>()) {
+            result = g_variant_new_int16 (value.value<qint16>());
+        }
+    } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_UINT16)) {
+        if (value.canConvert<quint16>()) {
+            result = g_variant_new_uint16 (value.value<quint16>());
+        }
+    } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_INT32)) {
+        if (value.canConvert<qint32>()) {
+            result = g_variant_new_int32 (value.value<qint32>());
+        }
+    } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_UINT32)) {
+        if (value.canConvert<quint32>()) {
+            result = g_variant_new_uint32 (value.value<quint32>());
+        }
+    } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_INT64)) {
+        if (value.canConvert<qint64>()) {
+            result = g_variant_new_int64 (value.value<qint64>());
+        }
+    } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_UINT64)) {
+        if (value.canConvert<quint64>()) {
+            result = g_variant_new_uint64 (value.value<quint64>());
+        }
+    } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_DOUBLE)) {
+        if (value.canConvert<double>()) {
+            result = g_variant_new_double (value.value<double>());
+        }
+    } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_STRING)) {
+        if (value.canConvert<QString>()) {
+            result = g_variant_new_string(value.toString().toUtf8().data());
+        }
+    } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_VARIANT)) {
+        result = Converter::toGVariant(value);
+    } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_VARDICT)) {
+        if (value.canConvert(QVariant::Map)) {
+            result = Converter::toGVariant(value.toMap());
+        }
+    } else if (g_variant_type_is_array(schema_type)) {
+        if (value.canConvert(QVariant::List)) {
+
+            const GVariantType* entry_type;
+            GVariant* data;
+            entry_type = g_variant_type_element(schema_type);
+            gchar* entryTypeString = g_variant_type_dup_string(entry_type);
+
+            QVariantList lst = value.toList();
+            GVariant **vars = g_new(GVariant*, lst.size());
+
+            bool ok = true;
+            for (int i=0; i < lst.size(); i++) {
+                data = Converter::toGVariantWithSchema(lst[i], entryTypeString);
+
+                if (data) {
+                    vars[i] = data;
+                }
+                else {
+                    ok = false;
+                    qWarning() << "Failed to convert list to array with schema:" << schema;
+                    break;
+                }
+            }
+            if (ok) {
+                result = g_variant_new_array(entry_type, vars, lst.size());
+            }
+            g_free(entryTypeString);
+            g_free(vars);
+        }
+    } else if (g_variant_type_is_tuple(schema_type)) {
+        if (value.canConvert(QVariant::List)) {
+            GVariant* data;
+
+            QVariantList lst = value.toList();
+            GVariant **vars = g_new(GVariant*, lst.size());
+
+            const GVariantType* entry_type = g_variant_type_first(schema_type);
+
+            bool ok = true;
+            for (int i=0; i < lst.size(); i++) {
+
+                gchar* entryTypeString = g_variant_type_dup_string(entry_type);
+
+                data = Converter::toGVariantWithSchema(lst[i], entryTypeString);
+
+                if (data) {
+                    vars[i] = data;
+                }
+                else {
+                    ok = false;
+                    qWarning() << "Failed to convert list to tuple with schema:" << schema;
+                    g_free(entryTypeString);
+                    break;
+                }
+                g_free(entryTypeString);
+
+                entry_type = g_variant_type_next(entry_type);
+                if (!entry_type) {
+                    break;
+                }
+            }
+            if (ok) {
+                result = g_variant_new_tuple(vars, lst.size());
+            }
+            g_free(vars);
+        }
+    }
+
+    // fallback to straight convert.
+    if (!result) {
+        result = Converter::toGVariant(value);
+    }
+    return result;
+}
+

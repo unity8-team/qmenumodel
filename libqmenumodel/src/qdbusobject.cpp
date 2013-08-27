@@ -23,8 +23,10 @@ extern "C" {
 }
 
 #include "qdbusobject.h"
+#include "qmenumodelevents.h"
 
 #include <QDebug>
+#include <QCoreApplication>
 
 /*!
     \qmltype QDBusObject
@@ -73,8 +75,9 @@ extern "C" {
     \endlist
 */
 
-QDBusObject::QDBusObject()
-    :m_watchId(0),
+QDBusObject::QDBusObject(QObject* listener)
+    :m_listener(listener),
+     m_watchId(0),
      m_busType(DBusEnums::None),
      m_status(DBusEnums::Disconnected)
 {
@@ -181,14 +184,34 @@ void QDBusObject::onServiceAppeared(GDBusConnection *connection, const gchar *, 
 {
     QDBusObject *self = reinterpret_cast<QDBusObject*>(data);
 
-    self->serviceAppear(connection);
-    self->setStatus(DBusEnums::Connected);
+    if (self->m_listener) {
+        DbusObjectServiceEvent dose(connection, true);
+        QCoreApplication::sendEvent(self->m_listener, &dose);
+    }
 }
 
 void QDBusObject::onServiceVanished(GDBusConnection *connection, const gchar *, gpointer data)
 {
-    QDBusObject *self = reinterpret_cast<QDBusObject*>(data);    
+    QDBusObject *self = reinterpret_cast<QDBusObject*>(data);
 
-    self->setStatus(DBusEnums::Connecting);
-    self->serviceVanish(connection);
+    if (self->m_listener) {
+        DbusObjectServiceEvent dose(connection, false);
+        QCoreApplication::sendEvent(self->m_listener, &dose);
+    }
+}
+
+bool QDBusObject::event(QEvent* e)
+{
+    if (e->type() == DbusObjectServiceEvent::eventType) {
+        DbusObjectServiceEvent *dose = static_cast<DbusObjectServiceEvent*>(e);
+        if (dose->visible) {
+            serviceAppear(dose->connection);
+            setStatus(DBusEnums::Connected);
+        } else {
+            setStatus(DBusEnums::Connecting);
+            serviceVanish(dose->connection);
+        }
+        return true;
+    }
+    return false;
 }

@@ -69,6 +69,8 @@ protected:
     virtual void serviceAppear(GDBusConnection *connection);
     virtual void serviceVanish(GDBusConnection *connection);
 
+    virtual bool event(QEvent* e);
+
 private:
     GActionGroup *m_actionGroup;
     int m_signalActionAddId;
@@ -89,4 +91,4 @@ private:
     static void onActionStateChanged(GDBusActionGroup *ag, gchar *name, GVariant *value, gpointer data);
 };
 
-#endif
+#endif // QDBUSACTIONGROUP_H

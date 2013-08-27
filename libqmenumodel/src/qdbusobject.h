@@ -32,7 +32,7 @@ typedef struct _GDBusConnection GDBusConnection;
 class QDBusObject
 {
 public:
-    QDBusObject();
+    QDBusObject(QObject* listener);
     ~QDBusObject();
 
     DBusEnums::BusType busType() const;
@@ -59,7 +59,11 @@ protected:
     virtual void objectPathChanged(const QString &objectPath) = 0;
     virtual void statusChanged(DBusEnums::ConnectionStatus status) = 0;
 
+    // This is not a Qbject, but we are passed events from superclass qobjects.
+    virtual bool event(QEvent* e);
+
 private:
+    QObject* m_listener;
     guint m_watchId;
     DBusEnums::BusType m_busType;
     QString m_busName;

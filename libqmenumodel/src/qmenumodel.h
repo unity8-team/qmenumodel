@@ -52,13 +52,12 @@ public:
 Q_SIGNALS:
     void countChanged();
 
-public Q_SLOTS:
-    void onItemsChanged(MenuNode *node, int position, int removed, int added);
-
 protected:
     QMenuModel(GMenuModel *other=0, QObject *parent=0);
     void setMenuModel(GMenuModel *model);
     GMenuModel *menuModel() const;
+
+    virtual bool event(QEvent* e);
 
 private:
     MenuNode *m_root;
