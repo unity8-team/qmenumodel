@@ -57,9 +57,9 @@ declare_test(menuchangestest)
 declare_test(modeltest)
 declare_test(actiongrouptest)
 declare_test(qmltest)
-declare_simple_test(convertertest)
-declare_simple_test(modelsignalstest)
-declare_simple_test(treetest)
+declare_test(convertertest)
+declare_test(modelsignalstest)
+declare_test(treetest)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/qmlfiles.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/qmlfiles.h)
