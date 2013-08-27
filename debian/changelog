@@ -1,3 +1,16 @@
+qmenumodel (0.2.7+13.10.20130827.3-0ubuntu1) saucy; urgency=low
+
+  [ Nick Dedekind ]
+  * UnityMenuModel::changeState now uses current state parameter type as
+    a base for parameter GVariant conversion.
+  * Adds qt event spawning to direct glib main loop callbacks. (LP:
+    #1183065, #1206991)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 78
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 27 Aug 2013 14:08:51 +0000
+
 qmenumodel (0.2.7+13.10.20130826-0ubuntu1) saucy; urgency=low
 
   [ Nick Dedekind ]
