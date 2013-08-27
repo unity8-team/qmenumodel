@@ -21,8 +21,8 @@ set(QMENUMODEL_SRC
     gtk/gtkactionobservable.h
     gtk/gtkactionobserver.c
     gtk/gtkactionobserver.h
-    gtk/gtkactionobserveritem.c
-    gtk/gtkactionobserveritem.h
+    gtk/gtksimpleactionobserver.c
+    gtk/gtksimpleactionobserver.h
     gtk/gtkmenutracker.c
     gtk/gtkmenutracker.h
     gtk/gtkmenutrackeritem.c
