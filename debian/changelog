@@ -1,3 +1,14 @@
+qmenumodel (0.2.7+13.10.20130828.2-0ubuntu1) saucy; urgency=low
+
+  [ Lars Uebernickel ]
+  * Make sure the right qt modules are loaded to make QMenuModel tests
+    pass. (LP: #1217335)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 80
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 28 Aug 2013 10:08:37 +0000
+
 qmenumodel (0.2.7+13.10.20130827.3-0ubuntu1) saucy; urgency=low
 
   [ Nick Dedekind ]
