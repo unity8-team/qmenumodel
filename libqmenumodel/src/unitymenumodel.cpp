@@ -289,9 +289,6 @@ ActionStateParser* UnityMenuModel::actionStateParser() const
 void UnityMenuModel::setActionStateParser(ActionStateParser* actionStateParser)
 {
     if (priv->actionStateParser != actionStateParser) {
-        if (priv->actionStateParser && priv->actionStateParser->parent() == this) {
-            delete priv->actionStateParser;
-        }
         priv->actionStateParser = actionStateParser;
         Q_EMIT actionStateParserChanged(actionStateParser);
     }
