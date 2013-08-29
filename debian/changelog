@@ -1,3 +1,17 @@
+qmenumodel (0.2.7+13.10.20130829.1-0ubuntu1) saucy; urgency=low
+
+  [ Nick Dedekind ]
+  * Let Qt manage the destruction of child ActionStateParsers.
+
+  [ Lars Uebernickel ]
+  * Remove theme image provider The platform should provide that,
+    because more than this one module ned themed icons.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 83
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 29 Aug 2013 18:06:45 +0000
+
 qmenumodel (0.2.7+13.10.20130828.2-0ubuntu1) saucy; urgency=low
 
   [ Lars Uebernickel ]
