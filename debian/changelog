@@ -1,3 +1,13 @@
+qmenumodel (0.2.7+13.10.20130830-0ubuntu1) saucy; urgency=low
+
+  [ Nick Dedekind ]
+  * Added UnityMenuAction for "out-of-menu" actions.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 85
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 30 Aug 2013 18:06:44 +0000
+
 qmenumodel (0.2.7+13.10.20130829.1-0ubuntu1) saucy; urgency=low
 
   [ Nick Dedekind ]
