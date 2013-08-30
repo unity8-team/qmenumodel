@@ -11,6 +11,8 @@ set(QMENUMODEL_SRC
     qdbusactiongroup.cpp
     qmenumodelevents.cpp
     qstateaction.cpp
+    unitymenuaction.cpp
+    unitymenuactionevents.cpp
     unitymenumodel.cpp
     unitymenumodelevents.cpp
     gtk/gtkactionmuxer.c
@@ -19,6 +21,8 @@ set(QMENUMODEL_SRC
     gtk/gtkactionobservable.h
     gtk/gtkactionobserver.c
     gtk/gtkactionobserver.h
+    gtk/gtksimpleactionobserver.c
+    gtk/gtksimpleactionobserver.h
     gtk/gtkmenutracker.c
     gtk/gtkmenutracker.h
     gtk/gtkmenutrackeritem.c
@@ -58,6 +62,7 @@ set(QMENUMODEL_HEADERS
     qdbusobject.h
     qmenumodel.h
     qstateaction.h
+    unitymenuaction.h
     unitymenumodel.h
 )
 

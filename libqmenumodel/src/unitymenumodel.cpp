@@ -20,6 +20,8 @@
 #include "converter.h"
 #include "actionstateparser.h"
 #include "unitymenumodelevents.h"
+#include "unitymenuaction.h"
+#include "unitymenuactionevents.h"
 
 #include <QIcon>
 #include <QQmlComponent>
@@ -28,11 +30,14 @@
 extern "C" {
   #include "gtk/gtkactionmuxer.h"
   #include "gtk/gtkmenutracker.h"
+  #include "gtk/gtksimpleactionobserver.h"
 }
 
 G_DEFINE_QUARK (UNITY_MENU_MODEL, unity_menu_model)
 G_DEFINE_QUARK (UNITY_SUBMENU_MODEL, unity_submenu_model)
 G_DEFINE_QUARK (UNITY_MENU_ITEM_EXTENDED_ATTRIBUTES, unity_menu_item_extended_attributes)
+G_DEFINE_QUARK (UNITY_MENU_ACTION, unity_menu_action)
+
 
 enum MenuRoles {
     LabelRole  = Qt::DisplayRole + 1,
@@ -52,6 +57,7 @@ class UnityMenuModelPrivate
 {
 public:
     UnityMenuModelPrivate(UnityMenuModel *model);
+    UnityMenuModelPrivate(const UnityMenuModelPrivate& other, UnityMenuModel *model);
     ~UnityMenuModelPrivate();
 
     void clearItems(bool resetModel=true);
@@ -72,12 +78,21 @@ public:
     QByteArray menuObjectPath;
     QHash<QByteArray, int> roles;
     ActionStateParser* actionStateParser;
+    QHash<UnityMenuAction*, GtkSimpleActionObserver*> registeredActions;
 
     static void nameAppeared(GDBusConnection *connection, const gchar *name, const gchar *owner, gpointer user_data);
     static void nameVanished(GDBusConnection *connection, const gchar *name, gpointer user_data);
     static void menuItemInserted(GtkMenuTrackerItem *item, gint position, gpointer user_data);
     static void menuItemRemoved(gint position, gpointer user_data);
     static void menuItemChanged(GObject *object, GParamSpec *pspec, gpointer user_data);
+
+    static void registeredActionAdded(GtkSimpleActionObserver    *observer_item,
+                                      const gchar          *action_name,
+                                      gboolean              enabled,
+                                      GVariant             *state);
+    static void registeredActionEnabledChanged(GtkSimpleActionObserver *observer_item,  const gchar *action_name, gboolean enabled);
+    static void registeredActionStateChanged(GtkSimpleActionObserver *observer_item, const gchar *action_name, GVariant *state);
+    static void registeredActionRemoved(GtkSimpleActionObserver *observer_item, const gchar *action_name);
 };
 
 void menu_item_free (gpointer data)
@@ -101,6 +116,19 @@ UnityMenuModelPrivate::UnityMenuModelPrivate(UnityMenuModel *model)
     this->items = g_sequence_new (menu_item_free);
 }
 
+UnityMenuModelPrivate::UnityMenuModelPrivate(const UnityMenuModelPrivate& other, UnityMenuModel *model)
+{
+    this->model = model;
+    this->menutracker = NULL;
+    this->connection = NULL;
+    this->nameWatchId = 0;
+    this->actionStateParser = new ActionStateParser(model);
+
+    this->muxer = GTK_ACTION_MUXER( g_object_ref(other.muxer));
+
+    this->items = g_sequence_new (menu_item_free);
+}
+
 UnityMenuModelPrivate::~UnityMenuModelPrivate()
 {
     this->clearItems(false);
@@ -108,6 +136,12 @@ UnityMenuModelPrivate::~UnityMenuModelPrivate()
     g_clear_pointer (&this->menutracker, gtk_menu_tracker_free);
     g_clear_object (&this->muxer);
     g_clear_object (&this->connection);
+
+    QHash<UnityMenuAction*, GtkSimpleActionObserver*>::const_iterator it = this->registeredActions.constBegin();
+    for (; it != this->registeredActions.constEnd(); ++it) {
+        g_object_unref(it.value());
+    }
+    this->registeredActions.clear();
 
     if (this->nameWatchId)
         g_bus_unwatch_name (this->nameWatchId);
@@ -234,6 +268,12 @@ UnityMenuModel::UnityMenuModel(QObject *parent):
     QAbstractListModel(parent)
 {
     priv = new UnityMenuModelPrivate(this);
+}
+
+UnityMenuModel::UnityMenuModel(const UnityMenuModelPrivate& other, QObject *parent):
+    QAbstractListModel(parent)
+{
+    priv = new UnityMenuModelPrivate(other, this);
 }
 
 UnityMenuModel::~UnityMenuModel()
@@ -458,7 +498,7 @@ QObject * UnityMenuModel::submenu(int position, QQmlComponent* actionStateParser
 
     model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (item), unity_submenu_model_quark ());
     if (model == NULL) {
-        model = new UnityMenuModel(this);
+        model = new UnityMenuModel(*priv, this);
 
         if (actionStateParser) {
             ActionStateParser* parser = qobject_cast<ActionStateParser*>(actionStateParser->create());
@@ -694,4 +734,137 @@ bool UnityMenuModel::event(QEvent* e)
         return true;
     }
     return QAbstractListModel::event(e);
+}
+
+void UnityMenuModel::registerAction(UnityMenuAction* action)
+{
+    if (!priv->registeredActions.contains(action)) {
+        GtkSimpleActionObserver* observer_item;
+        observer_item = gtk_simple_action_observer_new(GTK_ACTION_OBSERVABLE (priv->muxer),
+                                                     UnityMenuModelPrivate::registeredActionAdded,
+                                                     UnityMenuModelPrivate::registeredActionEnabledChanged,
+                                                     UnityMenuModelPrivate::registeredActionStateChanged,
+                                                     UnityMenuModelPrivate::registeredActionRemoved);
+
+        g_object_set_qdata (G_OBJECT (observer_item), unity_menu_action_quark (), action);
+
+        priv->registeredActions[action] = observer_item;
+
+        connect(action, SIGNAL(nameChanged(const QString&)), SLOT(onRegisteredActionNameChanged(const QString&)));
+        connect(action, SIGNAL(activate(const QVariant&)), SLOT(onRegisteredActionActivated(const QVariant&)));
+        connect(action, SIGNAL(changeState(const QVariant&)), SLOT(onRegisteredActionStateChanged(const QVariant&)));
+    }
+}
+
+void UnityMenuModel::unregisterAction(UnityMenuAction* action)
+{
+    if (priv->registeredActions.contains(action)) {
+        GtkSimpleActionObserver* observer_item;
+        observer_item = priv->registeredActions[action];
+        g_object_unref(observer_item);
+        priv->registeredActions.remove(action);
+
+        disconnect(action);
+    }
+}
+
+void UnityMenuModel::onRegisteredActionNameChanged(const QString& name)
+{
+    UnityMenuAction* action = qobject_cast<UnityMenuAction*>(sender());
+    if (!action || !priv->registeredActions.contains(action))
+        return;
+
+    GtkSimpleActionObserver* observer_item;
+    observer_item = priv->registeredActions[action];
+
+    QByteArray nameArray = name.toUtf8();
+    const gchar* action_name = nameArray.constData();
+
+    gtk_simple_action_observer_register_action (observer_item, action_name);
+
+    const GVariantType *parameter_type;
+    gboolean enabled;
+    GVariant *state;
+
+    if (g_action_group_query_action (G_ACTION_GROUP (priv->muxer), action_name,
+                                     &enabled, &parameter_type, NULL, NULL, &state))
+    {
+        UnityMenuActionAddEvent umaae(enabled, Converter::toQVariant(state));
+        QCoreApplication::sendEvent(action, &umaae);
+
+        if (state) {
+            g_variant_unref (state);
+        }
+    }
+}
+
+void UnityMenuModel::onRegisteredActionActivated(const QVariant& parameter)
+{
+    UnityMenuAction* action = qobject_cast<UnityMenuAction*>(sender());
+    if (!action || action->name().isEmpty())
+        return;
+
+    QByteArray nameArray = action->name().toUtf8();
+    const gchar* action_name = nameArray.constData();
+
+    g_action_group_activate_action (G_ACTION_GROUP (priv->muxer), action_name, Converter::toGVariant(parameter));
+}
+
+void UnityMenuModel::onRegisteredActionStateChanged(const QVariant& parameter)
+{
+    UnityMenuAction* action = qobject_cast<UnityMenuAction*>(sender());
+    if (!action || action->name().isEmpty())
+        return;
+
+    QByteArray nameArray = action->name().toUtf8();
+    const gchar* action_name = nameArray.constData();
+
+    g_action_group_change_action_state (G_ACTION_GROUP (priv->muxer), action_name, Converter::toGVariant(parameter));
+}
+
+void UnityMenuModelPrivate::registeredActionAdded(GtkSimpleActionObserver    *observer_item,
+                                  const gchar          *action_name,
+                                  gboolean              enabled,
+                                  GVariant             *state)
+{
+    UnityMenuAction *action;
+    action = (UnityMenuAction *) g_object_get_qdata (G_OBJECT (observer_item), unity_menu_action_quark ());
+
+    if (action) {
+        UnityMenuActionAddEvent umaae(enabled, Converter::toQVariant(state));
+        QCoreApplication::sendEvent(action, &umaae);
+    }
+}
+
+void UnityMenuModelPrivate::registeredActionEnabledChanged(GtkSimpleActionObserver *observer_item,  const gchar *action_name, gboolean enabled)
+{
+    UnityMenuAction *action;
+    action = (UnityMenuAction *) g_object_get_qdata (G_OBJECT (observer_item), unity_menu_action_quark ());
+
+    if (action) {
+        UnityMenuActionEnabledChangedEvent umaece(enabled);
+        QCoreApplication::sendEvent(action, &umaece);
+    }
+}
+
+void UnityMenuModelPrivate::registeredActionStateChanged(GtkSimpleActionObserver *observer_item, const gchar *action_name, GVariant *state)
+{
+    UnityMenuAction *action;
+    action = (UnityMenuAction *) g_object_get_qdata (G_OBJECT (observer_item), unity_menu_action_quark ());
+
+    if (action) {
+        UnityMenuActionStateChangeEvent umasce(Converter::toQVariant(state));
+        QCoreApplication::sendEvent(action, &umasce);
+    }
+}
+
+void UnityMenuModelPrivate::registeredActionRemoved(GtkSimpleActionObserver *observer_item, const gchar *action_name)
+{
+    UnityMenuAction *action;
+    action = (UnityMenuAction *) g_object_get_qdata (G_OBJECT (observer_item), unity_menu_action_quark ());
+
+    if (action) {
+        UnityMenuActionRemoveEvent umare;
+        QCoreApplication::sendEvent(action, &umare);
+    }
 }

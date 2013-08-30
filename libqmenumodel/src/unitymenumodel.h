@@ -22,6 +22,7 @@
 #include <QAbstractListModel>
 class ActionStateParser;
 class QQmlComponent;
+class UnityMenuAction;
 
 class UnityMenuModel: public QAbstractListModel
 {
@@ -61,11 +62,19 @@ public:
     Q_INVOKABLE void activate(int index, const QVariant& parameter = QVariant());
     Q_INVOKABLE void changeState(int index, const QVariant& parameter);
 
+    void registerAction(UnityMenuAction* action);
+    void unregisterAction(UnityMenuAction* action);
+
 Q_SIGNALS:
     void busNameChanged(const QByteArray &name);
     void actionsChanged(const QByteArray &path);
     void menuObjectPathChanged(const QByteArray &path);
     void actionStateParserChanged(ActionStateParser* parser);
+
+protected Q_SLOTS:
+    void onRegisteredActionNameChanged(const QString& name);
+    void onRegisteredActionActivated(const QVariant& parameter);
+    void onRegisteredActionStateChanged(const QVariant& parameter);
 
 protected:
     virtual bool event(QEvent* e);
@@ -73,6 +82,8 @@ protected:
 private:
     class UnityMenuModelPrivate *priv;
     friend class UnityMenuModelPrivate;
+
+    UnityMenuModel(const UnityMenuModelPrivate& other, QObject *parent);
 };
 
 #endif
