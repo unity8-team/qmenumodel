@@ -432,8 +432,12 @@ QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
             return map ? *map : QVariant();
         }
 
-        case ActionRole:
-            return gtk_menu_tracker_item_get_action_name (item);
+        case ActionRole: {
+            gchar *action_name = gtk_menu_tracker_item_get_action_name (item);
+            QString v(action_name);
+            g_free(action_name);
+            return v;
+        }
 
         case ActionStateRole:
             return priv->itemState(item);

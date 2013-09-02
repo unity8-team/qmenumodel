@@ -181,7 +181,7 @@ gtk_menu_tracker_item_get_property (GObject    *object,
       g_value_set_boolean (value, gtk_menu_tracker_item_get_submenu_shown (self));
       break;
     case PROP_ACTION_NAME:
-      g_value_set_string (value, gtk_menu_tracker_item_get_action_name (self));
+      g_value_take_string (value, gtk_menu_tracker_item_get_action_name (self));
     case PROP_ACTION_STATE:
       g_value_set_variant (value, self->action_state);
       break;
@@ -621,16 +621,23 @@ gtk_menu_tracker_item_get_submenu_shown (GtkMenuTrackerItem *self)
  * gtk_menu_tracker_item_get_action_name:
  * @self: A #GtkMenuTrackerItem instance
  *
- * Returns the action name
+ * Returns a newly-allocated string containing the name of the action
+ * associated with this menu item.
+ *
+ * Returns: (transfer full): the action name, free it with g_free()
  */
-const gchar *
+gchar *
 gtk_menu_tracker_item_get_action_name (GtkMenuTrackerItem *self)
 {
-  const gchar *action_name = NULL;
+  const gchar *action_name;
 
-  g_menu_item_get_attribute (self->item, G_MENU_ATTRIBUTE_ACTION, "&s", &action_name);
+  if (!g_menu_item_get_attribute (self->item, G_MENU_ATTRIBUTE_ACTION, "&s", &action_name))
+    return NULL;
 
-  return action_name;
+  if (self->action_namespace)
+    return g_strjoin (".", self->action_namespace, action_name, NULL);
+  else
+    return g_strdup (action_name);
 }
 
 GVariant *
