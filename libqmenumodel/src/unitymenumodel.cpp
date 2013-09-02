@@ -650,7 +650,7 @@ void UnityMenuModel::activate(int index, const QVariant& parameter)
     if (parameter.isValid()) {
         gchar *action;
 
-        gtk_menu_tracker_item_get_attribute (item, "action", "s", &action);
+        action = gtk_menu_tracker_item_get_action_name (item);
         g_action_group_activate_action (G_ACTION_GROUP (priv->muxer), action, Converter::toGVariant(parameter));
 
         g_free (action);
