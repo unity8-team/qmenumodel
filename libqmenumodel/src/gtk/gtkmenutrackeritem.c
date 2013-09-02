@@ -649,6 +649,12 @@ gtk_menu_tracker_item_get_action_state (GtkMenuTrackerItem *self)
   return NULL;
 }
 
+const gchar *
+gtk_menu_tracker_item_get_action_namespace (GtkMenuTrackerItem *self)
+{
+  return self->action_namespace;
+}
+
 static void
 gtk_menu_tracker_item_set_submenu_shown (GtkMenuTrackerItem *self,
                                          gboolean            submenu_shown)

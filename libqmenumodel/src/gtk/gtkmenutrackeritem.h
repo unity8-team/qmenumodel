@@ -91,6 +91,8 @@ gchar *                 gtk_menu_tracker_item_get_action_name            (GtkMen
 
 GVariant *              gtk_menu_tracker_item_get_action_state          (GtkMenuTrackerItem *self);
 
+const gchar *           gtk_menu_tracker_item_get_action_namespace      (GtkMenuTrackerItem *self);
+
 gboolean                gtk_menu_tracker_item_get_attribute             (GtkMenuTrackerItem *self,
                                                                          const gchar        *attribute,
                                                                          const gchar        *format,

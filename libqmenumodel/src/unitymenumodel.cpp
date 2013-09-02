@@ -641,6 +641,34 @@ QVariant UnityMenuModel::get(int row, const QByteArray &role)
     return this->data(this->index(row, 0), priv->roles[role]);
 }
 
+UnityMenuAction * UnityMenuModel::getAction(int row, const QByteArray &name)
+{
+    GSequenceIter *iter;
+    GtkMenuTrackerItem *item;
+    const gchar *action_namespace;
+    gchar *action_name;
+    UnityMenuAction *action;
+
+    iter = g_sequence_get_iter_at_pos (priv->items, row);
+    if (g_sequence_iter_is_end (iter))
+        return NULL;
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (iter);
+    action_namespace = gtk_menu_tracker_item_get_action_namespace (item);
+    if (action_namespace != NULL)
+      action_name = g_strjoin (".", action_namespace, name.constData(), NULL);
+    else
+      action_name = g_strdup (name.constData());
+
+    action = new UnityMenuAction(this);
+    action->setModel(this);
+    action->setName(action_name);
+
+    g_free (action_name);
+
+    return action;
+}
+
 void UnityMenuModel::activate(int index, const QVariant& parameter)
 {
     GtkMenuTrackerItem *item;
