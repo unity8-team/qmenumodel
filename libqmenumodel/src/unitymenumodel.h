@@ -58,7 +58,6 @@ public:
     Q_INVOKABLE QObject * submenu(int position, QQmlComponent* actionStateParser = NULL);
     Q_INVOKABLE bool loadExtendedAttributes(int position, const QVariantMap &schema);
     Q_INVOKABLE QVariant get(int row, const QByteArray &role);
-    Q_INVOKABLE UnityMenuAction * getAction(int row, const QByteArray &name);
 
     Q_INVOKABLE void activate(int index, const QVariant& parameter = QVariant());
     Q_INVOKABLE void changeState(int index, const QVariant& parameter);
@@ -74,6 +73,7 @@ Q_SIGNALS:
 
 protected Q_SLOTS:
     void onRegisteredActionNameChanged(const QString& name);
+    void onRegisteredActionIndexChanged(int);
     void onRegisteredActionActivated(const QVariant& parameter);
     void onRegisteredActionStateChanged(const QVariant& parameter);
 

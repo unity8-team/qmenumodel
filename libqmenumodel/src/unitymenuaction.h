@@ -32,6 +32,8 @@ class UnityMenuAction: public QObject
     Q_PROPERTY(bool enabled READ isEnabled NOTIFY enabledChanged)
     Q_PROPERTY(bool valid READ isValid NOTIFY validChanged)
     Q_PROPERTY(UnityMenuModel* model READ model WRITE setModel NOTIFY modelChanged)
+    Q_PROPERTY(int index READ index WRITE setIndex NOTIFY indexChanged)
+
 public:
     UnityMenuAction(QObject* parent = 0);
     ~UnityMenuAction();
@@ -41,6 +43,9 @@ public:
 
     UnityMenuModel* model() const;
     void setModel(UnityMenuModel* model);
+
+    int index() const;
+    void setIndex(int i);
 
     QVariant state() const;
     bool isEnabled() const;
@@ -55,6 +60,7 @@ Q_SIGNALS:
     void stateChanged(const QVariant& name);
     void enabledChanged(bool enabled);
     void validChanged(bool valid);
+    void indexChanged(int index);
 
 protected:
     virtual bool event(QEvent* e);
@@ -72,6 +78,7 @@ private:
     bool m_valid;
     bool m_enabled;
     UnityMenuModel* m_model;
+    int m_index;
 };
 
 #endif // UNITYMENUACTIONGROUP_H

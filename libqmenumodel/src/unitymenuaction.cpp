@@ -26,7 +26,8 @@ UnityMenuAction::UnityMenuAction(QObject* parent)
     :   QObject(parent),
         m_valid(false),
         m_enabled(false),
-        m_model(NULL)
+        m_model(NULL),
+        m_index(-1)
 {
 }
 
@@ -103,6 +104,19 @@ void UnityMenuAction::setValid(bool valid)
     if (m_valid != valid) {
         m_valid = valid;
         Q_EMIT validChanged(m_valid);
+    }
+}
+
+int UnityMenuAction::index() const 
+{
+    return m_index;
+}
+
+void UnityMenuAction::setIndex(int i)
+{
+    if (i != m_index) {
+        m_index = i;
+        Q_EMIT indexChanged(m_index);
     }
 }
 

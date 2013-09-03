@@ -93,6 +93,9 @@ public:
     static void registeredActionEnabledChanged(GtkSimpleActionObserver *observer_item,  const gchar *action_name, gboolean enabled);
     static void registeredActionStateChanged(GtkSimpleActionObserver *observer_item, const gchar *action_name, GVariant *state);
     static void registeredActionRemoved(GtkSimpleActionObserver *observer_item, const gchar *action_name);
+
+    gchar * fullActionName(UnityMenuAction *action);
+    void updateRegisteredAction(UnityMenuAction *action);
 };
 
 void menu_item_free (gpointer data)
@@ -641,34 +644,6 @@ QVariant UnityMenuModel::get(int row, const QByteArray &role)
     return this->data(this->index(row, 0), priv->roles[role]);
 }
 
-UnityMenuAction * UnityMenuModel::getAction(int row, const QByteArray &name)
-{
-    GSequenceIter *iter;
-    GtkMenuTrackerItem *item;
-    const gchar *action_namespace;
-    gchar *action_name;
-    UnityMenuAction *action;
-
-    iter = g_sequence_get_iter_at_pos (priv->items, row);
-    if (g_sequence_iter_is_end (iter))
-        return NULL;
-
-    item = (GtkMenuTrackerItem *) g_sequence_get (iter);
-    action_namespace = gtk_menu_tracker_item_get_action_namespace (item);
-    if (action_namespace != NULL)
-      action_name = g_strjoin (".", action_namespace, name.constData(), NULL);
-    else
-      action_name = g_strdup (name.constData());
-
-    action = new UnityMenuAction(this);
-    action->setModel(this);
-    action->setName(action_name);
-
-    g_free (action_name);
-
-    return action;
-}
-
 void UnityMenuModel::activate(int index, const QVariant& parameter)
 {
     GtkMenuTrackerItem *item;
@@ -783,6 +758,7 @@ void UnityMenuModel::registerAction(UnityMenuAction* action)
         priv->registeredActions[action] = observer_item;
 
         connect(action, SIGNAL(nameChanged(const QString&)), SLOT(onRegisteredActionNameChanged(const QString&)));
+        connect(action, SIGNAL(indexChanged(int)), SLOT(onRegisteredActionIndexChanged(int)));
         connect(action, SIGNAL(activate(const QVariant&)), SLOT(onRegisteredActionActivated(const QVariant&)));
         connect(action, SIGNAL(changeState(const QVariant&)), SLOT(onRegisteredActionStateChanged(const QVariant&)));
     }
@@ -800,26 +776,51 @@ void UnityMenuModel::unregisterAction(UnityMenuAction* action)
     }
 }
 
-void UnityMenuModel::onRegisteredActionNameChanged(const QString& name)
+/* Returns the full name for @action
+ *
+ * If @action is associated with a menu item that is inside of a
+ * section or submenu with "action-namespace" set, this namespace
+ * is prepended to @action->name()
+ */
+char * UnityMenuModelPrivate::fullActionName(UnityMenuAction *action)
 {
-    UnityMenuAction* action = qobject_cast<UnityMenuAction*>(sender());
-    if (!action || !priv->registeredActions.contains(action))
-        return;
+    GSequenceIter *iter;
+    const gchar *name;
+    gchar *full_name = NULL;
 
-    GtkSimpleActionObserver* observer_item;
-    observer_item = priv->registeredActions[action];
+    name = action->name().toUtf8().constData();
 
-    QByteArray nameArray = name.toUtf8();
-    const gchar* action_name = nameArray.constData();
+    iter = g_sequence_get_iter_at_pos (this->items, action->index());
+    if (!g_sequence_iter_is_end (iter)) {
+        GtkMenuTrackerItem *item;
+        const gchar *action_namespace;
 
-    gtk_simple_action_observer_register_action (observer_item, action_name);
+        item = (GtkMenuTrackerItem *) g_sequence_get (iter);
+        action_namespace = gtk_menu_tracker_item_get_action_namespace (item);
+        if (action_namespace != NULL)
+          return g_strjoin (".", action_namespace, name, NULL);
+    }
 
-    const GVariantType *parameter_type;
+    return g_strdup (name);
+}
+
+void UnityMenuModelPrivate::updateRegisteredAction(UnityMenuAction *action)
+{
+    GtkSimpleActionObserver *observer_item;
+    gchar *action_name;
     gboolean enabled;
     GVariant *state;
 
-    if (g_action_group_query_action (G_ACTION_GROUP (priv->muxer), action_name,
-                                     &enabled, &parameter_type, NULL, NULL, &state))
+    if (!action || !this->registeredActions.contains(action))
+        return;
+
+    action_name = fullActionName(action);
+
+    observer_item = this->registeredActions[action];
+    gtk_simple_action_observer_register_action (observer_item, action_name);
+
+    if (g_action_group_query_action (G_ACTION_GROUP (this->muxer), action_name,
+                                     &enabled, NULL, NULL, NULL, &state))
     {
         UnityMenuActionAddEvent umaae(enabled, Converter::toQVariant(state));
         QCoreApplication::sendEvent(action, &umaae);
@@ -828,6 +829,18 @@ void UnityMenuModel::onRegisteredActionNameChanged(const QString& name)
             g_variant_unref (state);
         }
     }
+
+    g_free(action_name);
+}
+
+void UnityMenuModel::onRegisteredActionNameChanged(const QString& name)
+{
+    priv->updateRegisteredAction(qobject_cast<UnityMenuAction*>(sender()));
+}
+
+void UnityMenuModel::onRegisteredActionIndexChanged(int index)
+{
+    priv->updateRegisteredAction(qobject_cast<UnityMenuAction*>(sender()));
 }
 
 void UnityMenuModel::onRegisteredActionActivated(const QVariant& parameter)
@@ -836,10 +849,11 @@ void UnityMenuModel::onRegisteredActionActivated(const QVariant& parameter)
     if (!action || action->name().isEmpty())
         return;
 
-    QByteArray nameArray = action->name().toUtf8();
-    const gchar* action_name = nameArray.constData();
+    gchar* action_name = priv->fullActionName(action);
 
     g_action_group_activate_action (G_ACTION_GROUP (priv->muxer), action_name, Converter::toGVariant(parameter));
+
+    g_free(action_name);
 }
 
 void UnityMenuModel::onRegisteredActionStateChanged(const QVariant& parameter)
@@ -848,10 +862,11 @@ void UnityMenuModel::onRegisteredActionStateChanged(const QVariant& parameter)
     if (!action || action->name().isEmpty())
         return;
 
-    QByteArray nameArray = action->name().toUtf8();
-    const gchar* action_name = nameArray.constData();
+    gchar* action_name = priv->fullActionName(action);
 
     g_action_group_change_action_state (G_ACTION_GROUP (priv->muxer), action_name, Converter::toGVariant(parameter));
+
+    g_free(action_name);
 }
 
 void UnityMenuModelPrivate::registeredActionAdded(GtkSimpleActionObserver    *observer_item,
