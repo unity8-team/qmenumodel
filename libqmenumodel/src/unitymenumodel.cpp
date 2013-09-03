@@ -785,10 +785,12 @@ void UnityMenuModel::unregisterAction(UnityMenuAction* action)
 char * UnityMenuModelPrivate::fullActionName(UnityMenuAction *action)
 {
     GSequenceIter *iter;
+    QByteArray bytes;
     const gchar *name;
     gchar *full_name = NULL;
 
-    name = action->name().toUtf8().constData();
+    bytes = action->name().toUtf8();
+    name = bytes.constData();
 
     iter = g_sequence_get_iter_at_pos (this->items, action->index());
     if (!g_sequence_iter_is_end (iter)) {
