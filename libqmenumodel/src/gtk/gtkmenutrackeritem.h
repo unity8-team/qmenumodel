@@ -87,9 +87,11 @@ void                    gtk_menu_tracker_item_request_submenu_shown     (GtkMenu
 
 gboolean                gtk_menu_tracker_item_get_submenu_shown         (GtkMenuTrackerItem *self);
 
-const gchar *           gtk_menu_tracker_item_get_action_name            (GtkMenuTrackerItem *self);
+gchar *                 gtk_menu_tracker_item_get_action_name            (GtkMenuTrackerItem *self);
 
 GVariant *              gtk_menu_tracker_item_get_action_state          (GtkMenuTrackerItem *self);
+
+const gchar *           gtk_menu_tracker_item_get_action_namespace      (GtkMenuTrackerItem *self);
 
 gboolean                gtk_menu_tracker_item_get_attribute             (GtkMenuTrackerItem *self,
                                                                          const gchar        *attribute,

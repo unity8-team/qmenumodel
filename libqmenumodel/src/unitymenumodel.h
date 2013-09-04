@@ -73,6 +73,7 @@ Q_SIGNALS:
 
 protected Q_SLOTS:
     void onRegisteredActionNameChanged(const QString& name);
+    void onRegisteredActionIndexChanged(int);
     void onRegisteredActionActivated(const QVariant& parameter);
     void onRegisteredActionStateChanged(const QVariant& parameter);
 
