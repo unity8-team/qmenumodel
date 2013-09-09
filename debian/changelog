@@ -1,3 +1,13 @@
+qmenumodel (0.2.7+13.10.20130830-0ubuntu2) saucy; urgency=low
+
+  * Switch to Architecture: any to hopefully get a powerpc build; seems
+    nothing is arch-specific in this package which is a bdep of
+    indicator-network, and build-deps such as libgles2-mesa-dev seem to be
+    available on powerpc.
+  * Bump Standards-Version to 3.9.4; no change needed.
+
+ -- Loïc Minier <loic.minier@ubuntu.com>  Sat, 07 Sep 2013 12:40:38 +0200
+
 qmenumodel (0.2.7+13.10.20130830-0ubuntu1) saucy; urgency=low
 
   [ Nick Dedekind ]
