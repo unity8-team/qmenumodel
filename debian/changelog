@@ -1,3 +1,14 @@
+qmenumodel (0.2.7+13.10.20130913-0ubuntu1) saucy; urgency=low
+
+  [ Lars Uebernickel ]
+  * Use fully namespaced action name in UnityMenuModel::activate and for
+    the action role.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 88
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 13 Sep 2013 15:15:27 +0000
+
 qmenumodel (0.2.7+13.10.20130830-0ubuntu2) saucy; urgency=low
 
   * Switch to Architecture: any to hopefully get a powerpc build; seems
