@@ -136,6 +136,7 @@ UnityMenuModelPrivate::~UnityMenuModelPrivate()
 {
     this->clearItems(false);
 
+    g_sequence_free(this->items);
     g_clear_pointer (&this->menutracker, gtk_menu_tracker_free);
     g_clear_object (&this->muxer);
     g_clear_object (&this->connection);
