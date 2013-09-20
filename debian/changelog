@@ -1,3 +1,14 @@
+qmenumodel (0.2.7+13.10.20130920-0ubuntu1) saucy; urgency=low
+
+  [ Pete Woods ]
+  * Fix memory leak in unitymenumodel The items sequence is not being
+    freed in the destructor.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 90
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 20 Sep 2013 10:14:42 +0000
+
 qmenumodel (0.2.7+13.10.20130913-0ubuntu1) saucy; urgency=low
 
   [ Lars Uebernickel ]
