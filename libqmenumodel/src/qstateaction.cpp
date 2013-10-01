@@ -92,9 +92,11 @@ bool QStateAction::isValid() const
     Request for the state of action to be changed to \a paramenter.
     This call merely requests a change. The action may refuse to change its state or may change its state to something other than \a paramenter.
 */
-void QStateAction::updateState(const QVariant &parameter)
+void QStateAction::updateState(const QVariant &state)
 {
-    m_group->updateActionState(m_name, parameter);
+    QVariant v = state;
+    if (v.convert(m_state.type()))
+      m_group->updateActionState(m_name, v);
 }
 
 /*!
@@ -124,8 +126,9 @@ void QStateAction::setValid(bool valid)
 /*! \internal */
 void QStateAction::setState(const QVariant &state)
 {
-    if (m_state != state) {
-        m_state = state;
+    QVariant v = state;
+    if (!m_state.isValid() || (v.convert(m_state.type()) && v != m_state)) {
+        m_state = v;
         Q_EMIT stateChanged(m_state);
     }
 }
