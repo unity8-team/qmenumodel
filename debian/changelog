@@ -1,3 +1,17 @@
+qmenumodel (0.2.7+13.10.20131011-0ubuntu1) saucy; urgency=low
+
+  [ Lars Uebernickel ]
+  * QStateAction: try to maintain the type of the action's state QML
+    likes to convert doubles to integers if the number is close enough
+    to an integer. This tries to circumvent that by explicitly casting
+    to the right action type, because that's what exporters of
+    GActionGroups expect. . (LP: #1233274)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 92
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 11 Oct 2013 04:26:55 +0000
+
 qmenumodel (0.2.7+13.10.20130920-0ubuntu1) saucy; urgency=low
 
   [ Pete Woods ]
