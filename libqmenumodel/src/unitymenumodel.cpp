@@ -370,7 +370,7 @@ static QString iconUri(GIcon *icon)
         if (g_file_is_native (file)) {
             gchar *fileuri;
 
-            fileuri = g_file_get_path (file);
+            fileuri = g_file_get_uri (file);
             uri = QString(fileuri);
 
             g_free (fileuri);
