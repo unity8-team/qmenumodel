@@ -395,9 +395,18 @@ static QString iconUri(GIcon *icon)
 
 QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
 {
+    GSequenceIter *it;
     GtkMenuTrackerItem *item;
 
-    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index.row()));
+    it = g_sequence_get_iter_at_pos (priv->items, index.row());
+    if (g_sequence_iter_is_end (it)) {
+        return QVariant();
+    }
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (it);
+    if (!item) {
+        return QVariant();
+    }
 
     switch (role) {
         case LabelRole:
@@ -497,12 +506,14 @@ QObject * UnityMenuModel::submenu(int position, QQmlComponent* actionStateParser
     UnityMenuModel *model;
 
     it = g_sequence_get_iter_at_pos (priv->items, position);
-    if (g_sequence_iter_is_end (it))
+    if (g_sequence_iter_is_end (it)) {
         return NULL;
+    }
 
     item = (GtkMenuTrackerItem *) g_sequence_get (it);
-    if (!gtk_menu_tracker_item_get_has_submenu (item))
+    if (!item || !gtk_menu_tracker_item_get_has_submenu (item)) {
         return NULL;
+    }
 
     model = (UnityMenuModel *) g_object_get_qdata (G_OBJECT (item), unity_submenu_model_quark ());
     if (model == NULL) {
@@ -603,10 +614,19 @@ static QString qtify_name(const char *name)
 
 bool UnityMenuModel::loadExtendedAttributes(int position, const QVariantMap &schema)
 {
+    GSequenceIter *it;
     GtkMenuTrackerItem *item;
     QVariantMap *extendedAttrs;
 
-    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, position));
+    it = g_sequence_get_iter_at_pos (priv->items, position);
+    if (g_sequence_iter_is_end (it)) {
+        return false;
+    }
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (it);
+    if (!item) {
+        return false;
+    }
 
     extendedAttrs = new QVariantMap;
 
@@ -647,9 +667,18 @@ QVariant UnityMenuModel::get(int row, const QByteArray &role)
 
 void UnityMenuModel::activate(int index, const QVariant& parameter)
 {
+    GSequenceIter *it;
     GtkMenuTrackerItem *item;
 
-    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index));
+    it = g_sequence_get_iter_at_pos (priv->items, index);
+    if (g_sequence_iter_is_end (it)) {
+        return;
+    }
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (it);
+    if (!item) {
+        return;
+    }
 
     if (parameter.isValid()) {
         gchar *action;
@@ -665,12 +694,20 @@ void UnityMenuModel::activate(int index, const QVariant& parameter)
 
 void UnityMenuModel::changeState(int index, const QVariant& parameter)
 {
+    GSequenceIter *it;
     GtkMenuTrackerItem* item;
     GVariant* data;
     GVariant* current_state;
 
-    item = (GtkMenuTrackerItem *) g_sequence_get (g_sequence_get_iter_at_pos (priv->items, index));
-    if (!item) return;
+    it = g_sequence_get_iter_at_pos (priv->items, index);
+    if (g_sequence_iter_is_end (it)) {
+        return;
+    }
+
+    item = (GtkMenuTrackerItem *) g_sequence_get (it);
+    if (!item) {
+        return;
+    }
 
     current_state = gtk_menu_tracker_item_get_action_state (item);
     if (current_state) {
@@ -712,22 +749,21 @@ bool UnityMenuModel::event(QEvent* e)
 
         GSequenceIter *it;
         it = g_sequence_get_iter_at_pos (priv->items, ummrce->position);
-        if (it) {
-            beginInsertRows(QModelIndex(), ummrce->position, ummrce->position);
 
-            it = g_sequence_insert_before (it, g_object_ref (ummrce->item));
-            g_object_set_qdata (G_OBJECT (ummrce->item), unity_menu_model_quark (), this);
-            g_signal_connect (ummrce->item, "notify", G_CALLBACK (UnityMenuModelPrivate::menuItemChanged), it);
+        beginInsertRows(QModelIndex(), ummrce->position, ummrce->position);
 
-            endInsertRows();
-        }
+        it = g_sequence_insert_before (it, g_object_ref (ummrce->item));
+        g_object_set_qdata (G_OBJECT (ummrce->item), unity_menu_model_quark (), this);
+        g_signal_connect (ummrce->item, "notify", G_CALLBACK (UnityMenuModelPrivate::menuItemChanged), it);
+
+        endInsertRows();
         return true;
     } else if (e->type() == UnityMenuModelRemoveRowEvent::eventType) {
         UnityMenuModelRemoveRowEvent *ummrre = static_cast<UnityMenuModelRemoveRowEvent*>(e);
 
         GSequenceIter *it;
         it = g_sequence_get_iter_at_pos (priv->items, ummrre->position);
-        if (it) {
+        if (!g_sequence_iter_is_end (it)) {
             beginRemoveRows(QModelIndex(), ummrre->position, ummrre->position);
 
             g_sequence_remove (it);
@@ -799,6 +835,10 @@ char * UnityMenuModelPrivate::fullActionName(UnityMenuAction *action)
         const gchar *action_namespace;
 
         item = (GtkMenuTrackerItem *) g_sequence_get (iter);
+        if (!item) {
+            return g_strdup (name);
+        }
+
         action_namespace = gtk_menu_tracker_item_get_action_namespace (item);
         if (action_namespace != NULL)
           return g_strjoin (".", action_namespace, name, NULL);
