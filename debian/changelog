@@ -1,3 +1,18 @@
+qmenumodel (0.2.7+13.10.20131016-0ubuntu1) saucy; urgency=low
+
+  [ Gustavo Pichorim Boiko ]
+  * Use g_file_get_uri instead of g_file_get_path to make sure the URI's
+    percent encoding is properly kept.
+
+  [ Nick Dedekind ]
+  * Added pointer checks for items/iterators. (lp#1239394). (LP:
+    #1239394)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 95
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 16 Oct 2013 02:33:27 +0000
+
 qmenumodel (0.2.7+13.10.20131011-0ubuntu1) saucy; urgency=low
 
   [ Lars Uebernickel ]
