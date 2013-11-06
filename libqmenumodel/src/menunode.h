@@ -17,7 +17,7 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
-#ifndef MENULI_H
+#ifndef MENUNODE_H
 #define MENUNODE_H
 
 #include <QObject>
