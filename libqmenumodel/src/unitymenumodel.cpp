@@ -292,15 +292,23 @@ QByteArray UnityMenuModel::busName() const
 
 void UnityMenuModel::setBusName(const QByteArray &name)
 {
-    priv->clearName();
+    if (name != priv->busName) {
+        priv->clearName();
 
-    if (priv->nameWatchId)
-        g_bus_unwatch_name (priv->nameWatchId);
+        if (priv->nameWatchId) {
+            g_bus_unwatch_name (priv->nameWatchId);
+            priv->nameWatchId = 0;
+        }
 
-    priv->nameWatchId = g_bus_watch_name (G_BUS_TYPE_SESSION, name.constData(), G_BUS_NAME_WATCHER_FLAGS_AUTO_START,
-                                          UnityMenuModelPrivate::nameAppeared, UnityMenuModelPrivate::nameVanished,
-                                          priv, NULL);
-    priv->busName = name;
+        if (!name.isEmpty()) {
+            priv->nameWatchId = g_bus_watch_name (G_BUS_TYPE_SESSION, name.constData(), G_BUS_NAME_WATCHER_FLAGS_AUTO_START,
+                                                  UnityMenuModelPrivate::nameAppeared, UnityMenuModelPrivate::nameVanished,
+                                                  priv, NULL);
+        }
+
+        priv->busName = name;
+        Q_EMIT busNameChanged(priv->busName);
+    }
 }
 
 QVariantMap UnityMenuModel::actions() const
@@ -310,8 +318,12 @@ QVariantMap UnityMenuModel::actions() const
 
 void UnityMenuModel::setActions(const QVariantMap &actions)
 {
-    priv->actions = actions;
-    priv->updateActions();
+    if (actions != priv->actions) {
+        priv->actions = actions;
+        priv->updateActions();
+
+        Q_EMIT actionsChanged(priv->actions);
+    }
 }
 
 QByteArray UnityMenuModel::menuObjectPath() const
@@ -321,8 +333,12 @@ QByteArray UnityMenuModel::menuObjectPath() const
 
 void UnityMenuModel::setMenuObjectPath(const QByteArray &path)
 {
-    priv->menuObjectPath = path;
-    priv->updateMenuModel();
+    if (path != priv->menuObjectPath) {
+        priv->menuObjectPath = path;
+        priv->updateMenuModel();
+
+        Q_EMIT menuObjectPathChanged(priv->menuObjectPath);
+    }
 }
 
 ActionStateParser* UnityMenuModel::actionStateParser() const

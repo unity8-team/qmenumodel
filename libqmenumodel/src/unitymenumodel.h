@@ -67,7 +67,7 @@ public:
 
 Q_SIGNALS:
     void busNameChanged(const QByteArray &name);
-    void actionsChanged(const QByteArray &path);
+    void actionsChanged(const QVariantMap &actions);
     void menuObjectPathChanged(const QByteArray &path);
     void actionStateParserChanged(ActionStateParser* parser);
 
