@@ -1,3 +1,13 @@
+qmenumodel (0.2.7+14.04.20131125-0ubuntu1) trusty; urgency=low
+
+  [ Marcus Tomlinson ]
+  * Fixed #define guard.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 97
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 25 Nov 2013 03:55:02 +0000
+
 qmenumodel (0.2.7+13.10.20131016-0ubuntu1) saucy; urgency=low
 
   [ Gustavo Pichorim Boiko ]
