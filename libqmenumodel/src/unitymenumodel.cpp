@@ -652,6 +652,8 @@ bool UnityMenuModel::loadExtendedAttributes(int position, const QVariantMap &sch
 
     g_object_set_qdata_full (G_OBJECT (item), unity_menu_item_extended_attributes_quark (),
                              extendedAttrs, freeExtendedAttrs);
+
+    Q_EMIT dataChanged(index(position, 0), index(position, 0), QVector<int>() << ExtendedAttributesRole);
 }
 
 QVariant UnityMenuModel::get(int row, const QByteArray &role)
