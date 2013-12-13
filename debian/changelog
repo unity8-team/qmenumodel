@@ -1,3 +1,13 @@
+qmenumodel (0.2.7+14.04.20131213-0ubuntu1) trusty; urgency=low
+
+  [ Nick Dedekind ]
+  * Added dataChange to loadExtendedAttributes function.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 99
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 13 Dec 2013 07:41:33 +0000
+
 qmenumodel (0.2.7+14.04.20131125-0ubuntu1) trusty; urgency=low
 
   [ Marcus Tomlinson ]
