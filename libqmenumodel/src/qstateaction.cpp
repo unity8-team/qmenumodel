@@ -62,9 +62,8 @@ QStateAction::QStateAction(QDBusActionGroup *group, const QString &name)
 
 
 
-    bool isValid = m_group->hasAction(name);
-    setValid(isValid);
-    if (isValid) {
+    m_valid = m_group->hasAction(name);
+    if (m_valid) {
         setState(m_group->actionState(name));
     }
 }
