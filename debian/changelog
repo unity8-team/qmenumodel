@@ -1,3 +1,20 @@
+qmenumodel (0.2.7+14.04.20140305-0ubuntu1) trusty; urgency=low
+
+  [ CI bot ]
+  * No change rebuild against Qt 5.2.1.
+
+  [ Albert Astals ]
+  * Fix use of un-initialized memory Since m_valid was not initialized
+    calling setValid ends up in an uninitialized memory use in the if
+    comparison. The other thing setValid does is emitting a signal, but
+    this is the constructor, so you don't need the signal either, so
+    basically just assign the variable directly .
+
+  [ Ubuntu daily release ]
+  * New rebuild forced
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 05 Mar 2014 06:54:32 +0000
+
 qmenumodel (0.2.7+14.04.20131213-0ubuntu1) trusty; urgency=low
 
   [ Nick Dedekind ]
