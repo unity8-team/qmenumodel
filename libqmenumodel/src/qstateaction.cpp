@@ -93,9 +93,7 @@ bool QStateAction::isValid() const
 */
 void QStateAction::updateState(const QVariant &state)
 {
-    QVariant v = state;
-    if (v.convert(m_state.type()))
-      m_group->updateActionState(m_name, v);
+    m_group->updateActionState(m_name, state);
 }
 
 /*!
@@ -126,7 +124,7 @@ void QStateAction::setValid(bool valid)
 void QStateAction::setState(const QVariant &state)
 {
     QVariant v = state;
-    if (!m_state.isValid() || (v.convert(m_state.type()) && v != m_state)) {
+    if ((m_state.isValid() != state.isValid()) || (v.convert(m_state.type()) && v != m_state)) {
         m_state = v;
         Q_EMIT stateChanged(m_state);
     }

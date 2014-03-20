@@ -154,6 +154,101 @@ private Q_SLOTS:
     }
 
     /*
+     * Test if Action::trigger active the action over DBus
+     * using incorrect type (variant should be converted)
+     */
+    void testActiveActionIncorrectType()
+    {
+        // start model
+        m_model.start();
+        m_actionGroup.start();
+
+        // Make menu available
+        m_script.publishMenu();
+        m_script.walk(2);
+
+        // Get Action
+        QVariant action = m_model.data(m_model.index(1, 0), QMenuModel::Action);
+        QVERIFY(action.isValid());
+        QStateAction *act = m_actionGroup.action(action.toString());
+        QVERIFY(act);
+
+        // test action name
+        QCOMPARE(act->property("name").toString(), QString("Menu1Act"));
+
+        act->activate(QVariant(42.0));
+        // wait for dbus propagation
+        QTest::qWait(500);
+
+        QPair<QString, QVariant> result = m_script.popActivatedAction();
+        QCOMPARE(result.first, QString("Menu1Act"));
+        QCOMPARE(result.second.toString(), QString("42"));
+    }
+
+    /*
+     * Test updating state over DBus
+     */
+    void testUpdateActionState()
+    {
+        // start model
+        m_model.start();
+        m_actionGroup.start();
+
+        // Make menu available
+        m_script.publishMenu();
+        m_script.walk(2);
+
+        // Get Action
+        QVariant action = m_model.data(m_model.index(1, 0), QMenuModel::Action);
+        QVERIFY(action.isValid());
+        QStateAction *act = m_actionGroup.action(action.toString());
+        QVERIFY(act);
+
+        // test action name
+        QCOMPARE(act->property("name").toString(), QString("Menu1Act"));
+
+        act->updateState(QVariant("Testing1"));
+        // wait for dbus propagation
+        QTest::qWait(500);
+
+        QPair<QString, QVariant> result = m_script.popActionStateChange();
+        QCOMPARE(result.first, QString("Menu1Act"));
+        QCOMPARE(result.second.toString(), QString("Testing1"));
+    }
+
+    /*
+     * Test updating state over DBus
+     * using incorrect type (variant should be converted)
+     */
+    void testUpdateActionStateIncorrectType()
+    {
+        // start model
+        m_model.start();
+        m_actionGroup.start();
+
+        // Make menu available
+        m_script.publishMenu();
+        m_script.walk(2);
+
+        // Get Action
+        QVariant action = m_model.data(m_model.index(1, 0), QMenuModel::Action);
+        QVERIFY(action.isValid());
+        QStateAction *act = m_actionGroup.action(action.toString());
+        QVERIFY(act);
+
+        // test action name
+        QCOMPARE(act->property("name").toString(), QString("Menu1Act"));
+
+        act->updateState(QVariant(22));
+        // wait for dbus propagation
+        QTest::qWait(500);
+
+        QPair<QString, QVariant> result = m_script.popActionStateChange();
+        QCOMPARE(result.first, QString("Menu1Act"));
+        QCOMPARE(result.second.toString(), QString("22"));
+    }
+
+    /*
      * Test if Action became invalid after desappear from DBus
      */
     void testRemoveAction()
@@ -201,6 +296,7 @@ private Q_SLOTS:
 
         // Action appear
         QVERIFY(act->isValid());
+        QVERIFY(act->state().isValid());
     }
 };
 

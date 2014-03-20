@@ -213,14 +213,41 @@ void QDBusActionGroup::clear()
 void QDBusActionGroup::updateActionState(const QString &name, const QVariant &state)
 {
     if (m_actionGroup != NULL) {
-        g_action_group_change_action_state(m_actionGroup, name.toUtf8().data(), Converter::toGVariant(state));
+        GVariant* action_state;
+        QByteArray nameBytes = name.toUtf8();
+
+        action_state = g_action_group_get_action_state(m_actionGroup, nameBytes.data());
+        if (action_state) {
+            g_action_group_change_action_state(m_actionGroup,
+                                               nameBytes.data(),
+                                               Converter::toGVariantWithSchema(state, g_variant_get_type_string(action_state)));
+
+            g_variant_unref(action_state);
+        } else {
+            g_action_group_change_action_state(m_actionGroup, nameBytes.data(), Converter::toGVariant(state));
+        }
     }
 }
 
 void QDBusActionGroup::activateAction(const QString &name, const QVariant &parameter)
 {
     if (m_actionGroup != NULL) {
-        g_action_group_activate_action(m_actionGroup, name.toUtf8().data(), Converter::toGVariant(parameter));
+        const GVariantType* parameter_type;
+        QByteArray nameBytes = name.toUtf8();
+
+        parameter_type = g_action_group_get_action_parameter_type(m_actionGroup, nameBytes.data());
+        if (parameter_type) {
+            gchar* parameter_type_string;
+            parameter_type_string = g_variant_type_dup_string(parameter_type);
+
+            g_action_group_activate_action(m_actionGroup,
+                                           nameBytes.data(),
+                                           Converter::toGVariantWithSchema(parameter, parameter_type_string));
+
+            g_free(parameter_type_string);
+        } else {
+            g_action_group_activate_action(m_actionGroup, nameBytes.data(), Converter::toGVariant(parameter));
+        }
     }
 }
 

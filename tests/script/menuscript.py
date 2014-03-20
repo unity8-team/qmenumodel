@@ -74,6 +74,11 @@ class Script(dbus.service.Object):
     def popActivatedAction(self):
         return self._list._activatedActions.pop(0)
 
+    @dbus.service.method(dbus_interface=INTERFACE_NAME,
+                         in_signature='', out_signature='ss')
+    def popActionStateChange(self):
+        return self._list._actionStateChanges.pop(0)
+
     @staticmethod
     def create(aList):
         global bus
@@ -110,9 +115,15 @@ class Action(object):
             parent.append_item(item)
 
             # Action
-            act = Gio.SimpleAction.new(self._kargs['actionName'], self._kargs['actionStateType'])
-            act.connect('activate', self._list._onActionActivated)
-            self._list._rootAction.insert(act)
+            if self._kargs['actionState'] == None:
+                act = Gio.SimpleAction.new(self._kargs['actionName'], self._kargs['actionStateType'])
+                act.connect('activate', self._list._onActionActivated)
+                self._list._rootAction.insert(act)
+            else:
+                act = Gio.SimpleAction.new_stateful(self._kargs['actionName'], self._kargs['actionStateType'], self._kargs['actionState'])
+                act.connect('activate', self._list._onActionActivated)
+                act.connect('change-state', self._list._onActionStateChanged)
+                self._list._rootAction.insert(act)
 
         elif self._kargs['link'] == 'section':
             section = Gio.Menu()
@@ -150,15 +161,17 @@ class ActionList(object):
         self._root = None
         self._rootAction = None
         self._activatedActions = []
+        self._actionStateChanges = []
 
-    def appendItem(self, label, actionName, link=None, parentId=None,  properties=None, actionStateType=None):
+    def appendItem(self, label, actionName, link=None, parentId=None,  properties=None, actionStateType=None, actionState=None):
         self._actions.append(Action(self, 'append',
                                     parentId=parentId,
                                     label=label,
                                     actionName=actionName,
                                     link=link,
                                     properties=properties,
-                                    actionStateType=actionStateType))
+                                    actionStateType=actionStateType,
+                                    actionState=actionState))
 
     def removeItem(self, menuId, actionName=None):
         self._actions.append(Action(self, 'remove',
@@ -229,3 +242,6 @@ class ActionList(object):
 
     def _onActionActivated(self, action, parameter):
         self._activatedActions.append((action.get_name(), parameter.get_string()))
+
+    def _onActionStateChanged(self, action, value):
+        self._actionStateChanges.append((action.get_name(), value.get_string()))

@@ -109,3 +109,19 @@ QPair<QString, QVariant> DBusMenuScript::popActivatedAction()
     return qMakePair(QString(), QVariant());
 }
 
+QPair<QString, QVariant> DBusMenuScript::popActionStateChange()
+{
+    if (m_script) {
+        QDBusMessage reply = m_script->call("popActionStateChange");
+        if (reply.arguments().count() > 0) {
+            QVariant value;
+            QString name = reply.arguments()[0].toString();
+            if (reply.arguments().count() > 1) {
+                value = reply.arguments()[1];
+            }
+            return qMakePair(name, value);
+        }
+    }
+
+    return qMakePair(QString(), QVariant());
+}
