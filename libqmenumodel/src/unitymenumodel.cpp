@@ -300,14 +300,14 @@ void UnityMenuModel::setBusName(const QByteArray &name)
     }
 
     priv->busName = name;
+
+    /* Silently ignore the empty string to allow clearing the model and to
+     * suppress the warning g_bus_watch_name() prints when this function is
+     * called through a not-yet-resolved QML property binding.
+     */
     if (name.isEmpty())
         return;
 
-    /* We could do a g_dbus_is_name() check here if we want to
-     * validate the name before passing it to g_bus_watch_name().
-     * Currently if an invalid name is passed nameWatchId becomes 0
-     * and g_bus_watch_name() prints out a nasty GCritical.
-     */
     priv->nameWatchId = g_bus_watch_name (G_BUS_TYPE_SESSION, name.constData(), G_BUS_NAME_WATCHER_FLAGS_AUTO_START,
                                           UnityMenuModelPrivate::nameAppeared, UnityMenuModelPrivate::nameVanished,
                                           priv, NULL);
