@@ -294,13 +294,23 @@ void UnityMenuModel::setBusName(const QByteArray &name)
 {
     priv->clearName();
 
-    if (priv->nameWatchId)
+    if (priv->nameWatchId) {
         g_bus_unwatch_name (priv->nameWatchId);
+        priv->nameWatchId = 0;
+    }
 
+    priv->busName = name;
+    if (name.isEmpty())
+        return;
+
+    /* We could do a g_dbus_is_name() check here if we want to
+     * validate the name before passing it to g_bus_watch_name().
+     * Currently if an invalid name is passed nameWatchId becomes 0
+     * and g_bus_watch_name() prints out a nasty GCritical.
+     */
     priv->nameWatchId = g_bus_watch_name (G_BUS_TYPE_SESSION, name.constData(), G_BUS_NAME_WATCHER_FLAGS_AUTO_START,
                                           UnityMenuModelPrivate::nameAppeared, UnityMenuModelPrivate::nameVanished,
                                           priv, NULL);
-    priv->busName = name;
 }
 
 QVariantMap UnityMenuModel::actions() const
