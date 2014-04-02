@@ -292,6 +292,9 @@ QByteArray UnityMenuModel::busName() const
 
 void UnityMenuModel::setBusName(const QByteArray &name)
 {
+    if (name == priv->busName)
+        return;
+
     priv->clearName();
 
     if (priv->nameWatchId)
