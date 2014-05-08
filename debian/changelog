@@ -1,3 +1,9 @@
+qmenumodel (0.2.7+14.04.20140305-0ubuntu3) UNRELEASED; urgency=medium
+
+  * Add standard "has the property actually changed" check to UnityMenuModel::setBusName()
+
+ -- Antti Kaijanmäki <antti.kaijanmaki@canonical.com>  Thu, 08 May 2014 13:18:09 +0300
+
 qmenumodel (0.2.7+14.04.20140305-0ubuntu2) trusty; urgency=medium
 
   * No-change rebuild for shlib changes in qtbase and qtdeclarative.
