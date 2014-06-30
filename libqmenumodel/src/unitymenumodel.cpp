@@ -79,6 +79,7 @@ public:
     QHash<QByteArray, int> roles;
     ActionStateParser* actionStateParser;
     QHash<UnityMenuAction*, GtkSimpleActionObserver*> registeredActions;
+    bool destructorGuard;
 
     static void nameAppeared(GDBusConnection *connection, const gchar *name, const gchar *owner, gpointer user_data);
     static void nameVanished(GDBusConnection *connection, const gchar *name, gpointer user_data);
@@ -113,6 +114,7 @@ UnityMenuModelPrivate::UnityMenuModelPrivate(UnityMenuModel *model)
     this->connection = NULL;
     this->nameWatchId = 0;
     this->actionStateParser = new ActionStateParser(model);
+    this->destructorGuard = false;
 
     this->muxer = gtk_action_muxer_new ();
 
@@ -126,6 +128,7 @@ UnityMenuModelPrivate::UnityMenuModelPrivate(const UnityMenuModelPrivate& other,
     this->connection = NULL;
     this->nameWatchId = 0;
     this->actionStateParser = new ActionStateParser(model);
+    this->destructorGuard = false;
 
     this->muxer = GTK_ACTION_MUXER( g_object_ref(other.muxer));
 
@@ -134,6 +137,7 @@ UnityMenuModelPrivate::UnityMenuModelPrivate(const UnityMenuModelPrivate& other,
 
 UnityMenuModelPrivate::~UnityMenuModelPrivate()
 {
+    this->destructorGuard = true;
     this->clearItems(false);
 
     g_sequence_free(this->items);
@@ -144,6 +148,7 @@ UnityMenuModelPrivate::~UnityMenuModelPrivate()
     QHash<UnityMenuAction*, GtkSimpleActionObserver*>::const_iterator it = this->registeredActions.constBegin();
     for (; it != this->registeredActions.constEnd(); ++it) {
         g_object_unref(it.value());
+        it.key()->setModel(NULL);
     }
     this->registeredActions.clear();
 
@@ -787,6 +792,9 @@ bool UnityMenuModel::event(QEvent* e)
 
 void UnityMenuModel::registerAction(UnityMenuAction* action)
 {
+    if (priv->destructorGuard)
+        return;
+
     if (!priv->registeredActions.contains(action)) {
         GtkSimpleActionObserver* observer_item;
         observer_item = gtk_simple_action_observer_new(GTK_ACTION_OBSERVABLE (priv->muxer),
@@ -808,6 +816,9 @@ void UnityMenuModel::registerAction(UnityMenuAction* action)
 
 void UnityMenuModel::unregisterAction(UnityMenuAction* action)
 {
+    if (priv->destructorGuard)
+        return;
+
     if (priv->registeredActions.contains(action)) {
         GtkSimpleActionObserver* observer_item;
         observer_item = priv->registeredActions[action];
