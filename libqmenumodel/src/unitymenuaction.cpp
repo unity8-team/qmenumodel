@@ -33,9 +33,7 @@ UnityMenuAction::UnityMenuAction(QObject* parent)
 
 UnityMenuAction::~UnityMenuAction()
 {
-    if (m_model) {
-        m_model->unregisterAction(this);
-    }
+    unregisterAction();
 }
 
 QString UnityMenuAction::name() const
@@ -105,7 +103,7 @@ void UnityMenuAction::setValid(bool valid)
     }
 }
 
-int UnityMenuAction::index() const 
+int UnityMenuAction::index() const
 {
     return m_index;
 }
