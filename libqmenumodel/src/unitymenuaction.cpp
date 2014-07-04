@@ -59,9 +59,7 @@ UnityMenuModel* UnityMenuAction::model() const
 void UnityMenuAction::setModel(UnityMenuModel* model)
 {
     if (m_model != model) {
-        if (!model) {
-            unregisterAction();
-        }
+        unregisterAction();
         m_model = model;
         registerAction();
         Q_EMIT modelChanged(model);
