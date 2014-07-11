@@ -309,6 +309,7 @@ void UnityMenuModel::setBusName(const QByteArray &name)
                                           UnityMenuModelPrivate::nameAppeared, UnityMenuModelPrivate::nameVanished,
                                           priv, NULL);
     priv->busName = name;
+    Q_EMIT busNameChanged (priv->busName);
 }
 
 QVariantMap UnityMenuModel::actions() const
