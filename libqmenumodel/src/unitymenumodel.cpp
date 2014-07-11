@@ -170,6 +170,8 @@ void UnityMenuModelPrivate::clearName()
 
     this->updateActions();
     this->updateMenuModel();
+
+    Q_EMIT model->nameOwnerChanged (this->nameOwner);
 }
 
 void UnityMenuModelPrivate::updateActions()
@@ -231,6 +233,8 @@ void UnityMenuModelPrivate::nameAppeared(GDBusConnection *connection, const gcha
 
     priv->updateActions();
     priv->updateMenuModel();
+
+    Q_EMIT priv->model->nameOwnerChanged (priv->nameOwner);
 }
 
 void UnityMenuModelPrivate::nameVanished(GDBusConnection *connection, const gchar *name, gpointer user_data)
@@ -293,6 +297,11 @@ UnityMenuModel::~UnityMenuModel()
 QByteArray UnityMenuModel::busName() const
 {
     return priv->busName;
+}
+
+QByteArray UnityMenuModel::nameOwner() const
+{
+    return priv->nameOwner;
 }
 
 void UnityMenuModel::setBusName(const QByteArray &name)

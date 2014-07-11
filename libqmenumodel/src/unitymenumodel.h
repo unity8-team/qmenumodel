@@ -28,6 +28,7 @@ class UnityMenuModel: public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(QByteArray busName READ busName WRITE setBusName NOTIFY busNameChanged)
+    Q_PROPERTY(QByteArray nameOwner READ nameOwner NOTIFY nameOwnerChanged)
     Q_PROPERTY(QVariantMap actions READ actions WRITE setActions NOTIFY actionsChanged)
     Q_PROPERTY(QByteArray menuObjectPath READ menuObjectPath WRITE setMenuObjectPath NOTIFY menuObjectPathChanged)
     Q_PROPERTY(ActionStateParser* actionStateParser READ actionStateParser WRITE setActionStateParser NOTIFY actionStateParserChanged)
@@ -38,6 +39,8 @@ public:
 
     QByteArray busName() const;
     void setBusName(const QByteArray &name);
+
+    QByteArray nameOwner() const;
 
     QVariantMap actions() const;
     void setActions(const QVariantMap &actions);
@@ -67,6 +70,7 @@ public:
 
 Q_SIGNALS:
     void busNameChanged(const QByteArray &name);
+    void nameOwnerChanged(const QByteArray &owner);
     void actionsChanged(const QByteArray &path);
     void menuObjectPathChanged(const QByteArray &path);
     void actionStateParserChanged(ActionStateParser* parser);
