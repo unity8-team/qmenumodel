@@ -170,6 +170,8 @@ void UnityMenuModelPrivate::clearName()
 
     this->updateActions();
     this->updateMenuModel();
+
+    Q_EMIT model->nameOwnerChanged (this->nameOwner);
 }
 
 void UnityMenuModelPrivate::updateActions()
@@ -231,6 +233,8 @@ void UnityMenuModelPrivate::nameAppeared(GDBusConnection *connection, const gcha
 
     priv->updateActions();
     priv->updateMenuModel();
+
+    Q_EMIT priv->model->nameOwnerChanged (priv->nameOwner);
 }
 
 void UnityMenuModelPrivate::nameVanished(GDBusConnection *connection, const gchar *name, gpointer user_data)
@@ -295,6 +299,11 @@ QByteArray UnityMenuModel::busName() const
     return priv->busName;
 }
 
+QByteArray UnityMenuModel::nameOwner() const
+{
+    return priv->nameOwner;
+}
+
 void UnityMenuModel::setBusName(const QByteArray &name)
 {
     if (name == priv->busName)
@@ -309,6 +318,7 @@ void UnityMenuModel::setBusName(const QByteArray &name)
                                           UnityMenuModelPrivate::nameAppeared, UnityMenuModelPrivate::nameVanished,
                                           priv, NULL);
     priv->busName = name;
+    Q_EMIT busNameChanged (priv->busName);
 }
 
 QVariantMap UnityMenuModel::actions() const
