@@ -385,7 +385,7 @@ static QString iconUri(GIcon *icon)
         GFile *file;
 
         file = g_file_icon_get_file (G_FILE_ICON (icon));
-        if (g_file_is_native (file)) {
+        if (file) {
             gchar *fileuri;
 
             fileuri = g_file_get_uri (file);
