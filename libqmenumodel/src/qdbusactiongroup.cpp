@@ -161,13 +161,7 @@ void QDBusActionGroup::setActionGroup(GDBusActionGroup *ag)
         return;
     }
 
-    if (m_actionGroup) {
-        g_signal_handler_disconnect(m_actionGroup, m_signalActionAddId);
-        g_signal_handler_disconnect(m_actionGroup, m_signalActionRemovedId);
-        g_signal_handler_disconnect(m_actionGroup, m_signalStateChangedId);
-        m_signalActionAddId = m_signalActionRemovedId = m_signalStateChangedId = 0;
-        clear();
-    }
+    clear();
 
     m_actionGroup = reinterpret_cast<GActionGroup*>(ag);
 
@@ -199,6 +193,13 @@ void QDBusActionGroup::setActionGroup(GDBusActionGroup *ag)
 /*! \internal */
 void QDBusActionGroup::clear()
 {
+    if (m_actionGroup) {
+        g_signal_handler_disconnect(m_actionGroup, m_signalActionAddId);
+        g_signal_handler_disconnect(m_actionGroup, m_signalActionRemovedId);
+        g_signal_handler_disconnect(m_actionGroup, m_signalStateChangedId);
+        m_signalActionAddId = m_signalActionRemovedId = m_signalStateChangedId = 0;
+    }
+
     Q_FOREACH(QStateAction *act, this->findChildren<QStateAction*>()) {
         Q_EMIT actionVanish(act->name());
     }
