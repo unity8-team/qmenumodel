@@ -1,3 +1,11 @@
+qmenumodel (0.2.8+14.10.20141013-0ubuntu1) utopic; urgency=low
+
+  [ Nick Dedekind ]
+  * Disconnect QDBusActionGroup add/remove/stateChange signals when
+    deleting object. (LP: #1378941)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 13 Oct 2014 09:36:50 +0000
+
 qmenumodel (0.2.8+14.10.20140815-0ubuntu1) utopic; urgency=low
 
   [ Nick Dedekind ]
