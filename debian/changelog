@@ -1,3 +1,9 @@
+qmenumodel (0.2.9-0ubuntu1) UNRELEASED; urgency=medium
+
+  * Added support for overriding QDBusActionGroup state parser
+
+ -- Nick Dedekind <nick.dedekind@canonical.com>  Tue, 11 Nov 2014 15:25:11 +0000
+
 qmenumodel (0.2.8+14.10.20141013-0ubuntu1) utopic; urgency=low
 
   [ Nick Dedekind ]
