@@ -55,6 +55,7 @@ public:
     Q_INVOKABLE QVariant actionState(const QString &name);
 
     ActionStateParser* actionStateParser() const;
+    // Ownership of the actionStateParser is not passed to this object.
     void setActionStateParser(ActionStateParser* actionStateParser);
 
 Q_SIGNALS:
