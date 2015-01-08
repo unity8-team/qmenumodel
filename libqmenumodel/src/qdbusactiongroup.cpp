@@ -17,6 +17,7 @@
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
  */
 
+#include "actionstateparser.h"
 #include "qdbusactiongroup.h"
 #include "qstateaction.h"
 #include "converter.h"
@@ -58,7 +59,8 @@ extern "C" {
 QDBusActionGroup::QDBusActionGroup(QObject *parent)
     :QObject(parent),
      QDBusObject(this),
-     m_actionGroup(NULL)
+     m_actionGroup(NULL),
+     m_actionStateParser(new ActionStateParser(this))
 {
 }
 
@@ -89,7 +91,13 @@ QVariant QDBusActionGroup::actionState(const QString &name)
 {
     QVariant result;
     GVariant *state = g_action_group_get_action_state(m_actionGroup, name.toUtf8().data());
-    result = Converter::toQVariant(state);
+
+    if (m_actionStateParser != NULL) {
+        result = m_actionStateParser->toQVariant(state);
+    } else {
+        result = Converter::toQVariant(state);
+    }
+
     if (state) {
         g_variant_unref(state);
     }
@@ -187,6 +195,19 @@ void QDBusActionGroup::setActionGroup(GDBusActionGroup *ag)
             QCoreApplication::sendEvent(this, &dave);
         }
         g_strfreev(actions);
+    }
+}
+
+ActionStateParser* QDBusActionGroup::actionStateParser() const
+{
+    return m_actionStateParser;
+}
+
+void QDBusActionGroup::setActionStateParser(ActionStateParser* actionStateParser)
+{
+    if (m_actionStateParser != actionStateParser) {
+        m_actionStateParser = actionStateParser;
+        Q_EMIT actionStateParserChanged(actionStateParser);
     }
 }
 

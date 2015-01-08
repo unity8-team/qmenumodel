@@ -26,6 +26,7 @@
 #include <QVariant>
 
 class QStateAction;
+class ActionStateParser;
 
 typedef char gchar;
 typedef void* gpointer;
@@ -40,6 +41,7 @@ class QDBusActionGroup : public QObject, public QDBusObject
     Q_PROPERTY(QString busName READ busName WRITE setBusName NOTIFY busNameChanged)
     Q_PROPERTY(QString objectPath READ objectPath WRITE setObjectPath NOTIFY objectPathChanged)
     Q_PROPERTY(int status READ status NOTIFY statusChanged)
+    Q_PROPERTY(ActionStateParser* actionStateParser READ actionStateParser WRITE setActionStateParser NOTIFY actionStateParserChanged)
 
 public:
     QDBusActionGroup(QObject *parent=0);
@@ -52,6 +54,10 @@ public:
     Q_INVOKABLE QStateAction *action(const QString &name);
     Q_INVOKABLE QVariant actionState(const QString &name);
 
+    ActionStateParser* actionStateParser() const;
+    // Ownership of the actionStateParser is not passed to this object.
+    void setActionStateParser(ActionStateParser* actionStateParser);
+
 Q_SIGNALS:
     void busTypeChanged(DBusEnums::BusType type);
     void busNameChanged(const QString &busNameChanged);
@@ -60,6 +66,7 @@ Q_SIGNALS:
     void actionAppear(const QString &name);
     void actionVanish(const QString &name);
     void actionStateChanged(const QString &name, QVariant state);
+    void actionStateParserChanged(ActionStateParser* parser);
 
 public Q_SLOTS:
     void start();
@@ -76,6 +83,8 @@ private:
     int m_signalActionAddId;
     int m_signalActionRemovedId;
     int m_signalStateChangedId;
+
+    ActionStateParser* m_actionStateParser;
 
     // workaround to support int as busType
     void setIntBusType(int busType);
