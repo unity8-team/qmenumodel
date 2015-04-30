@@ -400,6 +400,7 @@ gtk_menu_tracker_item_action_removed (GtkActionObserver   *observer,
   if (self->action_state != NULL)
     {
       g_variant_unref (self->action_state);
+      self->action_state = NULL;
       g_object_notify_by_pspec (G_OBJECT (self), gtk_menu_tracker_item_pspecs[PROP_ACTION_STATE]);
     }
 
