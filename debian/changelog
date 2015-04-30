@@ -1,3 +1,11 @@
+qmenumodel (0.2.9+15.04.20150430-0ubuntu1) vivid; urgency=medium
+
+  [ Michael Terry ]
+  * Don't leave a dangling GVariant pointer in GtkMenuTrackerItem, which
+    can cause a crash. (LP: #1450494)
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Thu, 30 Apr 2015 19:07:48 +0000
+
 qmenumodel (0.2.9+15.04.20150108-0ubuntu1) vivid; urgency=medium
 
   [ Nick Dedekind ]
