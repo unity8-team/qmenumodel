@@ -53,12 +53,12 @@ QStateAction::QStateAction(QDBusActionGroup *group, const QString &name)
 {
     // This keep the code clean
     // But maybe we need move the action state control to QActionGroup to optimizations
-    QObject::connect(m_group, SIGNAL(actionAppear(QString)),
-                     this, SLOT(onActionAppear(QString)));
-    QObject::connect(m_group, SIGNAL(actionVanish(QString)),
-                     this, SLOT(onActionVanish(QString)));
-    QObject::connect(m_group, SIGNAL(actionStateChanged(QString,QVariant)),
-                     this, SLOT(onActionStateChanged(QString,QVariant)));
+    connect(m_group, &QDBusActionGroup::actionAppear,
+                     this, &QStateAction::onActionAppear);
+    connect(m_group, &QDBusActionGroup::actionVanish,
+                     this, &QStateAction::onActionVanish);
+    connect(m_group, &QDBusActionGroup::actionStateChanged,
+                     this, &QStateAction::onActionStateChanged);
 
 
 

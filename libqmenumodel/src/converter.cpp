@@ -76,7 +76,9 @@ QVariant Converter::toQVariant(GVariant *value)
         result.setValue(qmap);
     } else if (g_variant_type_is_array(type)) {
         QVariantList lst;
-        for (int i = 0, iMax = g_variant_n_children(value); i < iMax; i++) {
+        const int iMax = g_variant_n_children(value);
+        lst.reserve(iMax);
+        for (int i = 0; i < iMax; i++) {
             GVariant *child = g_variant_get_child_value(value, i);
             lst << toQVariant(child);
             g_variant_unref(child);
@@ -120,15 +122,15 @@ QVariant Converter::toQVariant(GVariant *value)
 
 static GVariant* toGVariant(const QString &typeName, const QVariant &value)
 {
-    if (typeName == "uchar") {
+    if (typeName == QLatin1String("uchar")) {
         return g_variant_new_byte(value.value<uchar>());
-    } else if (typeName == "short") {
+    } else if (typeName == QLatin1String("short")) {
         return g_variant_new_int16(value.value<short>());
-    } else if (typeName == "ushort") {
+    } else if (typeName == QLatin1String("ushort")) {
         return g_variant_new_uint16(value.value<ushort>());
-    } else if (typeName == "long") {
+    } else if (typeName == QLatin1String("long")) {
         return g_variant_new_int64(value.value<long>());
-    } else if (typeName == "ulong") {
+    } else if (typeName == QLatin1String("ulong")) {
         return g_variant_new_uint64(value.value<ulong>());
     } else {
         qWarning() << "QVariant type not supported:" << typeName;

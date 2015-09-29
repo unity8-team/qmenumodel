@@ -34,11 +34,11 @@ void QMenuModelQmlPlugin::initializeEngine(QQmlEngine *engine, const char *uri)
 void QMenuModelQmlPlugin::registerTypes(const char *uri)
 {
     qmlRegisterUncreatableType<QMenuModel>(uri, 0, 1, "QMenuModel",
-                                           "QMenuModel is a interface");
+                                           QStringLiteral("QMenuModel is a interface"));
     qmlRegisterUncreatableType<QStateAction>(uri, 0, 1, "QStateAction",
-                                             "QStateAction must be created by QDBusActionGroup::action");
+                                             QStringLiteral("QStateAction must be created by QDBusActionGroup::action"));
     qmlRegisterUncreatableType<DBusEnums>(uri, 0, 1, "DBus",
-                                          "DBus is only a namespace");
+                                          QStringLiteral("DBus is only a namespace"));
 
     qmlRegisterType<QDBusMenuModel>(uri, 0, 1, "QDBusMenuModel");
     qmlRegisterType<QDBusActionGroup>(uri, 0, 1, "QDBusActionGroup");

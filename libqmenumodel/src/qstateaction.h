@@ -39,7 +39,7 @@ public:
     Q_INVOKABLE void updateState(const QVariant &parameter);
 
 Q_SIGNALS:
-    void stateChanged(QVariant state);
+    void stateChanged(const QVariant &state);
     void validChanged(bool valid);
 
 private Q_SLOTS:

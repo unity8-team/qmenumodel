@@ -375,7 +375,7 @@ static QString iconUri(GIcon *icon)
         guint index = 0;
         while(iconNames[index] != NULL) {
             if (QIcon::hasThemeIcon(iconNames[index])) {
-                uri = QString("image://theme/") + iconNames[index];
+                uri = QStringLiteral("image://theme/") + iconNames[index];
                 break;
             }
             index++;
@@ -402,7 +402,7 @@ static QString iconUri(GIcon *icon)
         data = g_bytes_get_data (g_bytes_icon_get_bytes (G_BYTES_ICON (icon)), &size);
         base64 = g_base64_encode ((const guchar *) data, size);
 
-        uri = QString("data://");
+        uri = QStringLiteral("data://");
         uri.append (base64);
 
         g_free (base64);
@@ -564,37 +564,37 @@ static QVariant attributeToQVariant(GVariant *value, const QString &type)
 {
     QVariant result;
 
-    if (type == "int") {
+    if (type == QLatin1String("int")) {
         if (g_variant_is_of_type (value, G_VARIANT_TYPE_INT32)) {
             result =  QVariant(g_variant_get_int32(value));
         }
     }
-    else if (type == "int64") {
+    else if (type == QLatin1String("int64")) {
         if (g_variant_is_of_type (value, G_VARIANT_TYPE_INT64)) {
             result =  QVariant((qlonglong)g_variant_get_int64(value));
         }
     }
-    else if (type == "bool") {
+    else if (type == QLatin1String("bool")) {
         if (g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN)) {
             result = QVariant(g_variant_get_boolean(value));
         }
     }
-    else if (type == "string") {
+    else if (type == QLatin1String("string")) {
         if (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING)) {
             result = QVariant(g_variant_get_string(value, NULL));
         }
     }
-    else if (type == "double") {
+    else if (type == QLatin1String("double")) {
         if (g_variant_is_of_type (value, G_VARIANT_TYPE_DOUBLE)) {
             result = QVariant(g_variant_get_double(value));
         }
     }
-    else if (type == "variant") {
+    else if (type == QLatin1String("variant")) {
         if (g_variant_is_of_type (value, G_VARIANT_TYPE_VARIANT)) {
             result = Converter::toQVariant(value);
         }
     }
-    else if (type == "icon") {
+    else if (type == QLatin1String("icon")) {
         GIcon *icon = g_icon_deserialize (value);
         if (icon) {
             result = iconUri(icon);
@@ -663,7 +663,7 @@ bool UnityMenuModel::loadExtendedAttributes(int position, const QVariantMap &sch
             extendedAttrs->insert(qtify_name (name.toUtf8()), qvalue);
         else
             qWarning("loadExtendedAttributes: key '%s' is of type '%s' (expected '%s')",
-                     name.toUtf8().constData(), g_variant_get_type_string(value), type.constData());
+                     name.toUtf8().constData(), g_variant_get_type_string(value), type.toUtf8().constData());
 
         g_variant_unref (value);
     }
@@ -672,6 +672,7 @@ bool UnityMenuModel::loadExtendedAttributes(int position, const QVariantMap &sch
                              extendedAttrs, freeExtendedAttrs);
 
     Q_EMIT dataChanged(index(position, 0), index(position, 0), QVector<int>() << ExtendedAttributesRole);
+    return true;
 }
 
 QVariant UnityMenuModel::get(int row, const QByteArray &role)
@@ -817,10 +818,10 @@ void UnityMenuModel::registerAction(UnityMenuAction* action)
 
         priv->registeredActions[action] = observer_item;
 
-        connect(action, SIGNAL(nameChanged(const QString&)), SLOT(onRegisteredActionNameChanged(const QString&)));
-        connect(action, SIGNAL(indexChanged(int)), SLOT(onRegisteredActionIndexChanged(int)));
-        connect(action, SIGNAL(activate(const QVariant&)), SLOT(onRegisteredActionActivated(const QVariant&)));
-        connect(action, SIGNAL(changeState(const QVariant&)), SLOT(onRegisteredActionStateChanged(const QVariant&)));
+        connect(action, &UnityMenuAction::nameChanged, this, &UnityMenuModel::onRegisteredActionNameChanged);
+        connect(action, &UnityMenuAction::indexChanged, this, &UnityMenuModel::onRegisteredActionIndexChanged);
+        connect(action, &UnityMenuAction::activate, this, &UnityMenuModel::onRegisteredActionActivated);
+        connect(action, &UnityMenuAction::changeState, this, &UnityMenuModel::onRegisteredActionStateChanged);
     }
 }
 

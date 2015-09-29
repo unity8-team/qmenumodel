@@ -18,7 +18,7 @@
  */
 
 #ifndef DBUSMENUSCRIPT_H
-#define DBUSMENUSCRITP_H
+#define DBUSMENUSCRIPT_H
 
 #include <QObject>
 #include <QDBusInterface>
