@@ -26,6 +26,7 @@
 #include <QIcon>
 #include <QQmlComponent>
 #include <QCoreApplication>
+#include <QKeySequence>
 
 extern "C" {
   #include "gtk/gtkactionmuxer.h"
@@ -50,7 +51,9 @@ enum MenuRoles {
     ActionStateRole,
     IsCheckRole,
     IsRadioRole,
-    IsToggledRole
+    IsToggledRole,
+    ShortcutRole,
+    HasSubmenuRole
 };
 
 class UnityMenuModelPrivate
@@ -482,6 +485,12 @@ QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
         case IsToggledRole:
             return gtk_menu_tracker_item_get_toggled (item) == TRUE ? true : false;
 
+        case ShortcutRole:
+            return QKeySequence(gtk_menu_tracker_item_get_accel (item), QKeySequence::NativeText);
+
+        case HasSubmenuRole:
+            return gtk_menu_tracker_item_get_has_submenu (item) == TRUE ? true : false;
+
         default:
             return QVariant();
     }
@@ -497,7 +506,6 @@ QModelIndex UnityMenuModel::parent(const QModelIndex &index) const
     return QModelIndex();
 }
 
-#include <QtDebug>
 QHash<int, QByteArray> UnityMenuModel::roleNames() const
 {
     QHash<int, QByteArray> names;
@@ -513,6 +521,8 @@ QHash<int, QByteArray> UnityMenuModel::roleNames() const
     names[IsCheckRole] = "isCheck";
     names[IsRadioRole] = "isRadio";
     names[IsToggledRole] = "isToggled";
+    names[ShortcutRole] = "shortcut";
+    names[HasSubmenuRole] = "hasSubmenu";
 
     return names;
 }
