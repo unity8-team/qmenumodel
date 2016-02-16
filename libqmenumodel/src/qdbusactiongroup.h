@@ -65,7 +65,7 @@ Q_SIGNALS:
     void statusChanged(DBusEnums::ConnectionStatus status);
     void actionAppear(const QString &name);
     void actionVanish(const QString &name);
-    void actionStateChanged(const QString &name, QVariant state);
+    void actionStateChanged(const QString &name, const QVariant &state);
     void actionStateParserChanged(ActionStateParser* parser);
 
 public Q_SLOTS:

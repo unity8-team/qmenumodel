@@ -216,10 +216,10 @@ MenuNode *MenuNode::find(GMenuModel *item)
 
 MenuNode *MenuNode::create(GMenuModel *model, int pos, MenuNode *parent, QObject *listener)
 {
-    QString linkType(G_MENU_LINK_SUBMENU);
+    QString linkType(QStringLiteral(G_MENU_LINK_SUBMENU));
     GMenuModel *link = g_menu_model_get_item_link(model, pos, G_MENU_LINK_SUBMENU);
     if (link == NULL) {
-        linkType = G_MENU_LINK_SECTION;
+        linkType = QStringLiteral(G_MENU_LINK_SECTION);
         link = g_menu_model_get_item_link(model, pos, G_MENU_LINK_SECTION);
     }
 

@@ -64,7 +64,7 @@ void QMenuModel::setMenuModel(GMenuModel *other)
     clearModel();
 
     if (other) {
-        m_root = new MenuNode("", other, 0, 0, this);
+        m_root = new MenuNode(QLatin1String(""), other, 0, 0, this);
     }
 
     endResetModel();
@@ -138,20 +138,20 @@ QVariant QMenuModel::data(const QModelIndex &index, int role) const
     if (row >= 0) {
         switch (role) {
         case Action:
-            attribute = getStringAttribute(node, row, G_MENU_ATTRIBUTE_ACTION);
+            attribute = getStringAttribute(node, row, QStringLiteral(G_MENU_ATTRIBUTE_ACTION));
             break;
         case Qt::DisplayRole:
         case Label:
-            attribute = getStringAttribute(node, row, G_MENU_ATTRIBUTE_LABEL);
+            attribute = getStringAttribute(node, row, QStringLiteral(G_MENU_ATTRIBUTE_LABEL));
             break;
         case Extra:
             attribute = getExtraProperties(node, row);
             break;
         case hasSection:
-            attribute = QVariant(hasLink(node, row, G_MENU_LINK_SECTION));
+            attribute = QVariant(hasLink(node, row, QStringLiteral(G_MENU_LINK_SECTION)));
             break;
         case hasSubMenu:
-            attribute = QVariant(hasLink(node, row, G_MENU_LINK_SUBMENU));
+            attribute = QVariant(hasLink(node, row, QStringLiteral(G_MENU_LINK_SUBMENU)));
             break;
         case Depth:
             attribute = QVariant(node->depth());
@@ -287,10 +287,10 @@ MenuNode *QMenuModel::nodeFromIndex(const QModelIndex &index) const
 QString QMenuModel::parseExtraPropertyName(const QString &name) const
 {
     QString newName(name);
-    if (name.startsWith("x-")) {
+    if (name.startsWith(QLatin1String("x-"))) {
         newName = name.mid(2);
     }
-    return newName.replace("-", "_");
+    return newName.replace(QLatin1String("-"), QLatin1String("_"));
 }
 
 GMenuModel *QMenuModel::menuModel() const
