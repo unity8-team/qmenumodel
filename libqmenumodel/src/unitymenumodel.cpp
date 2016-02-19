@@ -22,6 +22,7 @@
 #include "unitymenumodelevents.h"
 #include "unitymenuaction.h"
 #include "unitymenuactionevents.h"
+#include "logging.h"
 
 #include <QIcon>
 #include <QQmlComponent>
@@ -32,6 +33,8 @@ extern "C" {
   #include "gtk/gtkmenutracker.h"
   #include "gtk/gtksimpleactionobserver.h"
 }
+
+Q_LOGGING_CATEGORY(unitymenumodel, "qmenumodel.unitymenumodel", QtWarningMsg)
 
 G_DEFINE_QUARK (UNITY_MENU_MODEL, unity_menu_model)
 G_DEFINE_QUARK (UNITY_SUBMENU_MODEL, unity_submenu_model)
@@ -654,7 +657,7 @@ bool UnityMenuModel::loadExtendedAttributes(int position, const QVariantMap &sch
 
         GVariant *value = gtk_menu_tracker_item_get_attribute_value (item, name.toUtf8(), NULL);
         if (value == NULL) {
-            qWarning("loadExtendedAttributes: menu item does not contain '%s'", it.key().toUtf8().constData());
+            qCDebug(unitymenumodel, "loadExtendedAttributes: menu item does not contain '%s'", it.key().toUtf8().constData());
             continue;
         }
 
@@ -662,7 +665,7 @@ bool UnityMenuModel::loadExtendedAttributes(int position, const QVariantMap &sch
         if (qvalue.isValid())
             extendedAttrs->insert(qtify_name (name.toUtf8()), qvalue);
         else
-            qWarning("loadExtendedAttributes: key '%s' is of type '%s' (expected '%s')",
+            qCWarning(unitymenumodel, "loadExtendedAttributes: key '%s' is of type '%s' (expected '%s')",
                      name.toUtf8().constData(), g_variant_get_type_string(value), type.constData());
 
         g_variant_unref (value);
