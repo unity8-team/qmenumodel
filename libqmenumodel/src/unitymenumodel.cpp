@@ -34,7 +34,7 @@ extern "C" {
   #include "gtk/gtksimpleactionobserver.h"
 }
 
-Q_LOGGING_CATEGORY(unitymenumodel, "qmenumodel.unitymenumodel", QtWarningMsg)
+Q_LOGGING_CATEGORY(unitymenumodel, "qmenumodel.unitymenumodel", QtCriticalMsg)
 
 G_DEFINE_QUARK (UNITY_MENU_MODEL, unity_menu_model)
 G_DEFINE_QUARK (UNITY_SUBMENU_MODEL, unity_submenu_model)
@@ -657,7 +657,7 @@ bool UnityMenuModel::loadExtendedAttributes(int position, const QVariantMap &sch
 
         GVariant *value = gtk_menu_tracker_item_get_attribute_value (item, name.toUtf8(), NULL);
         if (value == NULL) {
-            qCDebug(unitymenumodel, "loadExtendedAttributes: menu item does not contain '%s'", it.key().toUtf8().constData());
+            qCWarning(unitymenumodel, "loadExtendedAttributes: menu item does not contain '%s'", it.key().toUtf8().constData());
             continue;
         }
 
