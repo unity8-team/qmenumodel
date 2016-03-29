@@ -1,3 +1,10 @@
+qmenumodel (0.2.9+16.04.20160329-0ubuntu1) xenial; urgency=medium
+
+  [ Nick Dedekind ]
+  * Use Qt logging categories (LP: #1562992)
+
+ -- Michał Sawicz <michal.sawicz@canonical.com>  Tue, 29 Mar 2016 12:57:00 +0000
+
 qmenumodel (0.2.9+15.04.20150430-0ubuntu2~gcc5.1) wily; urgency=medium
 
   * No-change test rebuild for g++5 ABI transition
