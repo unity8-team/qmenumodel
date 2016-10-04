@@ -483,13 +483,13 @@ QVariant UnityMenuModel::data(const QModelIndex &index, int role) const
             return gtk_menu_tracker_item_get_role (item) == GTK_MENU_TRACKER_ITEM_ROLE_RADIO;
 
         case IsToggledRole:
-            return gtk_menu_tracker_item_get_toggled (item) == TRUE ? true : false;
+            return gtk_menu_tracker_item_get_toggled (item) != FALSE;
 
         case ShortcutRole:
             return QKeySequence(gtk_menu_tracker_item_get_accel (item), QKeySequence::NativeText);
 
         case HasSubmenuRole:
-            return gtk_menu_tracker_item_get_has_submenu (item) == TRUE ? true : false;
+            return gtk_menu_tracker_item_get_has_submenu (item) != FALSE;
 
         default:
             return QVariant();
