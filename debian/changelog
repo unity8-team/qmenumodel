@@ -1,9 +1,9 @@
-qmenumodel (0.2.10) UNRELEASED; urgency=medium
+qmenumodel (0.2.10+16.10.20161005.1-0ubuntu1) yakkety; urgency=medium
 
   [ Nick Dedekind ]
   * Added shortcut hasSubmenu and roles to UnityMenuModel
 
- -- Nick Dedekind <nick.dedekind@canonical.com>  Tue, 04 Oct 2016 14:11:46 +0100
+ -- Nicholas Dedekind <nick.dedekind@canonical.com>  Wed, 05 Oct 2016 16:34:43 +0000
 
 qmenumodel (0.2.9+16.04.20160329-0ubuntu1) xenial; urgency=medium
 
