@@ -725,7 +725,7 @@ static QVariant parseVariantString(const QString& string)
         return qvariant;
     }
 
-    gvariant = g_variant_parse (NULL, string.toStdString().c_str(), NULL, NULL, &error);
+    gvariant = g_variant_parse (NULL, string.toUtf8().data(), NULL, NULL, &error);
 
     if (error) {
         qWarning() << "Impossible to parse" << string << "as variant string:"<< error->message;
