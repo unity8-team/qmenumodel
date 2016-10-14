@@ -1,3 +1,9 @@
+qmenumodel (0.2.10) UNRELEASED; urgency=medium
+
+  * Add ability to activate or change state of an action by variant string
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Fri, 14 Oct 2016 17:07:41 +0200
+
 qmenumodel (0.2.9+16.04.20160329-0ubuntu1) xenial; urgency=medium
 
   [ Nick Dedekind ]
