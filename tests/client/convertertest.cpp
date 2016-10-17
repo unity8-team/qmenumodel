@@ -67,44 +67,77 @@ private Q_SLOTS:
     /*
      * Test converter QVariant to GVariant
      */
-    void testToGVariant()
+
+    void testBooleanToGVariant()
     {
         // Boolean
         QVERIFY(compare(QVariant(true), G_VARIANT_TYPE_BOOLEAN));
+    }
 
+    void testByteToGVariant()
+    {
         // Byte
         QVERIFY(compare(QVariant::fromValue<uchar>(42), G_VARIANT_TYPE_BYTE));
+    }
 
+    void testInt16ToGVariant()
+    {
         // Int16
         QVERIFY(compare(QVariant::fromValue<short>(-42), G_VARIANT_TYPE_INT16));
+    }
 
+    void testUInt16ToGVariant()
+    {
         // UInt16
         QVERIFY(compare(QVariant::fromValue<ushort>(-42), G_VARIANT_TYPE_UINT16));
+    }
 
+    void testInt32ToGVariant()
+    {
         // Int32
         QVERIFY(compare(QVariant(-42), G_VARIANT_TYPE_INT32));
+    }
 
+    void testUInt32ToGVariant()
+    {
         // UInt32
         QVERIFY(compare(QVariant((uint)42), G_VARIANT_TYPE_UINT32));
+    }
 
+    void testInt64ToGVariant()
+    {
         // Int64
         QVERIFY(compare(QVariant::fromValue<long>(-42), G_VARIANT_TYPE_INT64));
+    }
 
+    void testUInt64ToGVariant()
+    {
         // UInt64
         QVERIFY(compare(QVariant::fromValue<ulong>(42), G_VARIANT_TYPE_UINT64));
+    }
 
+    void testDoubleToGVariant()
+    {
         // Double
         QVERIFY(compare(QVariant((double)42.42), G_VARIANT_TYPE_DOUBLE));
+    }
 
+    void testStringToGVariant()
+    {
         // String
         QVERIFY(compare(QVariant(QString("42")), G_VARIANT_TYPE_STRING));
+    }
 
+    void testByteArrayToGVariant()
+    {
         // ByteArray
         QVERIFY(compare(QVariant(QByteArray("42")), G_VARIANT_TYPE_BYTESTRING));
+    }
 
+    void testMapToGVariant()
+    {
         // Map
         QVERIFY(compare(QVariantMap(), G_VARIANT_TYPE_VARDICT));
-
     }
 
     void testTupleConversion()
