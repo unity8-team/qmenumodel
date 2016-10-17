@@ -116,6 +116,18 @@ private Q_SLOTS:
         QVERIFY(compare(QVariant::fromValue<ulong>(42), G_VARIANT_TYPE_UINT64));
     }
 
+    void testQlongLongToGVariant()
+    {
+        // Int64
+        QVERIFY(compare(QVariant::fromValue<qlonglong>(-42), G_VARIANT_TYPE_INT64));
+    }
+
+    void testUQlongLongToGVariant()
+    {
+        // UInt64
+        QVERIFY(compare(QVariant::fromValue<qulonglong>(42), G_VARIANT_TYPE_UINT64));
+    }
+
     void testDoubleToGVariant()
     {
         // Double
