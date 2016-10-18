@@ -169,8 +169,6 @@ private Q_SLOTS:
         QVERIFY(compare(QVariantMap({{"fooBar", 0xdeadbeef}}), G_VARIANT_TYPE_VARDICT));
     }
 
-    // LIST CHECK!
-
     void testBooleanToQVariant()
     {
         // Boolean
@@ -229,6 +227,12 @@ private Q_SLOTS:
     {
         // String
         QVERIFY(compare(g_variant_new_string("53"), QVariant::String));
+    }
+
+    void testByteArrayToQVariant()
+    {
+        // ByteArray
+        QVERIFY(compare(g_variant_new_bytestring("53"), QVariant::ByteArray));
     }
 
     void testTupleConversion()

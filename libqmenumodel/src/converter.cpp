@@ -58,6 +58,11 @@ QVariant Converter::toQVariant(GVariant *value)
         gsize size = 0;
         const gchar *v = g_variant_get_string(value, &size);
         result.setValue(QString::fromUtf8(v, size));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_BYTESTRING)) {
+        gsize size = 0;
+        gchar *bs = g_variant_dup_bytestring(value, &size);
+        result.setValue(QByteArray::fromRawData(bs, size));
+        g_free(bs);
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_VARIANT)) {
         GVariant *var = g_variant_get_variant(value);
         result = toQVariant(var);
@@ -111,7 +116,6 @@ QVariant Converter::toQVariant(GVariant *value)
      * G_VARIANT_TYPE_DICT_ENTRY
      * G_VARIANT_TYPE_DICTIONARY
      * G_VARIANT_TYPE_STRING_ARRAY
-     * G_VARIANT_TYPE_BYTESTRING
      * G_VARIANT_TYPE_OBJECT_PATH_ARRAY
      * G_VARIANT_TYPE_BYTESTRING_ARRAY
      */
