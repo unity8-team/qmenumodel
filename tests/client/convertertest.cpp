@@ -149,7 +149,7 @@ private Q_SLOTS:
     void testMapToGVariant()
     {
         // Map
-        QVERIFY(compare(QVariantMap(), G_VARIANT_TYPE_VARDICT));
+        QVERIFY(compare(QVariantMap({{"fooBar", 0xdeadbeef}}), G_VARIANT_TYPE_VARDICT));
     }
 
     void testTupleConversion()
