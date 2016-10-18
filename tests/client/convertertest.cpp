@@ -295,38 +295,38 @@ private Q_SLOTS:
     void testSchemaConvert()
     {
         // convert to integer
-        compareWithSchema(QVariant::fromValue<int>(1), "i");
-        compareWithSchema(QVariant::fromValue<double>(1.1), "i");
+        QVERIFY(compareWithSchema(QVariant::fromValue<int>(1), "i"));
+        QVERIFY(compareWithSchema(QVariant::fromValue<double>(1.1), "i"));
 
         // convert to integer
-        compareWithSchema(QVariant::fromValue<bool>(true), "b");
-        compareWithSchema(QVariant::fromValue<int>(1), "b");
+        QVERIFY(compareWithSchema(QVariant::fromValue<bool>(true), "b"));
+        QVERIFY(compareWithSchema(QVariant::fromValue<int>(1), "b"));
 
         // convert to double
-        compareWithSchema(QVariant::fromValue<double>(1.0), "d");
-        compareWithSchema(QVariant::fromValue<int>(1), "d");
+        QVERIFY(compareWithSchema(QVariant::fromValue<double>(1.0), "d"));
+        QVERIFY(compareWithSchema(QVariant::fromValue<int>(1), "d"));
 
         // convert to string
-        compareWithSchema(QVariant::fromValue<int>(1), "s");
-        compareWithSchema(QVariant::fromValue<double>(1.1), "s");
+        QVERIFY(compareWithSchema(QVariant::fromValue<int>(1), "s"));
+        QVERIFY(compareWithSchema(QVariant::fromValue<double>(1.1), "s"));
 
         // convert to tuple
-        compareWithSchema(QVariantList() << QVariant::fromValue<bool>(true) << QVariant::fromValue<int>(1) << QVariant::fromValue<int>(1) << QVariant::fromValue<QString>("test1"), "(bdis)");
+        QVERIFY(compareWithSchema(QVariantList() << QVariant::fromValue<bool>(true) << QVariant::fromValue<int>(1) << QVariant::fromValue<int>(1) << QVariant::fromValue<QString>("test1"), "(bdis)"));
 
         // convert to array
-        compareWithSchema(QVariantList() << QVariant::fromValue<int>(1) << QVariant::fromValue<int>(1), "ad");
-        compareWithSchema(QVariantList() << QVariant::fromValue<QString>("test1") << QVariant::fromValue<QString>("test2"), "as");
+        QVERIFY(compareWithSchema(QVariantList() << QVariant::fromValue<int>(1) << QVariant::fromValue<int>(1), "ad"));
+        QVERIFY(compareWithSchema(QVariantList() << QVariant::fromValue<QString>("test1") << QVariant::fromValue<QString>("test2"), "as"));
 
         // convert to array of tuple
         QVariantList si1(QVariantList() << QVariant::fromValue<QString>("test1") << QVariant::fromValue<int>(1));
         QVariantList si2(QVariantList() << QVariant::fromValue<QString>("test1") << QVariant::fromValue<int>(1));
-        compareWithSchema(QVariantList() << QVariant::fromValue(si1) << QVariant::fromValue(si2), "a(sd)");
+        QVERIFY(compareWithSchema(QVariantList() << QVariant::fromValue(si1) << QVariant::fromValue(si2), "a(sd)"));
 
         // convert to vardict
         QVariantMap map;
         map["test1"] = QVariant::fromValue<int>(1);
         map["test2"] = QVariant::fromValue<double>(1);
-        compareWithSchema(map, "a{sv}");
+        QVERIFY(compareWithSchema(map, "a{sv}"));
     }
 
 };
