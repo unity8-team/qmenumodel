@@ -715,37 +715,14 @@ void UnityMenuModel::activate(int index, const QVariant& parameter)
     }
 }
 
-static QVariant parseVariantString(const QString& string)
-{
-    GVariant *gvariant;
-    GError *error = NULL;
-
-    if (string.isEmpty()) {
-        return QVariant();
-    }
-
-    gvariant = g_variant_parse (NULL, string.toUtf8().data(), NULL, NULL, &error);
-
-    if (error) {
-        qWarning() << "Impossible to parse" << string << "as variant string:"<< error->message;
-        g_error_free (error);
-        return QVariant();
-    }
-
-    const QVariant& qvariant = Converter::toQVariant(gvariant);
-    g_variant_unref (gvariant);
-
-    return qvariant;
-}
-
 void UnityMenuModel::activateByVariantString(int index, const QString& parameter)
 {
-    activate(index, parseVariantString(parameter));
+    activate(index, Converter::toQVariantFromVariantString(parameter));
 }
 
 void UnityMenuModel::changeStateByVariantString(int index, const QString& parameter)
 {
-    changeState(index, parseVariantString(parameter));
+    changeState(index, Converter::toQVariantFromVariantString(parameter));
 }
 
 void UnityMenuModel::changeState(int index, const QVariant& parameter)

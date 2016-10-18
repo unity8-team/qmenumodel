@@ -21,12 +21,14 @@
 #define CONVERTER_H
 
 typedef struct _GVariant GVariant;
+class QString;
 class QVariant;
 
 class Converter
 {
 public:
     static QVariant toQVariant(GVariant *value);
+    static QVariant toQVariantFromVariantString(const QString &variantString);
     static GVariant* toGVariant(const QVariant &value);
 
     // This converts a QVariant to a GVariant using a provided gvariant schema as
