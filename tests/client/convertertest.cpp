@@ -177,6 +177,12 @@ private Q_SLOTS:
         QVERIFY(compare(QVariantMap({{"fooBar", 0xdeadbeef}}), G_VARIANT_TYPE_VARDICT));
     }
 
+    void testListToGVariant()
+    {
+        // List
+        QVERIFY(compare(QVariantList({"42", 53}), G_VARIANT_TYPE("(si)")));
+    }
+
     void testBooleanToQVariant()
     {
         // Boolean
