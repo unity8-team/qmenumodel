@@ -246,8 +246,17 @@ private Q_SLOTS:
     void testByteArrayListToQVariant()
     {
         // ByteArrayList
-        const gchar * byteArray[] = {"42", "53", NULL};
+        const gchar *byteArray[] = {"42", "53", NULL};
         QVERIFY(compare(g_variant_new_bytestring_array(byteArray, -1), QMetaType::QByteArrayList));
+    }
+
+    void testMapToQVariant()
+    {
+        // Map
+        GVariantBuilder *b = g_variant_builder_new(G_VARIANT_TYPE_VARDICT);
+        g_variant_builder_add(b, "{sv}", "Foo", g_variant_new_int32(53));
+        QVERIFY(compare(g_variant_builder_end(b), QVariant::Map));
+        g_variant_builder_unref(b);
     }
 
     void testTupleConversion()
