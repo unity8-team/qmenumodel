@@ -39,11 +39,28 @@ private:
         result = g_variant_type_equal(g_variant_get_type(gv), type);
         if (!result) {
             qWarning() << "types are different: QVariant:" << qv.typeName()
-                       << "Result:" << (const char*) g_variant_get_type(gv)
-                       << "Expected:"<< (const char*) type;
+                       << "Result:" << g_variant_type_peek_string (g_variant_get_type(gv))
+                       << "Expected:"<< g_variant_type_peek_string (type);
         }
         g_variant_unref(gv);
         return result;
+    }
+    bool compare(GVariant *gv, const QVariant::Type type)
+    {
+        g_variant_ref_sink(gv);
+        const QVariant& qv = Converter::toQVariant(gv);
+        bool result = (qv.type() == type);
+        if (!result) {
+            qWarning() << "types are different: GVariant:" << g_variant_type_peek_string (g_variant_get_type(gv))
+                       << "Result:" << qv.type()
+                       << "Expected:"<< type;
+        }
+        g_variant_unref(gv);
+        return result;
+    }
+    bool compare(GVariant *gv, const QMetaType::Type type)
+    {
+        return compare(gv, (QVariant::Type) type);
     }
     bool compareWithSchema(const QVariant &qv, const QString strType)
     {
@@ -89,7 +106,7 @@ private Q_SLOTS:
     void testUInt16ToGVariant()
     {
         // UInt16
-        QVERIFY(compare(QVariant::fromValue<ushort>(-42), G_VARIANT_TYPE_UINT16));
+        QVERIFY(compare(QVariant::fromValue<ushort>(42), G_VARIANT_TYPE_UINT16));
     }
 
     void testInt32ToGVariant()
@@ -150,6 +167,68 @@ private Q_SLOTS:
     {
         // Map
         QVERIFY(compare(QVariantMap({{"fooBar", 0xdeadbeef}}), G_VARIANT_TYPE_VARDICT));
+    }
+
+    // LIST CHECK!
+
+    void testBooleanToQVariant()
+    {
+        // Boolean
+        QVERIFY(compare(g_variant_new_boolean(TRUE), QVariant::Bool));
+    }
+
+    void testByteToQVariant()
+    {
+        // Byte
+        QVERIFY(compare(g_variant_new_byte(53), QMetaType::UChar));
+    }
+
+    void testInt16ToQVariant()
+    {
+        // Int16
+        QVERIFY(compare(g_variant_new_int16(-53), QMetaType::Short));
+    }
+
+    void testUInt16ToQVariant()
+    {
+        // UInt16
+        QVERIFY(compare(g_variant_new_uint16(53), QMetaType::UShort));
+    }
+
+    void testInt32ToQVariant()
+    {
+        // Int32
+        QVERIFY(compare(g_variant_new_int32(-53), QVariant::Int));
+    }
+
+    void testUInt32ToQVariant()
+    {
+        // UInt32
+        QVERIFY(compare(g_variant_new_uint32(53), QVariant::UInt));
+    }
+
+    void testInt64ToQVariant()
+    {
+        // Int64
+        QVERIFY(compare(g_variant_new_int64(-53), QVariant::LongLong));
+    }
+
+    void testUInt64ToQVariant()
+    {
+        // UInt64
+        QVERIFY(compare(g_variant_new_uint64(53), QVariant::ULongLong));
+    }
+
+    void testDoubleToQVariant()
+    {
+        // Double
+        QVERIFY(compare(g_variant_new_double(53.53), QVariant::Double));
+    }
+
+    void testStringToQVariant()
+    {
+        // String
+        QVERIFY(compare(g_variant_new_string("53"), QVariant::String));
     }
 
     void testTupleConversion()
