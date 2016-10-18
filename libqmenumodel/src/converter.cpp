@@ -156,11 +156,17 @@ GVariant* Converter::toGVariant(const QVariant &value)
     case QVariant::Int:
         result = g_variant_new_int32(value.toInt());
         break;
+    case QVariant::LongLong:
+        result = g_variant_new_int64(value.toLongLong());
+        break;
     case QVariant::String:
         result = g_variant_new_string(value.toString().toUtf8().data());
         break;
     case QVariant::UInt:
         result = g_variant_new_uint32(value.toUInt());
+        break;
+    case QVariant::ULongLong:
+        result = g_variant_new_uint64(value.toULongLong());
         break;
     case QVariant::Map:
     {
