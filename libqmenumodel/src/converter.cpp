@@ -340,6 +340,8 @@ GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* sch
                 if (data) {
                     g_variant_builder_add_value(b, data);
                     entryType = g_variant_type_next(entryType);
+                    if (!entryType)
+                        break;
                 } else {
                     ok = false;
                     qWarning() << "Failed to convert list to array with schema:" << schema;
