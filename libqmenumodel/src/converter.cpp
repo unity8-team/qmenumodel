@@ -63,6 +63,15 @@ QVariant Converter::toQVariant(GVariant *value)
         gchar *bs = g_variant_dup_bytestring(value, &size);
         result.setValue(QByteArray::fromRawData(bs, size));
         g_free(bs);
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_BYTESTRING_ARRAY)) {
+        gsize size = 0;
+        const gchar **bsa = g_variant_get_bytestring_array(value, &size);
+        QByteArrayList list;
+        for (gsize i = 0; i < size; ++i) {
+            list << bsa[i];
+        }
+        result.setValue(list);
+        g_free(bsa);
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_VARIANT)) {
         GVariant *var = g_variant_get_variant(value);
         result = toQVariant(var);
@@ -117,7 +126,6 @@ QVariant Converter::toQVariant(GVariant *value)
      * G_VARIANT_TYPE_DICTIONARY
      * G_VARIANT_TYPE_STRING_ARRAY
      * G_VARIANT_TYPE_OBJECT_PATH_ARRAY
-     * G_VARIANT_TYPE_BYTESTRING_ARRAY
      */
 
     return result;
@@ -206,6 +214,18 @@ GVariant* Converter::toGVariant(const QVariant &value)
         while (i.hasNext()) {
             i.next();
             g_variant_builder_add(b, "{sv}", i.key().toUtf8().data(), toGVariant(i.value()));
+        }
+        result = g_variant_builder_end(b);
+        g_variant_builder_unref(b);
+        break;
+    }
+    case QMetaType::QByteArrayList:
+    {
+        const QByteArrayList &list = qvariant_cast<QByteArrayList>(value);
+        GVariantBuilder *b = g_variant_builder_new(G_VARIANT_TYPE_BYTESTRING_ARRAY);
+
+        for (const QByteArray &ba : list) {
+            g_variant_builder_add_value(b, g_variant_new_bytestring(ba));
         }
         result = g_variant_builder_end(b);
         g_variant_builder_unref(b);

@@ -163,6 +163,14 @@ private Q_SLOTS:
         QVERIFY(compare(QVariant(QByteArray("42")), G_VARIANT_TYPE_BYTESTRING));
     }
 
+    void testByteArrayListToGVariant()
+    {
+        // ByteArrayList
+        QVariant result;
+        result.setValue(QByteArrayList({"42", "53"}));
+        QVERIFY(compare(result, G_VARIANT_TYPE_BYTESTRING_ARRAY));
+    }
+
     void testMapToGVariant()
     {
         // Map
@@ -233,6 +241,13 @@ private Q_SLOTS:
     {
         // ByteArray
         QVERIFY(compare(g_variant_new_bytestring("53"), QVariant::ByteArray));
+    }
+
+    void testByteArrayListToQVariant()
+    {
+        // ByteArrayList
+        const gchar * byteArray[] = {"42", "53", NULL};
+        QVERIFY(compare(g_variant_new_bytestring_array(byteArray, -1), QMetaType::QByteArrayList));
     }
 
     void testTupleConversion()
