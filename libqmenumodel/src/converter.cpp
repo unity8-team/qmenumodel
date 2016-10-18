@@ -131,25 +131,6 @@ QVariant Converter::toQVariant(GVariant *value)
     return result;
 }
 
-static GVariant* toGVariant(const QString &typeName, const QVariant &value)
-{
-    if (typeName == "uchar") {
-        return g_variant_new_byte(value.value<uchar>());
-    } else if (typeName == "short") {
-        return g_variant_new_int16(value.value<short>());
-    } else if (typeName == "ushort") {
-        return g_variant_new_uint16(value.value<ushort>());
-    } else if (typeName == "long") {
-        return g_variant_new_int64(value.value<long>());
-    } else if (typeName == "ulong") {
-        return g_variant_new_uint64(value.value<ulong>());
-    } else {
-        qWarning() << "QVariant type not supported:" << typeName;
-    }
-
-    return NULL;
-}
-
 QVariant Converter::toQVariantFromVariantString(const QString &variantString)
 {
     GVariant *gvariant;
@@ -204,6 +185,21 @@ GVariant* Converter::toGVariant(const QVariant &value)
     case QVariant::ULongLong:
         result = g_variant_new_uint64(value.toULongLong());
         break;
+    case QMetaType::UChar:
+        result = g_variant_new_byte(value.value<uchar>());
+        break;
+    case QMetaType::Short:
+        result = g_variant_new_int16(value.value<short>());
+        break;
+    case QMetaType::UShort:
+        result = g_variant_new_uint16(value.value<ushort>());
+        break;
+    case QMetaType::Long:
+        result = g_variant_new_int64(value.value<long>());
+        break;
+    case QMetaType::ULong:
+        result = g_variant_new_uint64(value.value<ulong>());
+        break;
     case QVariant::Map:
     {
         GVariantBuilder *b;
@@ -243,7 +239,7 @@ GVariant* Converter::toGVariant(const QVariant &value)
         break;
     }
     default:
-        result = ::toGVariant(value.typeName(), value);
+        qWarning() << "QVariant type not supported:" << value.type();
     }
 
     return result;
