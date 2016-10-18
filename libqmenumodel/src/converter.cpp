@@ -229,13 +229,13 @@ GVariant* Converter::toGVariant(const QVariant &value)
     }
     case QVariant::List:
     {
-        QVariantList lst = value.toList();
-        GVariant **vars = g_new(GVariant*, lst.size());
-        for (int i=0; i < lst.size(); i++) {
-            vars[i] = toGVariant(lst[i]);
+        GVariantBuilder *b = g_variant_builder_new(G_VARIANT_TYPE_TUPLE);
+
+        for (const QVariant &v : value.toList()) {
+            g_variant_builder_add_value(b, toGVariant(v));
         }
-        result = g_variant_new_tuple(vars, lst.size());
-        g_free(vars);
+        result = g_variant_builder_end(b);
+        g_variant_builder_unref(b);
         break;
     }
     default:
@@ -307,14 +307,14 @@ GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* sch
             const GVariantType* entry_type;
             GVariant* data;
             entry_type = g_variant_type_element(schema_type);
-            gchar* entryTypeString = g_variant_type_dup_string(entry_type);
+            const gchar* entryTypeString = g_variant_type_peek_string(entry_type);
 
-            QVariantList lst = value.toList();
+            const QVariantList &lst = value.toList();
             GVariant **vars = g_new(GVariant*, lst.size());
 
             bool ok = true;
-            for (int i=0; i < lst.size(); i++) {
-                data = Converter::toGVariantWithSchema(lst[i], entryTypeString);
+            for (int i=0, iMax=lst.size(); i < iMax; i++) {
+                data = Converter::toGVariantWithSchema(lst.at(i), entryTypeString);
 
                 if (data) {
                     vars[i] = data;
@@ -328,7 +328,6 @@ GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* sch
             if (ok) {
                 result = g_variant_new_array(entry_type, vars, lst.size());
             }
-            g_free(entryTypeString);
             g_free(vars);
         }
     } else if (g_variant_type_is_tuple(schema_type)) {
@@ -341,11 +340,11 @@ GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* sch
             const GVariantType* entry_type = g_variant_type_first(schema_type);
 
             bool ok = true;
-            for (int i=0; i < lst.size(); i++) {
+            for (int i=0,iMax=lst.size(); i < iMax; i++) {
 
                 gchar* entryTypeString = g_variant_type_dup_string(entry_type);
 
-                data = Converter::toGVariantWithSchema(lst[i], entryTypeString);
+                data = Converter::toGVariantWithSchema(lst.at(i), entryTypeString);
 
                 if (data) {
                     vars[i] = data;
