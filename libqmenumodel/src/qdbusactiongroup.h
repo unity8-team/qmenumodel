@@ -42,11 +42,13 @@ class QDBusActionGroup : public QObject, public QDBusObject
     Q_PROPERTY(QString objectPath READ objectPath WRITE setObjectPath NOTIFY objectPathChanged)
     Q_PROPERTY(int status READ status NOTIFY statusChanged)
     Q_PROPERTY(ActionStateParser* actionStateParser READ actionStateParser WRITE setActionStateParser NOTIFY actionStateParserChanged)
+    Q_PROPERTY(QStringList actions READ actions NOTIFY actionsChanged)
 
 public:
     QDBusActionGroup(QObject *parent=0);
     ~QDBusActionGroup();
 
+    QStringList actions() const;
     void updateActionState(const QString &name, const QVariant &state);
     void activateAction(const QString &name, const QVariant &parameter);
     bool hasAction(const QString &name);
@@ -67,6 +69,7 @@ Q_SIGNALS:
     void actionVanish(const QString &name);
     void actionStateChanged(const QString &name, QVariant state);
     void actionStateParserChanged(ActionStateParser* parser);
+    void actionsChanged();
 
 public Q_SLOTS:
     void start();
