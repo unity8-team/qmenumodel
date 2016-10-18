@@ -65,7 +65,7 @@ public:
     Q_INVOKABLE void activate(int index, const QVariant& parameter = QVariant());
     Q_INVOKABLE void activateByVariantString(int index, const QString& parameter = QString());
     Q_INVOKABLE void changeState(int index, const QVariant& parameter);
-    Q_INVOKABLE void changeStateByVariantString(int index, const QString& parameter = QString());
+    Q_INVOKABLE void changeStateByVariantString(int index, const QString& parameter);
 
     void registerAction(UnityMenuAction* action);
     void unregisterAction(UnityMenuAction* action);
