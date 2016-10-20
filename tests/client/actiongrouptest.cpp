@@ -27,26 +27,15 @@
 #include <QtTest>
 #include <QDebug>
 
-class ActionGroupTest : public QObject
+class ActionGroupTestBase : public QObject
 {
     Q_OBJECT
-private:
-    DBusMenuScript m_script;
+protected:
     QDBusMenuModel m_model;
     QDBusActionGroup m_actionGroup;
 
-private Q_SLOTS:
-    void initTestCase()
-    {
-        QVERIFY(m_script.connect());
-    }
-
-    void cleanupTestCase()
-    {
-        m_script.quit();
-    }
-
-    void init()
+protected Q_SLOTS:
+    virtual void init()
     {
         m_model.stop();
         m_model.setBusType(DBusEnums::SessionBus);
@@ -57,11 +46,6 @@ private Q_SLOTS:
         m_actionGroup.setBusType(DBusEnums::SessionBus);
         m_actionGroup.setBusName(MENU_SERVICE_NAME);
         m_actionGroup.setObjectPath(MENU_OBJECT_PATH);
-    }
-
-    void cleanup()
-    {
-        m_script.unpublishMenu();
     }
 
     /*
@@ -88,14 +72,49 @@ private Q_SLOTS:
      */
     void testServiceAppear()
     {
-        m_model.start();
-        m_actionGroup.start();
         QCOMPARE(m_actionGroup.status(), DBusEnums::Connecting);
 
         // Make menu available
+        DBusMenuScript m_script;
+        m_script.connect();
         m_script.publishMenu();
 
         QCOMPARE(m_actionGroup.status(), DBusEnums::Connected);
+    }
+};
+
+class ActionGroupTestWithScript : public ActionGroupTestBase
+{
+    Q_OBJECT
+private:
+    DBusMenuScript m_script;
+
+private Q_SLOTS:
+    void initTestCase()
+    {
+        QVERIFY(m_script.connect());
+    }
+
+    void cleanupTestCase()
+    {
+        m_script.quit();
+    }
+
+    void init()
+    {
+        ActionGroupTestBase::init();
+
+        // start model
+        m_model.start();
+        m_actionGroup.start();
+
+        // Make menu available
+        m_script.publishMenu();
+    }
+
+    void cleanup()
+    {
+        m_script.unpublishMenu();
     }
 
     /*
@@ -104,11 +123,6 @@ private Q_SLOTS:
      */
     void testServiceDisappear()
     {
-        m_model.start();
-        m_actionGroup.start();
-
-        // Make menu available
-        m_script.publishMenu();
         QCOMPARE(m_actionGroup.status(), DBusEnums::Connected);
 
         // Append menus
@@ -127,12 +141,7 @@ private Q_SLOTS:
      */
     void testActiveAction()
     {
-        // start model
-        m_model.start();
-        m_actionGroup.start();
-
-        // Make menu available
-        m_script.publishMenu();
+        // Append 2 menus
         m_script.walk(2);
 
         // Get Action
@@ -158,12 +167,7 @@ private Q_SLOTS:
      */
     void testRemoveAction()
     {
-        // start model
-        m_model.start();
-        m_actionGroup.start();
-
-        // Make menu available and append 2 menus
-        m_script.publishMenu();
+        // Append 2 menus
         m_script.walk(2);
 
         // Get Action
@@ -183,13 +187,6 @@ private Q_SLOTS:
      */
     void testActionIsValid()
     {
-        // start model
-        m_model.start();
-        m_actionGroup.start();
-
-        // Make menu available and append 2 menus
-        m_script.publishMenu();
-
         // Get invalid Action
         QStateAction *act = m_actionGroup.action(QString("Menu1Act"));
         QVERIFY(act);
@@ -204,6 +201,16 @@ private Q_SLOTS:
     }
 };
 
-QTEST_MAIN(ActionGroupTest)
+int main(int argc, char *argv[])
+{
+    ActionGroupTestBase baseTests;
+    ActionGroupTestWithScript scriptTests;
+
+    QApplication a(argc, argv);
+    int baseTestsResults = QTest::qExec(&baseTests);
+    int scriptTestsResults = QTest::qExec(&scriptTests);
+
+    return std::max(baseTestsResults, scriptTestsResults);
+}
 
 #include "actiongrouptest.moc"
