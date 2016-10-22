@@ -68,88 +68,33 @@ private Q_SLOTS:
      * Test converter QVariant to GVariant
      */
 
-    void testBooleanToGVariant()
+    void testConvertToGVariant_data()
     {
-        // Boolean
-        QVERIFY(compare(QVariant(true), G_VARIANT_TYPE_BOOLEAN));
+        QTest::addColumn<QVariant>("value");
+        QTest::addColumn<QString>("expectedType");
+
+        QTest::newRow("Boolean") << QVariant(true) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_BOOLEAN);
+        QTest::newRow("Byte") << QVariant::fromValue<uchar>(42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_BYTE);
+        QTest::newRow("Int16") << QVariant::fromValue<short>(-42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_INT16);
+        QTest::newRow("UInt16") << QVariant::fromValue<ushort>(-42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_UINT16);
+        QTest::newRow("Int32") << QVariant(-42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_INT32);
+        QTest::newRow("UInt32") << QVariant((uint)42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_UINT32);
+        QTest::newRow("Int64") << QVariant::fromValue<long>(-42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_INT64);
+        QTest::newRow("UInt64") << QVariant::fromValue<ulong>(42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_UINT64);
+        QTest::newRow("Int64") << QVariant::fromValue<qlonglong>(-42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_INT64);
+        QTest::newRow("UInt64") << QVariant::fromValue<qulonglong>(42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_UINT64);
+        QTest::newRow("Double") << QVariant((double)42.42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_DOUBLE);
+        QTest::newRow("String") << QVariant(QString("42")) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_STRING);
+        QTest::newRow("ByteArray") << QVariant(QByteArray("42")) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_BYTESTRING);
+        QTest::newRow("Map") << QVariant(QVariantMap()) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_VARDICT);
     }
 
-    void testByteToGVariant()
+    void testConvertToGVariant()
     {
-        // Byte
-        QVERIFY(compare(QVariant::fromValue<uchar>(42), G_VARIANT_TYPE_BYTE));
-    }
+        QFETCH(QVariant, value);
+        QFETCH(QString, expectedType);
 
-    void testInt16ToGVariant()
-    {
-        // Int16
-        QVERIFY(compare(QVariant::fromValue<short>(-42), G_VARIANT_TYPE_INT16));
-    }
-
-    void testUInt16ToGVariant()
-    {
-        // UInt16
-        QVERIFY(compare(QVariant::fromValue<ushort>(-42), G_VARIANT_TYPE_UINT16));
-    }
-
-    void testInt32ToGVariant()
-    {
-        // Int32
-        QVERIFY(compare(QVariant(-42), G_VARIANT_TYPE_INT32));
-    }
-
-    void testUInt32ToGVariant()
-    {
-        // UInt32
-        QVERIFY(compare(QVariant((uint)42), G_VARIANT_TYPE_UINT32));
-    }
-
-    void testInt64ToGVariant()
-    {
-        // Int64
-        QVERIFY(compare(QVariant::fromValue<long>(-42), G_VARIANT_TYPE_INT64));
-    }
-
-    void testUInt64ToGVariant()
-    {
-        // UInt64
-        QVERIFY(compare(QVariant::fromValue<ulong>(42), G_VARIANT_TYPE_UINT64));
-    }
-
-    void testQlongLongToGVariant()
-    {
-        // Int64
-        QVERIFY(compare(QVariant::fromValue<qlonglong>(-42), G_VARIANT_TYPE_INT64));
-    }
-
-    void testUQlongLongToGVariant()
-    {
-        // UInt64
-        QVERIFY(compare(QVariant::fromValue<qulonglong>(42), G_VARIANT_TYPE_UINT64));
-    }
-
-    void testDoubleToGVariant()
-    {
-        // Double
-        QVERIFY(compare(QVariant((double)42.42), G_VARIANT_TYPE_DOUBLE));
-    }
-
-    void testStringToGVariant()
-    {
-        // String
-        QVERIFY(compare(QVariant(QString("42")), G_VARIANT_TYPE_STRING));
-    }
-
-    void testByteArrayToGVariant()
-    {
-        // ByteArray
-        QVERIFY(compare(QVariant(QByteArray("42")), G_VARIANT_TYPE_BYTESTRING));
-    }
-
-    void testMapToGVariant()
-    {
-        // Map
-        QVERIFY(compare(QVariantMap(), G_VARIANT_TYPE_VARDICT));
+        QVERIFY(compare(value, g_variant_type_new(expectedType.toUtf8().data())));
     }
 
     void testTupleConversion()
@@ -179,7 +124,7 @@ private Q_SLOTS:
         g_variant_unref(gTuple);
     }
 
-    void testSchemaConvert_data()
+    void testConvertToGVariantWithSchema_data()
     {
         QTest::addColumn<QVariant>("value");
         QTest::addColumn<QString>("schema");
@@ -224,7 +169,7 @@ private Q_SLOTS:
         QTest::newRow("map") << QVariant(map) << "a{sv}";
     }
 
-    void testSchemaConvert()
+    void testConvertToGVariantWithSchema()
     {
         QFETCH(QVariant, value);
         QFETCH(QString, schema);
