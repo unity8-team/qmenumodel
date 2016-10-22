@@ -62,11 +62,6 @@ class TreeTest : public QObject
     Q_OBJECT
 
 private Q_SLOTS:
-    void initTestCase()
-    {
-        g_type_init();
-    }
-
     void testMenuBuild()
     {
         TestModel menu;

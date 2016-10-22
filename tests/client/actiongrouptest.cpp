@@ -43,6 +43,7 @@ private:
         // Get Action
         QVariant action = m_model.data(m_model.index(index, 0), QMenuModel::Action);
         QVERIFY(action.isValid());
+        printf("aCTION IS %s\n",action.toString().toUtf8().data());
         *act = m_actionGroup.action(action.toString());
         QVERIFY(act);
     }

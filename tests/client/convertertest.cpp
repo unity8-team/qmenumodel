@@ -32,7 +32,7 @@ class QGVariantType : public QObject
 {
     Q_OBJECT
 public:
-    QGVariantType() : type(nullptr) {}
+    QGVariantType() : type(NULL) {}
     QGVariantType(const GVariantType *gvtype) : type(gvtype) {}
     QGVariantType(const QGVariantType &other) : type(other.type) {}
     const GVariantType *getType() const { return type; }
@@ -163,7 +163,7 @@ private Q_SLOTS:
         QTest::newRow("string from double") << QVariant::fromValue<double>(1.1) << "s";
 
         // convert to tuple
-        auto list = QVariantList() << QVariant::fromValue<bool>(true) << QVariant::fromValue<int>(1) << QVariant::fromValue<int>(1) << QVariant::fromValue<QString>("test1");
+        QVariantList list = QVariantList() << QVariant::fromValue<bool>(true) << QVariant::fromValue<int>(1) << QVariant::fromValue<int>(1) << QVariant::fromValue<QString>("test1");
         QTest::newRow("tuple") << QVariant(list) << "(bdis)";
 
         // convert to array
