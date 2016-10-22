@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Canonical Ltd.
+ * Copyright 2012-2016 Canonical Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,6 +15,7 @@
  *
  * Authors:
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
+ *      Marco Trevisan <marco.trevisan@canonical.com>
  */
 
 extern "C" {
@@ -26,6 +27,21 @@ extern "C" {
 #include <QObject>
 #include <QtTest>
 #include <QDebug>
+
+class QGVariantType : public QObject
+{
+    Q_OBJECT
+public:
+    QGVariantType() : type(nullptr) {}
+    QGVariantType(const GVariantType *gvtype) : type(gvtype) {}
+    QGVariantType(const QGVariantType &other) : type(other.type) {}
+    const GVariantType *getType() const { return type; }
+    operator const GVariantType*() const { return type; }
+
+private:
+    const GVariantType *type;
+};
+Q_DECLARE_METATYPE(QGVariantType);
 
 class ConverterTest : public QObject
 {
@@ -71,30 +87,30 @@ private Q_SLOTS:
     void testConvertToGVariant_data()
     {
         QTest::addColumn<QVariant>("value");
-        QTest::addColumn<QString>("expectedType");
+        QTest::addColumn<QGVariantType>("expectedType");
 
-        QTest::newRow("Boolean") << QVariant(true) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_BOOLEAN);
-        QTest::newRow("Byte") << QVariant::fromValue<uchar>(42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_BYTE);
-        QTest::newRow("Int16") << QVariant::fromValue<short>(-42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_INT16);
-        QTest::newRow("UInt16") << QVariant::fromValue<ushort>(-42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_UINT16);
-        QTest::newRow("Int32") << QVariant(-42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_INT32);
-        QTest::newRow("UInt32") << QVariant((uint)42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_UINT32);
-        QTest::newRow("Int64") << QVariant::fromValue<long>(-42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_INT64);
-        QTest::newRow("UInt64") << QVariant::fromValue<ulong>(42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_UINT64);
-        QTest::newRow("Int64") << QVariant::fromValue<qlonglong>(-42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_INT64);
-        QTest::newRow("UInt64") << QVariant::fromValue<qulonglong>(42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_UINT64);
-        QTest::newRow("Double") << QVariant((double)42.42) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_DOUBLE);
-        QTest::newRow("String") << QVariant(QString("42")) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_STRING);
-        QTest::newRow("ByteArray") << QVariant(QByteArray("42")) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_BYTESTRING);
-        QTest::newRow("Map") << QVariant(QVariantMap()) << reinterpret_cast<const gchar*>(G_VARIANT_TYPE_VARDICT);
+        QTest::newRow("Boolean") << QVariant(true) << QGVariantType(G_VARIANT_TYPE_BOOLEAN);
+        QTest::newRow("Byte") << QVariant::fromValue<uchar>(42) << QGVariantType(G_VARIANT_TYPE_BYTE);
+        QTest::newRow("Int16") << QVariant::fromValue<short>(-42) << QGVariantType(G_VARIANT_TYPE_INT16);
+        QTest::newRow("UInt16") << QVariant::fromValue<ushort>(-42) << QGVariantType(G_VARIANT_TYPE_UINT16);
+        QTest::newRow("Int32") << QVariant(-42) << QGVariantType(G_VARIANT_TYPE_INT32);
+        QTest::newRow("UInt32") << QVariant((uint)42) << QGVariantType(G_VARIANT_TYPE_UINT32);
+        QTest::newRow("Int64") << QVariant::fromValue<long>(-42) << QGVariantType(G_VARIANT_TYPE_INT64);
+        QTest::newRow("UInt64") << QVariant::fromValue<ulong>(42) << QGVariantType(G_VARIANT_TYPE_UINT64);
+        QTest::newRow("Int64") << QVariant::fromValue<qlonglong>(-42) << QGVariantType(G_VARIANT_TYPE_INT64);
+        QTest::newRow("UInt64") << QVariant::fromValue<qulonglong>(42) << QGVariantType(G_VARIANT_TYPE_UINT64);
+        QTest::newRow("Double") << QVariant((double)42.42) << QGVariantType(G_VARIANT_TYPE_DOUBLE);
+        QTest::newRow("String") << QVariant(QString("42")) << QGVariantType(G_VARIANT_TYPE_STRING);
+        QTest::newRow("ByteArray") << QVariant(QByteArray("42")) << QGVariantType(G_VARIANT_TYPE_BYTESTRING);
+        QTest::newRow("Map") << QVariant(QVariantMap()) << QGVariantType(G_VARIANT_TYPE_VARDICT);
     }
 
     void testConvertToGVariant()
     {
         QFETCH(QVariant, value);
-        QFETCH(QString, expectedType);
+        QFETCH(QGVariantType, expectedType);
 
-        QVERIFY(compare(value, g_variant_type_new(expectedType.toUtf8().data())));
+        QVERIFY(compare(value, expectedType));
     }
 
     void testTupleConversion()
