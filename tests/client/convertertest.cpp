@@ -241,6 +241,16 @@ private Q_SLOTS:
         QTest::newRow("UInt64") << QGVariant(g_variant_new_uint64(53)) << (unsigned) QVariant::ULongLong;
         QTest::newRow("Double") << QGVariant(g_variant_new_double(53.3)) << (unsigned) QVariant::Double;
         QTest::newRow("String") << QGVariant(g_variant_new_string("53")) << (unsigned) QVariant::String;
+
+        GVariantBuilder* builder = g_variant_builder_new(G_VARIANT_TYPE("a{sv}"));
+        g_variant_builder_add(builder, "{sv}", "fooo", g_variant_new_variant(g_variant_new_int64(53)));
+        QTest::newRow("Map") << QGVariant(g_variant_new("a{sv}", builder)) << (unsigned) QVariant::Map;
+        g_variant_builder_unref(builder);
+
+        builder = g_variant_builder_new(G_VARIANT_TYPE("ai"));
+        g_variant_builder_add(builder, "i", g_variant_new_int32(53));
+        QTest::newRow("List") << QGVariant(g_variant_new("ai", builder)) << (unsigned) QVariant::List;
+        g_variant_builder_unref(builder);
     }
 
     void testConvertToQVariant()
@@ -267,6 +277,8 @@ private Q_SLOTS:
         QTest::newRow("Double") << "double 65" << (unsigned) QVariant::Double;
         QTest::newRow("String") << "string '65'" << (unsigned) QVariant::String;
         QTest::newRow("String simple") << "\"65\"" << (unsigned) QVariant::String;
+        QTest::newRow("Map") << "{'foo': <65>}" << (unsigned) QVariant::Map;
+        QTest::newRow("List") << "[65, 66]" << (unsigned) QVariant::List;
     }
 
     void testConvertToQVariantFromString()
