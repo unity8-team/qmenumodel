@@ -251,6 +251,32 @@ private Q_SLOTS:
         QVERIFY(compare(value, (QVariant::Type) expectedType));
     }
 
+    void testConvertToQVariantFromString_data()
+    {
+        QTest::addColumn<QString>("value");
+        QTest::addColumn<unsigned>("expectedType");
+
+        QTest::newRow("Boolean") << "true" << (unsigned) QVariant::Bool;
+        QTest::newRow("Byte") << "byte 0xFF" << (unsigned) QMetaType::UChar;
+        QTest::newRow("Int16") << "int16 65" << (unsigned) QMetaType::Short;
+        QTest::newRow("UInt16") << "uint16 65" << (unsigned) QMetaType::UShort;
+        QTest::newRow("Int32") << "int32 65" << (unsigned) QVariant::Int;
+        QTest::newRow("UInt32") << "uint32 65" << (unsigned) QVariant::UInt;
+        QTest::newRow("Int64") << "int64 65" << (unsigned) QVariant::LongLong;
+        QTest::newRow("UInt64") << "uint64 65" << (unsigned) QVariant::ULongLong;
+        QTest::newRow("Double") << "double 65" << (unsigned) QVariant::Double;
+        QTest::newRow("String") << "string '65'" << (unsigned) QVariant::String;
+        QTest::newRow("String simple") << "\"65\"" << (unsigned) QVariant::String;
+    }
+
+    void testConvertToQVariantFromString()
+    {
+        QFETCH(QString, value);
+        QFETCH(unsigned, expectedType);
+
+        QCOMPARE(Converter::toQVariantFromVariantString(value).type(), (QVariant::Type) expectedType);
+    }
+
 };
 
 QTEST_MAIN(ConverterTest)
