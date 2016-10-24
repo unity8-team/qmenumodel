@@ -158,7 +158,7 @@ private Q_SLOTS:
         QTest::newRow("double from int") << QVariant::fromValue<int>(1) << "d";
 
         // convert to string
-        QTest::newRow("string") << QVariant::fromValue<QString>("FoooBar") << "x";
+        QTest::newRow("string") << QVariant::fromValue<QString>("FoooBar") << "s";
         QTest::newRow("string from int") << QVariant::fromValue<int>(1) << "s";
         QTest::newRow("string from double") << QVariant::fromValue<double>(1.1) << "s";
 
@@ -190,7 +190,7 @@ private Q_SLOTS:
         QFETCH(QVariant, value);
         QFETCH(QString, schema);
 
-        compareWithSchema(value, schema);
+        QVERIFY(compareWithSchema(value, schema));
     }
 
 };
