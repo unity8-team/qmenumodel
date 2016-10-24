@@ -43,6 +43,22 @@ private:
 };
 Q_DECLARE_METATYPE(QGVariantType);
 
+class QGVariant : public QObject
+{
+    Q_OBJECT
+public:
+    QGVariant() : variant(NULL) {}
+    ~QGVariant() { if (variant) g_variant_unref(variant); }
+    QGVariant(GVariant *gv) : variant(g_variant_ref_sink(gv)) {}
+    QGVariant(const QGVariant &other) : variant(g_variant_ref_sink(other.variant)) {}
+    GVariant *gvariant() const { return variant; }
+    operator GVariant*() const { return variant; }
+
+private:
+    GVariant *variant;
+};
+Q_DECLARE_METATYPE(QGVariant);
+
 class ConverterTest : public QObject
 {
     Q_OBJECT
@@ -55,8 +71,21 @@ private:
         result = g_variant_type_equal(g_variant_get_type(gv), type);
         if (!result) {
             qWarning() << "types are different: QVariant:" << qv.typeName()
-                       << "Result:" << (const char*) g_variant_get_type(gv)
-                       << "Expected:"<< (const char*) type;
+                       << "Result:" << g_variant_type_peek_string(g_variant_get_type(gv))
+                       << "Expected:"<< g_variant_type_peek_string(type);
+        }
+        g_variant_unref(gv);
+        return result;
+    }
+    bool compare(GVariant *gv, const QVariant::Type type)
+    {
+        g_variant_ref_sink(gv);
+        const QVariant& qv = Converter::toQVariant(gv);
+        bool result = (qv.type() == type);
+        if (!result) {
+            qWarning() << "types are different: GVariant:" << g_variant_type_peek_string(g_variant_get_type(gv))
+                       << "Result:" << qv.type()
+                       << "Expected:"<< type;
         }
         g_variant_unref(gv);
         return result;
@@ -71,8 +100,8 @@ private:
         result = g_variant_type_equal(g_variant_get_type(gv), expected_type);
         if (!result) {
             qWarning() << "types are different: QVariant:" << qv.typeName()
-                       << "Result:" << (const char*) g_variant_get_type(gv)
-                       << "Expected:"<< (const char*) expected_type;
+                       << "Result:" << g_variant_type_peek_string(g_variant_get_type(gv))
+                       << "Expected:"<< g_variant_type_peek_string(expected_type);
         }
         g_variant_unref(gv);
         return result;
@@ -191,6 +220,35 @@ private Q_SLOTS:
         QFETCH(QString, schema);
 
         QVERIFY(compareWithSchema(value, schema));
+    }
+
+    /*
+     * Test converter GVariant to QVariant
+     */
+
+    void testConvertToQVariant_data()
+    {
+        QTest::addColumn<QGVariant>("value");
+        QTest::addColumn<unsigned>("expectedType");
+
+        QTest::newRow("Boolean") << QGVariant(g_variant_new_boolean(TRUE)) << (unsigned) QVariant::Bool;
+        QTest::newRow("Byte") << QGVariant(g_variant_new_byte(53)) << (unsigned) QMetaType::UChar;
+        QTest::newRow("Int16") << QGVariant(g_variant_new_int16(-53)) << (unsigned) QMetaType::Short;
+        QTest::newRow("UInt16") << QGVariant(g_variant_new_uint16(53)) << (unsigned) QMetaType::UShort;
+        QTest::newRow("Int32") << QGVariant(g_variant_new_int32(-53)) << (unsigned) QVariant::Int;
+        QTest::newRow("UInt32") << QGVariant(g_variant_new_uint32(53)) << (unsigned) QVariant::UInt;
+        QTest::newRow("Int64") << QGVariant(g_variant_new_int64(-53)) << (unsigned) QVariant::LongLong;
+        QTest::newRow("UInt64") << QGVariant(g_variant_new_uint64(53)) << (unsigned) QVariant::ULongLong;
+        QTest::newRow("Double") << QGVariant(g_variant_new_double(53.3)) << (unsigned) QVariant::Double;
+        QTest::newRow("String") << QGVariant(g_variant_new_string("53")) << (unsigned) QVariant::String;
+    }
+
+    void testConvertToQVariant()
+    {
+        QFETCH(QGVariant, value);
+        QFETCH(unsigned, expectedType);
+
+        QVERIFY(compare(value, (QVariant::Type) expectedType));
     }
 
 };
