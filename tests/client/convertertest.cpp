@@ -180,9 +180,17 @@ private Q_SLOTS:
         QTest::addColumn<QVariant>("value");
         QTest::addColumn<QString>("schema");
 
+        // convert to byte
+        QTest::newRow("byte") << QVariant::fromValue<int>(1) << "y";
+
         // convert to integer
         QTest::newRow("integer") << QVariant::fromValue<int>(1) << "i";
         QTest::newRow("integer from double") << QVariant::fromValue<double>(1.1) << "i";
+        QTest::newRow("int16") << QVariant::fromValue<int>(-1) << "n";
+        QTest::newRow("uint16") << QVariant::fromValue<int>(1) << "q";
+        QTest::newRow("uint32") << QVariant::fromValue<int>(1) << "u";
+        QTest::newRow("int64") << QVariant::fromValue<int>(1) << "x";
+        QTest::newRow("uint64") << QVariant::fromValue<int>(1) << "t";
 
         // convert to bool
         QTest::newRow("bool") << QVariant::fromValue<bool>(true) << "b";
