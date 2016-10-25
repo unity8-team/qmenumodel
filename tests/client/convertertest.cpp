@@ -28,13 +28,11 @@ extern "C" {
 #include <QtTest>
 #include <QDebug>
 
-class QGVariantType : public QObject
+class QGVariantType
 {
-    Q_OBJECT
 public:
     QGVariantType() : type(NULL) {}
     QGVariantType(const GVariantType *gvtype) : type(gvtype) {}
-    QGVariantType(const QGVariantType &other) : type(other.type) {}
     const GVariantType *getType() const { return type; }
     operator const GVariantType*() const { return type; }
 
@@ -43,14 +41,13 @@ private:
 };
 Q_DECLARE_METATYPE(QGVariantType);
 
-class QGVariant : public QObject
+class QGVariant
 {
-    Q_OBJECT
 public:
     QGVariant() : variant(NULL) {}
     ~QGVariant() { if (variant) g_variant_unref(variant); }
     QGVariant(GVariant *gv) : variant(g_variant_ref_sink(gv)) {}
-    QGVariant(const QGVariant &other) : variant(g_variant_ref_sink(other.variant)) {}
+    QGVariant(const QGVariant &other) : QGVariant(other.variant) {}
     GVariant *gvariant() const { return variant; }
     operator GVariant*() const { return variant; }
 
