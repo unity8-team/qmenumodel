@@ -661,7 +661,7 @@ bool UnityMenuModel::loadExtendedAttributes(int position, const QVariantMap &sch
             continue;
         }
 
-        QVariant qvalue = attributeToQVariant(value, type);
+        const QVariant &qvalue = attributeToQVariant(value, type);
         if (qvalue.isValid())
             extendedAttrs->insert(qtify_name (name.toUtf8()), qvalue);
         else
