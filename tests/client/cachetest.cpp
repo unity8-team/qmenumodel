@@ -77,11 +77,6 @@ class CacheTest : public QObject
     Q_OBJECT
 
 private Q_SLOTS:
-    void initTestCase()
-    {
-        g_type_init();
-    }
-
     // Verify that normal menu items are not cached (only sub-menus are)
     void testCacheContents()
     {
