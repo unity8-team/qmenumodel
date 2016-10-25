@@ -192,6 +192,11 @@ private Q_SLOTS:
         QTest::newRow("int64") << QVariant::fromValue<int>(1) << "x";
         QTest::newRow("uint64") << QVariant::fromValue<int>(1) << "t";
 
+        // convert to variant
+        QTest::newRow("variant from int") << QVariant::fromValue<int>(1) << "v";
+        QTest::newRow("variant from double") << QVariant::fromValue<double>(1.1) << "v";
+        QTest::newRow("variant from string") << QVariant::fromValue<QString>("string") << "v";
+
         // convert to bool
         QTest::newRow("bool") << QVariant::fromValue<bool>(true) << "b";
         QTest::newRow("bool from int") << QVariant::fromValue<int>(1) << "b";

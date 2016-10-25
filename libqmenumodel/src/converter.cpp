@@ -315,7 +315,7 @@ GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* sch
             result = g_variant_new_string(qUtf8Printable(value.toString()));
         }
     } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_VARIANT)) {
-        result = Converter::toGVariant(value);
+        result = g_variant_new_variant(Converter::toGVariant(value));
     } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_VARDICT)) {
         if (value.canConvert(QVariant::Map)) {
             result = Converter::toGVariant(value.toMap());
