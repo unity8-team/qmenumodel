@@ -272,8 +272,7 @@ GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* sch
     }
 
     GVariant* result = NULL;
-    const GVariantType* schema_type;
-    schema_type = g_variant_type_new(schema);
+    GVariantType* schema_type = g_variant_type_new(schema);
 
     if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_BOOLEAN)) {
         if (value.canConvert<bool>()) {
@@ -379,6 +378,9 @@ GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* sch
     if (!result) {
         result = Converter::toGVariant(value);
     }
+
+    g_free(schema_type);
+
     return result;
 }
 
