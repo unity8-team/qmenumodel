@@ -67,6 +67,7 @@ QVariant Converter::toQVariant(GVariant *value)
             list << QString::fromUtf8(sa[i]);
         }
         result.setValue(list);
+        g_free(sa);
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_BYTESTRING)) {
         gsize size = 0;
         gchar *bs = g_variant_dup_bytestring(value, &size);
