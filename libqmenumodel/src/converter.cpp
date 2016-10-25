@@ -148,7 +148,7 @@ QVariant Converter::toQVariantFromVariantString(const QString &variantString)
         return QVariant();
     }
 
-    gvariant = g_variant_parse (NULL, variantString.toUtf8().data(), NULL, NULL, &error);
+    gvariant = g_variant_parse (NULL, qUtf8Printable(variantString), NULL, NULL, &error);
 
     if (error) {
         qWarning() << "Impossible to parse" << variantString << "as variant string:"<< error->message;
@@ -185,7 +185,7 @@ GVariant* Converter::toGVariant(const QVariant &value)
         result = g_variant_new_int64(value.toLongLong());
         break;
     case QVariant::String:
-        result = g_variant_new_string(value.toString().toUtf8().data());
+        result = g_variant_new_string(qUtf8Printable(value.toString()));
         break;
     case QVariant::UInt:
         result = g_variant_new_uint32(value.toUInt());
@@ -217,7 +217,7 @@ GVariant* Converter::toGVariant(const QVariant &value)
         QMapIterator<QString, QVariant> i(value.toMap());
         while (i.hasNext()) {
             i.next();
-            g_variant_builder_add(b, "{sv}", i.key().toUtf8().data(), toGVariant(i.value()));
+            g_variant_builder_add(b, "{sv}", qUtf8Printable(i.key()), toGVariant(i.value()));
         }
         result = g_variant_builder_end(b);
         g_variant_builder_unref(b);
@@ -251,7 +251,7 @@ GVariant* Converter::toGVariant(const QVariant &value)
         GVariantBuilder *b = g_variant_builder_new(G_VARIANT_TYPE_STRING_ARRAY);
 
         for (const QString &s : value.toStringList()) {
-            g_variant_builder_add(b, "s", s.toUtf8().data());
+            g_variant_builder_add(b, "s", qUtf8Printable(s));
         }
         result = g_variant_builder_end(b);
         g_variant_builder_unref(b);
@@ -312,7 +312,7 @@ GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* sch
         }
     } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_STRING)) {
         if (value.canConvert<QString>()) {
-            result = g_variant_new_string(value.toString().toUtf8().data());
+            result = g_variant_new_string(qUtf8Printable(value.toString()));
         }
     } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_VARIANT)) {
         result = Converter::toGVariant(value);
