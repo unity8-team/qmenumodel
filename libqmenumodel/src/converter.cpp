@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Canonical Ltd.
+ * Copyright 2012-2016 Canonical Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,6 +15,7 @@
  *
  * Authors:
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
+ *      Marco Trevisan <marco.trevisan@canonical.com>
  */
 
 extern "C" {
@@ -58,6 +59,14 @@ QVariant Converter::toQVariant(GVariant *value)
         gsize size = 0;
         const gchar *v = g_variant_get_string(value, &size);
         result.setValue(QString::fromUtf8(v, size));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_STRING_ARRAY)) {
+        gsize size = 0;
+        const gchar **sa = g_variant_get_strv(value, &size);
+        QStringList list;
+        for (gsize i = 0; i < size; ++i) {
+            list << QString::fromUtf8(sa[i]);
+        }
+        result.setValue(list);
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_BYTESTRING)) {
         gsize size = 0;
         gchar *bs = g_variant_dup_bytestring(value, &size);
@@ -124,7 +133,6 @@ QVariant Converter::toQVariant(GVariant *value)
      * G_VARIANT_TYPE_UNIT
      * G_VARIANT_TYPE_DICT_ENTRY
      * G_VARIANT_TYPE_DICTIONARY
-     * G_VARIANT_TYPE_STRING_ARRAY
      * G_VARIANT_TYPE_OBJECT_PATH_ARRAY
      */
 
@@ -233,6 +241,17 @@ GVariant* Converter::toGVariant(const QVariant &value)
 
         for (const QVariant &v : value.toList()) {
             g_variant_builder_add_value(b, toGVariant(v));
+        }
+        result = g_variant_builder_end(b);
+        g_variant_builder_unref(b);
+        break;
+    }
+    case QVariant::StringList:
+    {
+        GVariantBuilder *b = g_variant_builder_new(G_VARIANT_TYPE_STRING_ARRAY);
+
+        for (const QString &s : value.toStringList()) {
+            g_variant_builder_add(b, "s", s.toUtf8().data());
         }
         result = g_variant_builder_end(b);
         g_variant_builder_unref(b);

@@ -131,6 +131,7 @@ private Q_SLOTS:
         QTest::newRow("UInt64") << QVariant::fromValue<qulonglong>(42) << QGVariantType(G_VARIANT_TYPE_UINT64);
         QTest::newRow("Double") << QVariant((double)42.42) << QGVariantType(G_VARIANT_TYPE_DOUBLE);
         QTest::newRow("String") << QVariant(QString("42")) << QGVariantType(G_VARIANT_TYPE_STRING);
+        QTest::newRow("String List") << QVariant(QStringList({"42", "42"})) << QGVariantType(G_VARIANT_TYPE_STRING_ARRAY);
         QTest::newRow("ByteArray") << QVariant(QByteArray("42")) << QGVariantType(G_VARIANT_TYPE_BYTESTRING);
         QTest::newRow("Map") << QVariant(QVariantMap()) << QGVariantType(G_VARIANT_TYPE_VARDICT);
         QTest::newRow("Map Filled") << QVariant(QVariantMap({{"fooBar", 0xdeadbeef}})) << QGVariantType(G_VARIANT_TYPE_VARDICT);
@@ -264,6 +265,7 @@ private Q_SLOTS:
 
         const gchar *byteArray[] = {"42", "53", NULL};
         QTest::newRow("ByteArrayList") << QGVariant(g_variant_new_bytestring_array(byteArray, -1)) << (unsigned) QMetaType::QByteArrayList;
+        QTest::newRow("String List") << QGVariant(g_variant_new_strv(byteArray, -1)) << (unsigned) QVariant::StringList;
     }
 
     void testConvertToQVariant()
@@ -290,6 +292,7 @@ private Q_SLOTS:
         QTest::newRow("Double") << "double 65" << (unsigned) QVariant::Double;
         QTest::newRow("String") << "string '65'" << (unsigned) QVariant::String;
         QTest::newRow("String simple") << "\"65\"" << (unsigned) QVariant::String;
+        QTest::newRow("String List") << "['foo', 'bar']" << (unsigned) QVariant::StringList;
         QTest::newRow("Byte string") << "b'fooo'" << (unsigned) QVariant::ByteArray;
         QTest::newRow("Map") << "{'foo': <65>}" << (unsigned) QVariant::Map;
         QTest::newRow("List") << "[65, 66]" << (unsigned) QVariant::List;
