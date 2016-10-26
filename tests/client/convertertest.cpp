@@ -156,7 +156,6 @@ private Q_SLOTS:
     void testConvertToGVariantAndBack()
     {
         QFETCH(QVariant, value);
-        QFETCH(QGVariantType, expectedType);
 
         GVariant *gv = Converter::toGVariant(value);
         QVERIFY(gv != NULL);
@@ -291,6 +290,8 @@ private Q_SLOTS:
         QTest::newRow("List") << QGVariant(g_variant_new("ai", builder)) << (unsigned) QVariant::List;
         g_variant_builder_unref(builder);
 
+        QTest::newRow("Tuple") << QGVariant(g_variant_new("(i)", 53)) << (unsigned) QVariant::List;
+
         const gchar *byteArray[] = {"42", "53", NULL};
         QTest::newRow("ByteArrayList") << QGVariant(g_variant_new_bytestring_array(byteArray, -1)) << (unsigned) QMetaType::QByteArrayList;
         QTest::newRow("String List") << QGVariant(g_variant_new_strv(byteArray, -1)) << (unsigned) QVariant::StringList;
@@ -302,6 +303,47 @@ private Q_SLOTS:
         QFETCH(unsigned, expectedType);
 
         QVERIFY(compare(value, (QVariant::Type) expectedType));
+    }
+
+    void testConvertToQVariantAndBack_data()
+    {
+        testConvertToQVariant_data();
+    }
+
+    void testConvertToQVariantAndBack()
+    {
+        QFETCH(QGVariant, value);
+
+        QVariant qv = Converter::toQVariant(value);
+        QVERIFY(qv.isValid());
+
+        GVariant *gv = Converter::toGVariant(qv);
+        gboolean equals = g_variant_equal(value, gv);
+
+        if (!equals && qv.type() == QVariant::List) {
+            QVERIFY(g_variant_type_is_array(g_variant_get_type(value)));
+            QVERIFY(g_variant_type_is_tuple(g_variant_get_type(gv)));
+
+            gsize vsize = g_variant_n_children(value);
+            QCOMPARE(vsize, g_variant_n_children(gv));
+
+            for (gsize i = 0; i < vsize; ++i) {
+                equals = g_variant_equal(g_variant_get_child_value(value, i), g_variant_get_child_value(gv, i));
+                if (!equals)
+                    break;
+            }
+        }
+
+        if (!equals) {
+            gchar *vs = g_variant_print(value, TRUE);
+            gchar *gvs = g_variant_print(gv, TRUE);
+            qWarning() << "Values do not match. Old" << vs << "converted" << gvs;
+            g_free(vs);
+            g_free(gvs);
+        }
+
+        g_variant_unref(gv);
+        QVERIFY(equals != FALSE);
     }
 
     void testConvertToQVariantFromString_data()
