@@ -69,10 +69,7 @@ QVariant Converter::toQVariant(GVariant *value)
         result.setValue(list);
         g_free(sa);
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_BYTESTRING)) {
-        gsize size = 0;
-        gchar *bs = g_variant_dup_bytestring(value, &size);
-        result.setValue(QByteArray::fromRawData(bs, size));
-        g_free(bs);
+        result.setValue(QByteArray(g_variant_get_bytestring(value)));
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_BYTESTRING_ARRAY)) {
         gsize size = 0;
         const gchar **bsa = g_variant_get_bytestring_array(value, &size);
