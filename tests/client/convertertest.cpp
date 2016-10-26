@@ -148,6 +148,24 @@ private Q_SLOTS:
         QVERIFY(compare(value, expectedType));
     }
 
+    void testConvertToGVariantAndBack_data()
+    {
+        testConvertToGVariant_data();
+    }
+
+    void testConvertToGVariantAndBack()
+    {
+        QFETCH(QVariant, value);
+        QFETCH(QGVariantType, expectedType);
+
+        GVariant *gv = Converter::toGVariant(value);
+        QVERIFY(gv != NULL);
+
+        QCOMPARE(Converter::toQVariant(gv), value);
+
+        g_variant_unref(gv);
+    }
+
     void testTupleConversion()
     {
         QVariantList qTuple;
