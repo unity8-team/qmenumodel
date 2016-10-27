@@ -24,6 +24,7 @@ extern "C" {
 #include "converter.h"
 
 #include <QDebug>
+#include <QString>
 #include <QVariant>
 
 /*! \internal */
@@ -137,6 +138,29 @@ static GVariant* toGVariant(const QString &typeName, const QVariant &value)
     return NULL;
 }
 
+QVariant Converter::toQVariantFromVariantString(const QString &variantString)
+{
+    GVariant *gvariant;
+    GError *error = NULL;
+
+    if (variantString.isEmpty()) {
+        return QVariant();
+    }
+
+    gvariant = g_variant_parse (NULL, variantString.toUtf8().data(), NULL, NULL, &error);
+
+    if (error) {
+        qWarning() << "Impossible to parse" << variantString << "as variant string:"<< error->message;
+        g_error_free (error);
+        return QVariant();
+    }
+
+    const QVariant& qvariant = Converter::toQVariant(gvariant);
+    g_variant_unref (gvariant);
+
+    return qvariant;
+}
+
 GVariant* Converter::toGVariant(const QVariant &value)
 {
     GVariant *result = NULL;
@@ -156,11 +180,17 @@ GVariant* Converter::toGVariant(const QVariant &value)
     case QVariant::Int:
         result = g_variant_new_int32(value.toInt());
         break;
+    case QVariant::LongLong:
+        result = g_variant_new_int64(value.toLongLong());
+        break;
     case QVariant::String:
         result = g_variant_new_string(value.toString().toUtf8().data());
         break;
     case QVariant::UInt:
         result = g_variant_new_uint32(value.toUInt());
+        break;
+    case QVariant::ULongLong:
+        result = g_variant_new_uint64(value.toULongLong());
         break;
     case QVariant::Map:
     {

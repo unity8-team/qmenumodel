@@ -36,7 +36,9 @@ public:
     bool isValid() const;
 
     Q_INVOKABLE void activate(const QVariant &parameter = QVariant());
+    Q_INVOKABLE void activateByVariantString(const QString &parameter = QString());
     Q_INVOKABLE void updateState(const QVariant &parameter);
+    Q_INVOKABLE void updateStateByVariantString(const QString &parameter);
 
 Q_SIGNALS:
     void stateChanged(QVariant state);
