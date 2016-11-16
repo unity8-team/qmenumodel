@@ -24,11 +24,7 @@ qt5_use_modules(qmenumodel-qml Qml Quick)
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/qmldir"
                                                               "${CMAKE_CURRENT_BINARY_DIR}/qmldir")
 
-execute_process(
-    COMMAND qmake -query QT_INSTALL_QML
-    OUTPUT_VARIABLE QT_IMPORTS_DIR
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+set(QT_IMPORTS_DIR "${CMAKE_INSTALL_LIBDIR}/qt5/qml")
 set(QMLPLUGIN_INSTALL_PREFIX "${QT_IMPORTS_DIR}/QMenuModel")
 install(TARGETS qmenumodel-qml DESTINATION ${QMLPLUGIN_INSTALL_PREFIX})
 install(FILES qmldir DESTINATION ${QMLPLUGIN_INSTALL_PREFIX})
