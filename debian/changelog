@@ -1,3 +1,13 @@
+qmenumodel (0.2.10+17.04.20161116-0ubuntu1) zesty; urgency=medium
+
+  [ Florian Boucault ]
+  * Crossbuilding fixes.
+
+  [ Marco Trevisan (Treviño) ]
+  * converter: cleanup and add support for more variant types
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Wed, 16 Nov 2016 10:42:17 +0000
+
 qmenumodel (0.2.10+17.04.20161026.2-0ubuntu1) zesty; urgency=medium
 
   * Add ability to activate or change state of an action by variant string
