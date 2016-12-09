@@ -1,3 +1,10 @@
+qmenumodel (0.2.11) UNRELEASED; urgency=medium
+
+  [ Nick Dedekind ]
+  * Added shortcut hasSubmenu and roles to UnityMenuModel
+
+ -- Nick Dedekind <nick.dedekind@canonical.com>  Fri, 09 Dec 2016 17:09:15 +0000
+
 qmenumodel (0.2.10+17.04.20161116-0ubuntu1) zesty; urgency=medium
 
   [ Florian Boucault ]
@@ -13,13 +20,6 @@ qmenumodel (0.2.10+17.04.20161026.2-0ubuntu1) zesty; urgency=medium
   * Add ability to activate or change state of an action by variant string
 
  -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Wed, 26 Oct 2016 17:28:36 +0000
-
-qmenumodel (0.2.10) UNRELEASED; urgency=medium
-
-  [ Nick Dedekind ]
-  * Added shortcut hasSubmenu and roles to UnityMenuModel
-
- -- Nick Dedekind <nick.dedekind@canonical.com>  Tue, 04 Oct 2016 14:11:46 +0100
 
 qmenumodel (0.2.9+16.04.20160329-0ubuntu1) xenial; urgency=medium
 
