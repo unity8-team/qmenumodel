@@ -22,6 +22,7 @@
 #include "unitymenumodelevents.h"
 #include "unitymenuaction.h"
 #include "unitymenuactionevents.h"
+#include "logging.h"
 
 #include <QIcon>
 #include <QQmlComponent>
@@ -33,6 +34,8 @@ extern "C" {
   #include "gtk/gtkmenutracker.h"
   #include "gtk/gtksimpleactionobserver.h"
 }
+
+Q_LOGGING_CATEGORY(unitymenumodel, "qmenumodel.unitymenumodel", QtCriticalMsg)
 
 G_DEFINE_QUARK (UNITY_MENU_MODEL, unity_menu_model)
 G_DEFINE_QUARK (UNITY_SUBMENU_MODEL, unity_submenu_model)
@@ -664,15 +667,15 @@ bool UnityMenuModel::loadExtendedAttributes(int position, const QVariantMap &sch
 
         GVariant *value = gtk_menu_tracker_item_get_attribute_value (item, name.toUtf8(), NULL);
         if (value == NULL) {
-            qWarning("loadExtendedAttributes: menu item does not contain '%s'", it.key().toUtf8().constData());
+            qCWarning(unitymenumodel, "loadExtendedAttributes: menu item does not contain '%s'", it.key().toUtf8().constData());
             continue;
         }
 
-        QVariant qvalue = attributeToQVariant(value, type);
+        const QVariant &qvalue = attributeToQVariant(value, type);
         if (qvalue.isValid())
             extendedAttrs->insert(qtify_name (name.toUtf8()), qvalue);
         else
-            qWarning("loadExtendedAttributes: key '%s' is of type '%s' (expected '%s')",
+            qCWarning(unitymenumodel, "loadExtendedAttributes: key '%s' is of type '%s' (expected '%s')",
                      name.toUtf8().constData(), g_variant_get_type_string(value), type.constData());
 
         g_variant_unref (value);
@@ -699,6 +702,8 @@ void UnityMenuModel::activate(int index, const QVariant& parameter)
 {
     GSequenceIter *it;
     GtkMenuTrackerItem *item;
+    GVariant *value;
+    const GVariantType *parameter_type;
 
     it = g_sequence_get_iter_at_pos (priv->items, index);
     if (g_sequence_iter_is_end (it)) {
@@ -714,12 +719,24 @@ void UnityMenuModel::activate(int index, const QVariant& parameter)
         gchar *action;
 
         action = gtk_menu_tracker_item_get_action_name (item);
-        g_action_group_activate_action (G_ACTION_GROUP (priv->muxer), action, Converter::toGVariant(parameter));
+        parameter_type = g_action_group_get_action_parameter_type (G_ACTION_GROUP (priv->muxer), action);
+        value = Converter::toGVariantWithSchema(parameter, g_variant_type_peek_string (parameter_type));
+        g_action_group_activate_action (G_ACTION_GROUP (priv->muxer), action, value);
 
         g_free (action);
     } else {
         gtk_menu_tracker_item_activated (item);
     }
+}
+
+void UnityMenuModel::activateByVariantString(int index, const QString& parameter)
+{
+    activate(index, Converter::toQVariantFromVariantString(parameter));
+}
+
+void UnityMenuModel::changeStateByVariantString(int index, const QString& parameter)
+{
+    changeState(index, Converter::toQVariantFromVariantString(parameter));
 }
 
 void UnityMenuModel::changeState(int index, const QVariant& parameter)

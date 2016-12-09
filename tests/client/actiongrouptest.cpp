@@ -31,21 +31,23 @@ class ActionGroupTest : public QObject
 {
     Q_OBJECT
 private:
-    DBusMenuScript m_script;
     QDBusMenuModel m_model;
     QDBusActionGroup m_actionGroup;
+    DBusMenuScript m_script;
+
+    void getMenuAction(QStateAction **act, int index)
+    {
+        // Append 2 menus
+        m_script.walk(2);
+
+        // Get Action
+        QVariant action = m_model.data(m_model.index(index, 0), QMenuModel::Action);
+        QVERIFY(action.isValid());
+        *act = m_actionGroup.action(action.toString());
+        QVERIFY(act);
+    }
 
 private Q_SLOTS:
-    void initTestCase()
-    {
-        QVERIFY(m_script.connect());
-    }
-
-    void cleanupTestCase()
-    {
-        m_script.quit();
-    }
-
     void init()
     {
         m_model.stop();
@@ -57,6 +59,23 @@ private Q_SLOTS:
         m_actionGroup.setBusType(DBusEnums::SessionBus);
         m_actionGroup.setBusName(MENU_SERVICE_NAME);
         m_actionGroup.setObjectPath(MENU_OBJECT_PATH);
+
+        // start model
+        m_model.start();
+        m_actionGroup.start();
+
+        // Make menu available
+        m_script.publishMenu();
+    }
+
+    void initTestCase()
+    {
+        QVERIFY(m_script.connect());
+    }
+
+    void cleanupTestCase()
+    {
+        m_script.quit();
     }
 
     void cleanup()
@@ -88,11 +107,11 @@ private Q_SLOTS:
      */
     void testServiceAppear()
     {
-        m_model.start();
-        m_actionGroup.start();
+        m_script.unpublishMenu();
         QCOMPARE(m_actionGroup.status(), DBusEnums::Connecting);
 
         // Make menu available
+        m_script.connect();
         m_script.publishMenu();
 
         QCOMPARE(m_actionGroup.status(), DBusEnums::Connected);
@@ -104,11 +123,6 @@ private Q_SLOTS:
      */
     void testServiceDisappear()
     {
-        m_model.start();
-        m_actionGroup.start();
-
-        // Make menu available
-        m_script.publishMenu();
         QCOMPARE(m_actionGroup.status(), DBusEnums::Connected);
 
         // Append menus
@@ -122,29 +136,22 @@ private Q_SLOTS:
         QCOMPARE(m_actionGroup.status(), DBusEnums::Disconnected);
     }
 
+    void testActionName()
+    {
+        QStateAction *act;
+        getMenuAction(&act, 1);
+        QCOMPARE(act->property("name").toString(), QString("Menu1Act"));
+    }
+
     /*
      * Test if Action::trigger active the action over DBus
      */
-    void testActiveAction()
+    void testStringActionActivation()
     {
-        // start model
-        m_model.start();
-        m_actionGroup.start();
-
-        // Make menu available
-        m_script.publishMenu();
-        m_script.walk(2);
-
-        // Get Action
-        QVariant action = m_model.data(m_model.index(1, 0), QMenuModel::Action);
-        QVERIFY(action.isValid());
-        QStateAction *act = m_actionGroup.action(action.toString());
-        QVERIFY(act);
-
-        // test action name
-        QCOMPARE(act->property("name").toString(), QString("Menu1Act"));
-
+        QStateAction *act;
+        getMenuAction(&act, 1);
         act->activate(QVariant("42"));
+
         // wait for dbus propagation
         QTest::qWait(500);
 
@@ -153,17 +160,26 @@ private Q_SLOTS:
         QCOMPARE(result.second.toString(), QString("42"));
     }
 
+    void testStringActionActivationByVariantString()
+    {
+        QStateAction *act;
+        getMenuAction(&act, 1);
+        act->activateByVariantString("\"53\"");
+
+        // wait for dbus propagation
+        QTest::qWait(500);
+
+        QPair<QString, QVariant> result = m_script.popActivatedAction();
+        QCOMPARE(result.first, QString("Menu1Act"));
+        QCOMPARE(result.second.toString(), QString("53"));
+    }
+
     /*
      * Test if Action became invalid after desappear from DBus
      */
     void testRemoveAction()
     {
-        // start model
-        m_model.start();
-        m_actionGroup.start();
-
-        // Make menu available and append 2 menus
-        m_script.publishMenu();
+        // Append 2 menus
         m_script.walk(2);
 
         // Get Action
@@ -183,13 +199,6 @@ private Q_SLOTS:
      */
     void testActionIsValid()
     {
-        // start model
-        m_model.start();
-        m_actionGroup.start();
-
-        // Make menu available and append 2 menus
-        m_script.publishMenu();
-
         // Get invalid Action
         QStateAction *act = m_actionGroup.action(QString("Menu1Act"));
         QVERIFY(act);
@@ -204,6 +213,6 @@ private Q_SLOTS:
     }
 };
 
-QTEST_MAIN(ActionGroupTest)
+QTEST_MAIN(ActionGroupTest);
 
 #include "actiongrouptest.moc"

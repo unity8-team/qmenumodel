@@ -1,9 +1,38 @@
+qmenumodel (0.2.10+17.04.20161116-0ubuntu1) zesty; urgency=medium
+
+  [ Florian Boucault ]
+  * Crossbuilding fixes.
+
+  [ Marco Trevisan (Treviño) ]
+  * converter: cleanup and add support for more variant types
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Wed, 16 Nov 2016 10:42:17 +0000
+
+qmenumodel (0.2.10+17.04.20161026.2-0ubuntu1) zesty; urgency=medium
+
+  * Add ability to activate or change state of an action by variant string
+
+ -- Marco Trevisan (Treviño) <mail@3v1n0.net>  Wed, 26 Oct 2016 17:28:36 +0000
+
 qmenumodel (0.2.10) UNRELEASED; urgency=medium
 
   [ Nick Dedekind ]
   * Added shortcut hasSubmenu and roles to UnityMenuModel
 
  -- Nick Dedekind <nick.dedekind@canonical.com>  Tue, 04 Oct 2016 14:11:46 +0100
+
+qmenumodel (0.2.9+16.04.20160329-0ubuntu1) xenial; urgency=medium
+
+  [ Nick Dedekind ]
+  * Use Qt logging categories (LP: #1562992)
+
+ -- Michał Sawicz <michal.sawicz@canonical.com>  Tue, 29 Mar 2016 12:57:00 +0000
+
+qmenumodel (0.2.9+15.04.20150430-0ubuntu2~gcc5.1) wily; urgency=medium
+
+  * No-change test rebuild for g++5 ABI transition
+
+ -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 15 Jul 2015 15:58:40 +0000
 
 qmenumodel (0.2.9+15.04.20150430-0ubuntu1) vivid; urgency=medium
 

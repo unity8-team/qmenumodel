@@ -19,6 +19,7 @@
 
 #include "qstateaction.h"
 
+#include "converter.h"
 #include "qdbusactiongroup.h"
 
 /*!
@@ -99,6 +100,15 @@ void QStateAction::updateState(const QVariant &state)
 }
 
 /*!
+    Request for the state of action to be changed to \a paramenter.
+    This call merely requests a change. The action may refuse to change its state or may change its state to something other than \a paramenter.
+*/
+void QStateAction::updateStateByVariantString(const QString &state)
+{
+    updateState(Converter::toQVariantFromVariantString(state));
+}
+
+/*!
     Activates the action passing \a parameter.
     \a parameter must be the correct type of parameter for the action
 */
@@ -106,6 +116,16 @@ void QStateAction::activate(const QVariant &parameter)
 {
     m_group->activateAction(m_name, parameter);
 }
+
+/*!
+    Activates the action passing \a parameter using GLib Variant String format.
+    \a parameter must be the correct type of parameter for the action
+*/
+void QStateAction::activateByVariantString(const QString &parameter)
+{
+    activate(Converter::toQVariantFromVariantString(parameter));
+}
+
 
 /*! \internal */
 QString QStateAction::name() const

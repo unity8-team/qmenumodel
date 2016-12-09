@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Canonical Ltd.
+ * Copyright 2012-2016 Canonical Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,6 +15,7 @@
  *
  * Authors:
  *      Renato Araujo Oliveira Filho <renato@canonical.com>
+ *      Marco Trevisan <marco.trevisan@canonical.com>
  */
 
 extern "C" {
@@ -24,6 +25,7 @@ extern "C" {
 #include "converter.h"
 
 #include <QDebug>
+#include <QString>
 #include <QVariant>
 
 /*! \internal */
@@ -57,6 +59,26 @@ QVariant Converter::toQVariant(GVariant *value)
         gsize size = 0;
         const gchar *v = g_variant_get_string(value, &size);
         result.setValue(QString::fromUtf8(v, size));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_STRING_ARRAY)) {
+        gsize size = 0;
+        const gchar **sa = g_variant_get_strv(value, &size);
+        QStringList list;
+        for (gsize i = 0; i < size; ++i) {
+            list << QString::fromUtf8(sa[i]);
+        }
+        result.setValue(list);
+        g_free(sa);
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_BYTESTRING)) {
+        result.setValue(QByteArray(g_variant_get_bytestring(value)));
+    } else if (g_variant_type_equal(type, G_VARIANT_TYPE_BYTESTRING_ARRAY)) {
+        gsize size = 0;
+        const gchar **bsa = g_variant_get_bytestring_array(value, &size);
+        QByteArrayList list;
+        for (gsize i = 0; i < size; ++i) {
+            list << bsa[i];
+        }
+        result.setValue(list);
+        g_free(bsa);
     } else if (g_variant_type_equal(type, G_VARIANT_TYPE_VARIANT)) {
         GVariant *var = g_variant_get_variant(value);
         result = toQVariant(var);
@@ -109,32 +131,33 @@ QVariant Converter::toQVariant(GVariant *value)
      * G_VARIANT_TYPE_UNIT
      * G_VARIANT_TYPE_DICT_ENTRY
      * G_VARIANT_TYPE_DICTIONARY
-     * G_VARIANT_TYPE_STRING_ARRAY
-     * G_VARIANT_TYPE_BYTESTRING
      * G_VARIANT_TYPE_OBJECT_PATH_ARRAY
-     * G_VARIANT_TYPE_BYTESTRING_ARRAY
      */
 
     return result;
 }
 
-static GVariant* toGVariant(const QString &typeName, const QVariant &value)
+QVariant Converter::toQVariantFromVariantString(const QString &variantString)
 {
-    if (typeName == "uchar") {
-        return g_variant_new_byte(value.value<uchar>());
-    } else if (typeName == "short") {
-        return g_variant_new_int16(value.value<short>());
-    } else if (typeName == "ushort") {
-        return g_variant_new_uint16(value.value<ushort>());
-    } else if (typeName == "long") {
-        return g_variant_new_int64(value.value<long>());
-    } else if (typeName == "ulong") {
-        return g_variant_new_uint64(value.value<ulong>());
-    } else {
-        qWarning() << "QVariant type not supported:" << typeName;
+    GVariant *gvariant;
+    GError *error = NULL;
+
+    if (variantString.isEmpty()) {
+        return QVariant();
     }
 
-    return NULL;
+    gvariant = g_variant_parse (NULL, qUtf8Printable(variantString), NULL, NULL, &error);
+
+    if (error) {
+        qWarning() << "Impossible to parse" << variantString << "as variant string:"<< error->message;
+        g_error_free (error);
+        return QVariant();
+    }
+
+    const QVariant& qvariant = Converter::toQVariant(gvariant);
+    g_variant_unref (gvariant);
+
+    return qvariant;
 }
 
 GVariant* Converter::toGVariant(const QVariant &value)
@@ -156,11 +179,32 @@ GVariant* Converter::toGVariant(const QVariant &value)
     case QVariant::Int:
         result = g_variant_new_int32(value.toInt());
         break;
+    case QVariant::LongLong:
+        result = g_variant_new_int64(value.toLongLong());
+        break;
     case QVariant::String:
-        result = g_variant_new_string(value.toString().toUtf8().data());
+        result = g_variant_new_string(qUtf8Printable(value.toString()));
         break;
     case QVariant::UInt:
         result = g_variant_new_uint32(value.toUInt());
+        break;
+    case QVariant::ULongLong:
+        result = g_variant_new_uint64(value.toULongLong());
+        break;
+    case QMetaType::UChar:
+        result = g_variant_new_byte(value.value<uchar>());
+        break;
+    case QMetaType::Short:
+        result = g_variant_new_int16(value.value<short>());
+        break;
+    case QMetaType::UShort:
+        result = g_variant_new_uint16(value.value<ushort>());
+        break;
+    case QMetaType::Long:
+        result = g_variant_new_int64(value.value<long>());
+        break;
+    case QMetaType::ULong:
+        result = g_variant_new_uint64(value.value<ulong>());
         break;
     case QVariant::Map:
     {
@@ -171,7 +215,19 @@ GVariant* Converter::toGVariant(const QVariant &value)
         QMapIterator<QString, QVariant> i(value.toMap());
         while (i.hasNext()) {
             i.next();
-            g_variant_builder_add(b, "{sv}", i.key().toUtf8().data(), toGVariant(i.value()));
+            g_variant_builder_add(b, "{sv}", qUtf8Printable(i.key()), toGVariant(i.value()));
+        }
+        result = g_variant_builder_end(b);
+        g_variant_builder_unref(b);
+        break;
+    }
+    case QMetaType::QByteArrayList:
+    {
+        const QByteArrayList &list = qvariant_cast<QByteArrayList>(value);
+        GVariantBuilder *b = g_variant_builder_new(G_VARIANT_TYPE_BYTESTRING_ARRAY);
+
+        for (const QByteArray &ba : list) {
+            g_variant_builder_add_value(b, g_variant_new_bytestring(ba));
         }
         result = g_variant_builder_end(b);
         g_variant_builder_unref(b);
@@ -179,17 +235,28 @@ GVariant* Converter::toGVariant(const QVariant &value)
     }
     case QVariant::List:
     {
-        QVariantList lst = value.toList();
-        GVariant **vars = g_new(GVariant*, lst.size());
-        for (int i=0; i < lst.size(); i++) {
-            vars[i] = toGVariant(lst[i]);
+        GVariantBuilder *b = g_variant_builder_new(G_VARIANT_TYPE_TUPLE);
+
+        for (const QVariant &v : value.toList()) {
+            g_variant_builder_add_value(b, toGVariant(v));
         }
-        result = g_variant_new_tuple(vars, lst.size());
-        g_free(vars);
+        result = g_variant_builder_end(b);
+        g_variant_builder_unref(b);
+        break;
+    }
+    case QVariant::StringList:
+    {
+        GVariantBuilder *b = g_variant_builder_new(G_VARIANT_TYPE_STRING_ARRAY);
+
+        for (const QString &s : value.toStringList()) {
+            g_variant_builder_add(b, "s", qUtf8Printable(s));
+        }
+        result = g_variant_builder_end(b);
+        g_variant_builder_unref(b);
         break;
     }
     default:
-        result = ::toGVariant(value.typeName(), value);
+        qWarning() << "QVariant type not supported:" << value.type();
     }
 
     return result;
@@ -202,8 +269,7 @@ GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* sch
     }
 
     GVariant* result = NULL;
-    const GVariantType* schema_type;
-    schema_type = g_variant_type_new(schema);
+    GVariantType* schema_type = g_variant_type_new(schema);
 
     if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_BOOLEAN)) {
         if (value.canConvert<bool>()) {
@@ -243,80 +309,65 @@ GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* sch
         }
     } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_STRING)) {
         if (value.canConvert<QString>()) {
-            result = g_variant_new_string(value.toString().toUtf8().data());
+            result = g_variant_new_string(qUtf8Printable(value.toString()));
         }
     } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_VARIANT)) {
-        result = Converter::toGVariant(value);
+        result = g_variant_new_variant(Converter::toGVariant(value));
     } else if (g_variant_type_equal(schema_type, G_VARIANT_TYPE_VARDICT)) {
         if (value.canConvert(QVariant::Map)) {
             result = Converter::toGVariant(value.toMap());
         }
     } else if (g_variant_type_is_array(schema_type)) {
         if (value.canConvert(QVariant::List)) {
+            const GVariantType* entryType = g_variant_type_element(schema_type);
+            const gchar* entryTypeString = g_variant_type_peek_string(entryType);
 
-            const GVariantType* entry_type;
-            GVariant* data;
-            entry_type = g_variant_type_element(schema_type);
-            gchar* entryTypeString = g_variant_type_dup_string(entry_type);
-
-            QVariantList lst = value.toList();
-            GVariant **vars = g_new(GVariant*, lst.size());
-
+            GVariantBuilder *b = g_variant_builder_new(G_VARIANT_TYPE_ARRAY);
             bool ok = true;
-            for (int i=0; i < lst.size(); i++) {
-                data = Converter::toGVariantWithSchema(lst[i], entryTypeString);
+
+            for (const QVariant &v : value.toList()) {
+                GVariant *data = toGVariantWithSchema(v, entryTypeString);
 
                 if (data) {
-                    vars[i] = data;
-                }
-                else {
+                    g_variant_builder_add_value(b, data);
+                } else {
                     ok = false;
                     qWarning() << "Failed to convert list to array with schema:" << schema;
                     break;
                 }
             }
             if (ok) {
-                result = g_variant_new_array(entry_type, vars, lst.size());
+                result = g_variant_builder_end(b);
             }
-            g_free(entryTypeString);
-            g_free(vars);
+            g_variant_builder_unref(b);
         }
     } else if (g_variant_type_is_tuple(schema_type)) {
         if (value.canConvert(QVariant::List)) {
-            GVariant* data;
+            const GVariantType* entryType = g_variant_type_first(schema_type);
 
-            QVariantList lst = value.toList();
-            GVariant **vars = g_new(GVariant*, lst.size());
-
-            const GVariantType* entry_type = g_variant_type_first(schema_type);
-
+            GVariantBuilder *b = g_variant_builder_new(G_VARIANT_TYPE_TUPLE);
             bool ok = true;
-            for (int i=0; i < lst.size(); i++) {
 
-                gchar* entryTypeString = g_variant_type_dup_string(entry_type);
-
-                data = Converter::toGVariantWithSchema(lst[i], entryTypeString);
-
-                if (data) {
-                    vars[i] = data;
-                }
-                else {
-                    ok = false;
-                    qWarning() << "Failed to convert list to tuple with schema:" << schema;
-                    g_free(entryTypeString);
-                    break;
-                }
+            for (const QVariant &v : value.toList()) {
+                gchar* entryTypeString = g_variant_type_dup_string(entryType);
+                GVariant *data = toGVariantWithSchema(v, entryTypeString);
                 g_free(entryTypeString);
 
-                entry_type = g_variant_type_next(entry_type);
-                if (!entry_type) {
+                if (data) {
+                    g_variant_builder_add_value(b, data);
+                    entryType = g_variant_type_next(entryType);
+                    if (!entryType)
+                        break;
+                } else {
+                    ok = false;
+                    qWarning() << "Failed to convert list to array with schema:" << schema;
                     break;
                 }
             }
             if (ok) {
-                result = g_variant_new_tuple(vars, lst.size());
+                result = g_variant_builder_end(b);
             }
-            g_free(vars);
+            g_variant_builder_unref(b);
         }
     }
 
@@ -324,6 +375,9 @@ GVariant* Converter::toGVariantWithSchema(const QVariant &value, const char* sch
     if (!result) {
         result = Converter::toGVariant(value);
     }
+
+    g_free(schema_type);
+
     return result;
 }
 

@@ -192,11 +192,6 @@ class ModelSignalsTest : public QObject
 {
     Q_OBJECT
 private Q_SLOTS:
-    void initTestCase()
-    {
-        g_type_init();
-    }
-
     /*
      * Test if the model state still correct before and after insert a new row
      */

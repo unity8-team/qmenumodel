@@ -81,7 +81,6 @@ QDBusObject::QDBusObject(QObject* listener)
      m_busType(DBusEnums::None),
      m_status(DBusEnums::Disconnected)
 {
-    g_type_init();
     qRegisterMetaType<DBusEnums::ConnectionStatus>("DBusEnums::ConnectionStatus");
 }
 
