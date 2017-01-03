@@ -70,6 +70,18 @@ QDBusActionGroup::~QDBusActionGroup()
     clear();
 }
 
+QStringList QDBusActionGroup::actions() const
+{
+    if (!m_actionGroup) return QStringList();
+    QStringList list;
+    gchar** actions = g_action_group_list_actions(m_actionGroup);
+    for (uint i = 0; actions[i]; i++) {
+        list << QString(actions[i]);
+    }
+    g_strfreev(actions);
+    return list;
+}
+
 /*!
     \qmlmethod QDBusActionGroup::action(QString name)
 
@@ -258,6 +270,7 @@ bool QDBusActionGroup::event(QEvent* e)
         } else {
             Q_EMIT actionVanish(dave->name);
         }
+        Q_EMIT actionsChanged();
     } else if (e->type() == DBusActionStateEvent::eventType) {
         DBusActionStateEvent *dase = static_cast<DBusActionStateEvent*>(e);
 
