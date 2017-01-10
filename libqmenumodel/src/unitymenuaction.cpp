@@ -20,8 +20,6 @@
 #include "unitymenumodel.h"
 #include "unitymenuactionevents.h"
 
-#include <QDebug>
-
 UnityMenuAction::UnityMenuAction(QObject* parent)
     :   QObject(parent),
         m_valid(false),
