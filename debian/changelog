@@ -1,10 +1,10 @@
-qmenumodel (0.2.11) UNRELEASED; urgency=medium
+qmenumodel (0.2.11+17.04.20170110.1-0ubuntu1) zesty; urgency=medium
 
   [ Nick Dedekind ]
   * Added shortcut hasSubmenu and roles to UnityMenuModel
   * Added actions property to Group 
 
- -- Nick Dedekind <nick.dedekind@canonical.com>  Fri, 09 Dec 2016 17:11:01 +0000
+ -- Timo Jyrinki <timo.jyrinki@canonical.com>  Tue, 10 Jan 2017 06:41:51 +0000
 
 qmenumodel (0.2.10+17.04.20161116-0ubuntu1) zesty; urgency=medium
 
