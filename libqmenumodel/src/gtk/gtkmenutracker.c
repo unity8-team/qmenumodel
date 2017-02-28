@@ -86,7 +86,7 @@ static GtkMenuTrackerSection *  gtk_menu_tracker_section_new    (GtkMenuTracker 
                                                                  gboolean               with_separators,
                                                                  gint                   offset,
                                                                  const gchar           *action_namespace,
-                                                                 GPtrArray      *items_already_created);
+                                                                 GPtrArray             *items_already_created);
 static void                    gtk_menu_tracker_section_free    (GtkMenuTrackerSection *section);
 
 static GtkMenuTrackerSection *
