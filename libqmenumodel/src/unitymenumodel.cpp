@@ -289,7 +289,7 @@ UnityMenuModel::UnityMenuModel(QObject *parent):
     priv = new UnityMenuModelPrivate(this);
 }
 
-UnityMenuModel::UnityMenuModel(const UnityMenuModelPrivate& other, QObject *parent):
+UnityMenuModel::UnityMenuModel(const UnityMenuModelPrivate& other, UnityMenuModel *parent):
     QAbstractListModel(parent)
 {
     priv = new UnityMenuModelPrivate(other, this);
@@ -726,6 +726,47 @@ void UnityMenuModel::activate(int index, const QVariant& parameter)
         g_free (action);
     } else {
         gtk_menu_tracker_item_activated (item);
+    }
+}
+
+void UnityMenuModel::aboutToShow(int index)
+{
+    GSequenceIter *it = g_sequence_get_iter_at_pos (priv->items, index);
+    if (g_sequence_iter_is_end (it)) {
+        return;
+    }
+
+    GtkMenuTrackerItem *item = (GtkMenuTrackerItem *) g_sequence_get (it);
+    if (!item) {
+        return;
+    }
+
+    quint64 actionTag;
+    if (gtk_menu_tracker_item_get_attribute (item, "qtubuntu-tag", "t", &actionTag)) {
+        // Child UnityMenuModel have priv->connection null, so climb to the parent until we find a non null one
+        UnityMenuModelPrivate *privToUse = priv;
+        while (privToUse && !privToUse->connection) {
+            UnityMenuModel *pModel = dynamic_cast<UnityMenuModel*>(privToUse->model->QObject::parent());
+            if (pModel) {
+                privToUse = pModel->priv;
+            } else {
+                privToUse = nullptr;
+            }
+        }
+        if (privToUse) {
+            g_dbus_connection_call (privToUse->connection,
+                                    privToUse->busName,
+                                    privToUse->menuObjectPath,
+                                    "qtubuntu.actions.extra",
+                                    "aboutToShow",
+                                    g_variant_new("(t)", actionTag),
+                                    nullptr,
+                                    G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                                    0,
+                                    nullptr,
+                                    nullptr,
+                                    nullptr);
+        }
     }
 }
 
