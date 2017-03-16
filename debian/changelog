@@ -1,3 +1,10 @@
+qmenumodel (0.2.12) UNRELEASED; urgency=medium
+
+  [ Albert Astals Cid ]
+  * Add UnityMenuModel::aboutToShow ((LP: 1664578)
+
+ -- Albert Astals Cid <albert.astals@canonical.com>  Tue, 07 Mar 2017 13:08:46 +0100
+
 qmenumodel (0.2.11+17.04.20170110.1-0ubuntu1) zesty; urgency=medium
 
   [ Nick Dedekind ]
