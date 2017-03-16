@@ -21,6 +21,7 @@
 #define UNITYMENUMODELEVENTS_H
 
 #include <QEvent>
+#include <glib.h>
 
 typedef struct _GtkMenuTrackerItem GtkMenuTrackerItem;
 
@@ -39,10 +40,10 @@ class UnityMenuModelAddRowEvent : public QEvent
 {
 public:
     static const QEvent::Type eventType;
-    UnityMenuModelAddRowEvent(GtkMenuTrackerItem *item, int position);
+    UnityMenuModelAddRowEvent(GPtrArray *_items, int position);
     ~UnityMenuModelAddRowEvent();
 
-    GtkMenuTrackerItem *item;
+    GPtrArray *items;
     int position;
 };
 
@@ -51,9 +52,10 @@ class UnityMenuModelRemoveRowEvent : public QEvent
 {
 public:
     static const QEvent::Type eventType;
-    UnityMenuModelRemoveRowEvent(int position);
+    UnityMenuModelRemoveRowEvent(int position, int nItems);
 
     int position;
+    int nItems;
 };
 
 /* Event for a row data change for unitymenumodel */

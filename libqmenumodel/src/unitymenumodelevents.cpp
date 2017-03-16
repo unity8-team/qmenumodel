@@ -35,26 +35,30 @@ UnityMenuModelClearEvent::UnityMenuModelClearEvent(bool _reset)
       reset(_reset)
 {}
 
-UnityMenuModelAddRowEvent::UnityMenuModelAddRowEvent(GtkMenuTrackerItem *_item, int _position)
+UnityMenuModelAddRowEvent::UnityMenuModelAddRowEvent(GPtrArray *_items, int _position)
     : QEvent(UnityMenuModelAddRowEvent::eventType),
-      item(_item),
+      items(_items),
       position(_position)
 {
-    if (item) {
-        g_object_ref(item);
+    if (items) {
+        for (gint i = 0; i < items->len; ++i)
+            g_object_ref(g_ptr_array_index(items, i));
+        g_ptr_array_ref(items);
     }
 }
 
 UnityMenuModelAddRowEvent::~UnityMenuModelAddRowEvent()
 {
-    if (item) {
-        g_object_unref(item);
+    if (items) {
+        for (gint i = 0; i < items->len; ++i)
+            g_object_unref(g_ptr_array_index(items, i));
+        g_ptr_array_unref(items);
     }
 }
 
-UnityMenuModelRemoveRowEvent::UnityMenuModelRemoveRowEvent(int _position)
+UnityMenuModelRemoveRowEvent::UnityMenuModelRemoveRowEvent(int _position, int _nItems)
     : QEvent(UnityMenuModelRemoveRowEvent::eventType),
-      position(_position)
+      position(_position), nItems(_nItems)
 {}
 
 UnityMenuModelDataChangeEvent::UnityMenuModelDataChangeEvent(int _position)

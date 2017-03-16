@@ -26,11 +26,12 @@
 
 typedef struct _GtkMenuTracker GtkMenuTracker;
 
-typedef void         (* GtkMenuTrackerInsertFunc)                       (GtkMenuTrackerItem       *item,
+typedef void         (* GtkMenuTrackerInsertFunc)                       (GPtrArray                *items,
                                                                          gint                      position,
                                                                          gpointer                  user_data);
 
 typedef void         (* GtkMenuTrackerRemoveFunc)                       (gint                      position,
+                                                                         gint                      n_items,
                                                                          gpointer                  user_data);
 
 

@@ -89,8 +89,8 @@ public:
 
     static void nameAppeared(GDBusConnection *connection, const gchar *name, const gchar *owner, gpointer user_data);
     static void nameVanished(GDBusConnection *connection, const gchar *name, gpointer user_data);
-    static void menuItemInserted(GtkMenuTrackerItem *item, gint position, gpointer user_data);
-    static void menuItemRemoved(gint position, gpointer user_data);
+    static void menuItemInserted(GPtrArray *items, gint position, gpointer user_data);
+    static void menuItemRemoved(gint position, gint n_items, gpointer user_data);
     static void menuItemChanged(GObject *object, GParamSpec *pspec, gpointer user_data);
 
     static void registeredActionAdded(GtkSimpleActionObserver    *observer_item,
@@ -250,19 +250,19 @@ void UnityMenuModelPrivate::nameVanished(GDBusConnection *connection, const gcha
     priv->clearName();
 }
 
-void UnityMenuModelPrivate::menuItemInserted(GtkMenuTrackerItem *item, gint position, gpointer user_data)
+void UnityMenuModelPrivate::menuItemInserted(GPtrArray *items, gint position, gpointer user_data)
 {
     UnityMenuModelPrivate *priv = (UnityMenuModelPrivate *)user_data;
 
-    UnityMenuModelAddRowEvent ummare(item, position);
+    UnityMenuModelAddRowEvent ummare(items, position);
     QCoreApplication::sendEvent(priv->model, &ummare);
 }
 
-void UnityMenuModelPrivate::menuItemRemoved(gint position, gpointer user_data)
+void UnityMenuModelPrivate::menuItemRemoved(gint position, gint n_items, gpointer user_data)
 {
     UnityMenuModelPrivate *priv = (UnityMenuModelPrivate *)user_data;
 
-    UnityMenuModelRemoveRowEvent ummrre(position);
+    UnityMenuModelRemoveRowEvent ummrre(position, n_items);
     QCoreApplication::sendEvent(priv->model, &ummrre);
 }
 
@@ -797,26 +797,29 @@ bool UnityMenuModel::event(QEvent* e)
         GSequenceIter *it;
         it = g_sequence_get_iter_at_pos (priv->items, ummrce->position);
 
-        beginInsertRows(QModelIndex(), ummrce->position, ummrce->position);
+        beginInsertRows(QModelIndex(), ummrce->position, ummrce->position + ummrce->items->len - 1);
 
-        it = g_sequence_insert_before (it, g_object_ref (ummrce->item));
-        g_object_set_qdata (G_OBJECT (ummrce->item), unity_menu_model_quark (), this);
-        g_signal_connect (ummrce->item, "notify", G_CALLBACK (UnityMenuModelPrivate::menuItemChanged), it);
+        for (gint i = ummrce->items->len - 1; i >= 0; --i) {
+            GtkMenuTrackerItem *item = (GtkMenuTrackerItem*)g_ptr_array_index(ummrce->items, i);
+            it = g_sequence_insert_before (it, g_object_ref (item));
+            g_object_set_qdata (G_OBJECT (item), unity_menu_model_quark (), this);
+            g_signal_connect (item, "notify", G_CALLBACK (UnityMenuModelPrivate::menuItemChanged), it);
+        }
 
         endInsertRows();
         return true;
     } else if (e->type() == UnityMenuModelRemoveRowEvent::eventType) {
         UnityMenuModelRemoveRowEvent *ummrre = static_cast<UnityMenuModelRemoveRowEvent*>(e);
 
-        GSequenceIter *it;
-        it = g_sequence_get_iter_at_pos (priv->items, ummrre->position);
-        if (!g_sequence_iter_is_end (it)) {
-            beginRemoveRows(QModelIndex(), ummrre->position, ummrre->position);
-
-            g_sequence_remove (it);
-
-            endRemoveRows();
+        beginRemoveRows(QModelIndex(), ummrre->position, ummrre->position + ummrre->nItems - 1);
+        for (int i = 0; i < ummrre->nItems; ++i) {
+            GSequenceIter *it = g_sequence_get_iter_at_pos (priv->items, ummrre->position);
+            if (!g_sequence_iter_is_end (it)) {
+                g_sequence_remove (it);
+            }
         }
+        endRemoveRows();
+
         return true;
     } else if (e->type() == UnityMenuModelDataChangeEvent::eventType) {
         UnityMenuModelDataChangeEvent *ummdce = static_cast<UnityMenuModelDataChangeEvent*>(e);
