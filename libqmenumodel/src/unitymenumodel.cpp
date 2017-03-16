@@ -762,7 +762,7 @@ void UnityMenuModel::aboutToShow(int index)
                                     g_variant_new("(t)", actionTag),
                                     nullptr,
                                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
-                                    0,
+                                    G_MAXINT,
                                     nullptr,
                                     nullptr,
                                     nullptr);
