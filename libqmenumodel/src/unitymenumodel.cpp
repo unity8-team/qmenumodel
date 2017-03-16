@@ -736,7 +736,7 @@ void UnityMenuModel::aboutToShow(int index)
         return;
     }
 
-    GtkMenuTrackerItem *item = (GtkMenuTrackerItem *) g_sequence_get (it);
+    auto item = static_cast<GtkMenuTrackerItem*>(g_sequence_get(it));
     if (!item) {
         return;
     }
@@ -746,7 +746,7 @@ void UnityMenuModel::aboutToShow(int index)
         // Child UnityMenuModel have priv->connection null, so climb to the parent until we find a non null one
         UnityMenuModelPrivate *privToUse = priv;
         while (privToUse && !privToUse->connection) {
-            UnityMenuModel *pModel = dynamic_cast<UnityMenuModel*>(privToUse->model->QObject::parent());
+            auto pModel = dynamic_cast<UnityMenuModel*>(privToUse->model->QObject::parent());
             if (pModel) {
                 privToUse = pModel->priv;
             } else {
