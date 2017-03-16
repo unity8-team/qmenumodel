@@ -51,7 +51,7 @@ UnityMenuModelAddRowEvent::~UnityMenuModelAddRowEvent()
 {
     if (items) {
         for (gint i = 0; i < items->len; ++i)
-            g_object_ref(g_ptr_array_index(items, i));
+            g_object_unref(g_ptr_array_index(items, i));
         g_ptr_array_unref(items);
     }
 }
