@@ -1,9 +1,11 @@
-qmenumodel (0.2.12) UNRELEASED; urgency=medium
+qmenumodel (0.2.12+17.04.20170317-0ubuntu1) zesty; urgency=medium
 
   [ Albert Astals Cid ]
   * Add UnityMenuModel::aboutToShow ((LP: 1664578)
+  * Use submenu-enabled for those items that don't have an action (if it
+    exists) (LP: #1670694)
 
- -- Albert Astals Cid <albert.astals@canonical.com>  Tue, 07 Mar 2017 13:08:46 +0100
+ -- Albert Astals Cid <albert.astals@canonical.com>  Fri, 17 Mar 2017 12:06:38 +0000
 
 qmenumodel (0.2.11+17.04.20170110.1-0ubuntu1) zesty; urgency=medium
 
