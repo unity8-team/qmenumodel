@@ -63,6 +63,7 @@ public:
     Q_INVOKABLE QVariant get(int row, const QByteArray &role);
 
     Q_INVOKABLE void activate(int index, const QVariant& parameter = QVariant());
+    Q_INVOKABLE void aboutToShow(int index);
     Q_INVOKABLE void activateByVariantString(int index, const QString& parameter = QString());
     Q_INVOKABLE void changeState(int index, const QVariant& parameter);
     Q_INVOKABLE void changeStateByVariantString(int index, const QString& parameter);
@@ -90,7 +91,7 @@ private:
     class UnityMenuModelPrivate *priv;
     friend class UnityMenuModelPrivate;
 
-    UnityMenuModel(const UnityMenuModelPrivate& other, QObject *parent);
+    UnityMenuModel(const UnityMenuModelPrivate& other, UnityMenuModel *parent);
 };
 
 #endif
