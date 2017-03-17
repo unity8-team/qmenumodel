@@ -469,7 +469,17 @@ _gtk_menu_tracker_item_new (GtkActionObservable *observable,
         g_variant_unref (state);
     }
   else
-    self->sensitive = TRUE;
+    {
+      gboolean submenu_enabled;
+      if (g_menu_item_get_attribute (self->item, "submenu-enabled", "b", &submenu_enabled))
+        {
+          self->sensitive = submenu_enabled;
+        }
+      else
+        {
+          self->sensitive = TRUE;
+        }
+    }
 
   return self;
 }
