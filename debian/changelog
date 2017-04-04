@@ -1,3 +1,10 @@
+qmenumodel (0.2.12+17.04.20170404-0ubuntu1) zesty; urgency=medium
+
+  [ Albert Astals Cid ]
+  * Add a return true
+
+ -- Michał Sawicz <michal.sawicz@canonical.com>  Tue, 04 Apr 2017 11:27:38 +0000
+
 qmenumodel (0.2.12+17.04.20170316.1-0ubuntu1) zesty; urgency=medium
 
   [ Albert Astals Cid ]
